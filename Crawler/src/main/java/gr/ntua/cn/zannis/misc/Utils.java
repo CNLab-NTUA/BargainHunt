@@ -1,8 +1,14 @@
 package gr.ntua.cn.zannis.misc;
 
+import gr.ntua.cn.zannis.dto.TokenResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriBuilder;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Properties;
@@ -105,5 +111,35 @@ public class Utils {
             Files.createFile(Misc.TOKEN_PATH);
             log.debug("Created " + Misc.TOKEN_FILENAME);
         }
+    }
+
+    /**
+     * Attempts to get a new OAuth 2.0 access token and writes it to the config file.
+     * @return True on success, false on fail.
+     */
+    private TokenResponse requestAccessToken() {
+        log.debug("Requesting access token...");
+
+        Properties config = Utils.getPropertiesFromFile(Misc.CONFIG_FILENAME);
+
+        Client client = ClientBuilder.newClient();
+        UriBuilder builder = UriBuilder.fromUri("https://www.skroutz.gr").path("oauth2/token")
+                .queryParam("client_id", config.getProperty("client_id"))
+                .queryParam("client_secret", config.getProperty("client_secret"))
+                .queryParam("grant_type", "client_credentials")
+                .queryParam("redirect_uri", config.getProperty("redirect_uri"))
+                .queryParam("scope", "public");
+
+        TokenResponse response = client.target(builder).request()
+                .post(Entity.entity(new TokenResponse(), MediaType.APPLICATION_JSON_TYPE), TokenResponse.class);
+
+        Properties token = new Properties();
+        token.setProperty("access_token", response.getAccessToken());
+        token.setProperty("token_type", response.getTokenType());
+        token.setProperty("expires_in", String.valueOf(response.getExpiresIn()));
+
+        Utils.savePropertiesToFile(token, Misc.TOKEN_FILENAME);
+
+        return response;
     }
 }
