@@ -2,6 +2,7 @@ package gr.ntua.cn.zannis.test;
 
 import gr.ntua.cn.zannis.Crawler;
 import gr.ntua.cn.zannis.Product;
+import gr.ntua.cn.zannis.dto.TokenResponse;
 import gr.ntua.cn.zannis.misc.Utils;
 import org.glassfish.jersey.uri.UriTemplate;
 import org.slf4j.Logger;
@@ -25,16 +26,24 @@ public class CrawlerImpl implements Crawler {
 
     public CrawlerImpl() {
         log.debug("BargainCrawler started.");
-        try {
-            Utils.initPropertiesFiles();
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-//        requestAccessToken();
+        //        requestAccessToken();
     }
 
     public static void main(String[] args) {
-        new CrawlerImpl();
+        String token;
+        try {
+            Utils.initPropertiesFiles();
+            token = Utils.getAccessToken();
+            if (token == null) {
+                TokenResponse response = Utils.requestAccessToken();
+            } else {
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void connect() {}

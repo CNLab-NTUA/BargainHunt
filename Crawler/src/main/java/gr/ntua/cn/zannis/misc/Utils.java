@@ -26,14 +26,21 @@ public class Utils {
      */
     public static Properties getPropertiesFromFile(String propFileName) {
 
-        Properties properties = new Properties();
+        Properties properties = null;
         InputStream stream = null;
         try {
             stream = new FileInputStream(new File(Misc.DOTFOLDER.toString(), propFileName));
+            properties = new Properties();
             properties.load(stream);
         } catch (IOException e) {
             log.error(e.getMessage());
         } finally {
+            if (properties == null) {
+                log.debug(propFileName + " is empty. Returning null.");
+            } else if (properties.isEmpty()) {
+                log.debug(propFileName + " is empty. Returning null.");
+                properties = null;
+            }
             try {
                 if (stream != null) {
                     stream.close();
@@ -76,21 +83,25 @@ public class Utils {
 
     /**
      * Attempts to find the access token in the TOKEN_FILENAME variable.
-     * @return The access token or empty string if an error occured.
+     * @return The access token or null if an error occured.
      * @throws IOException Exception thrown if there are problems accessing TOKEN_FILENAME.
      */
-    public static String getAccessToken() throws IOException {
+    public static String getAccessToken() {
         log.debug("Getting access token...");
+        String property = null;
         Properties tokenProperties = getPropertiesFromFile(Misc.TOKEN_FILENAME);
+
         if (tokenProperties == null) {
-            log.error("File " + Misc.TOKEN_FILENAME + " not found.");
+            log.error("Error accessing " + Misc.TOKEN_FILENAME + ".");
         } else if (tokenProperties.containsKey("access_token")) {
-            log.debug("Access token found!");
-            return tokenProperties.getProperty("access_token");
-        } else {
-            log.debug("Access token empty!");
+            property = tokenProperties.getProperty("access_token");
+            if (property == null) {
+                log.debug("Access token empty! Maybe request a new one?");
+            } else {
+                log.debug("Access token found!");
+            }
         }
-        return "";
+        return property;
     }
 
     /**
@@ -98,7 +109,7 @@ public class Utils {
      * creates them.
      */
     public static void initPropertiesFiles() throws IOException {
-        log.debug("Initiating properties files...");
+        log.debug("Initializing properties files...");
         if (!Files.isDirectory(Misc.DOTFOLDER)) {
             Files.createDirectory(Misc.DOTFOLDER);
             log.debug("Created .BargainCrawler directory.");
@@ -111,35 +122,32 @@ public class Utils {
             Files.createFile(Misc.TOKEN_PATH);
             log.debug("Created " + Misc.TOKEN_FILENAME);
         }
+        log.debug("Properties files initialized successfully!");
     }
 
     /**
      * Attempts to get a new OAuth 2.0 access token and writes it to the config file.
      * @return True on success, false on fail.
      */
-    private TokenResponse requestAccessToken() {
+    public static TokenResponse requestAccessToken() {
         log.debug("Requesting access token...");
 
         Properties config = Utils.getPropertiesFromFile(Misc.CONFIG_FILENAME);
 
-        Client client = ClientBuilder.newClient();
-        UriBuilder builder = UriBuilder.fromUri("https://www.skroutz.gr").path("oauth2/token")
-                .queryParam("client_id", config.getProperty("client_id"))
-                .queryParam("client_secret", config.getProperty("client_secret"))
-                .queryParam("grant_type", "client_credentials")
-                .queryParam("redirect_uri", config.getProperty("redirect_uri"))
-                .queryParam("scope", "public");
+        if (config == null) {
+            log.debug("Config file empty, please get a proper client_id and client_secret.");
+            return null;
+        } else {
+            Client client = ClientBuilder.newClient();
+            UriBuilder builder = UriBuilder.fromUri("https://www.skroutz.gr").path("oauth2/token")
+                    .queryParam("client_id", config.getProperty("client_id"))
+                    .queryParam("client_secret", config.getProperty("client_secret"))
+                    .queryParam("grant_type", "client_credentials")
+                    .queryParam("redirect_uri", config.getProperty("redirect_uri"))
+                    .queryParam("scope", "public");
 
-        TokenResponse response = client.target(builder).request()
-                .post(Entity.entity(new TokenResponse(), MediaType.APPLICATION_JSON_TYPE), TokenResponse.class);
-
-        Properties token = new Properties();
-        token.setProperty("access_token", response.getAccessToken());
-        token.setProperty("token_type", response.getTokenType());
-        token.setProperty("expires_in", String.valueOf(response.getExpiresIn()));
-
-        Utils.savePropertiesToFile(token, Misc.TOKEN_FILENAME);
-
-        return response;
+            return client.target(builder).request()
+                    .post(Entity.entity(new TokenResponse(), MediaType.APPLICATION_JSON_TYPE), TokenResponse.class);
+        }
     }
 }

@@ -1,36 +1,70 @@
 package gr.ntua.cn.zannis.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import gr.ntua.cn.zannis.misc.Misc;
+import gr.ntua.cn.zannis.misc.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 /**
  * @author zannis <zannis.kal@gmail.com
  */
 public class TokenResponse {
 
+    Logger log = LoggerFactory.getLogger(TokenResponse.class);
+
     private String accessToken;
     private String tokenType;
-    private long expiresIn;
+    private Long expiresIn;
     private String error;
     private String errorDescription;
+    private boolean valid;
+
+    @JsonCreator
+    public TokenResponse(@JsonProperty("access_token") String accessToken,
+                         @JsonProperty("token_type") String tokenType,
+                         @JsonProperty("expires_in") Long expiresIn,
+                         @JsonProperty("error") String error,
+                         @JsonProperty("error_description") String errorDescription) {
+        this.accessToken = accessToken;
+        this.tokenType = tokenType;
+        this.expiresIn = expiresIn;
+        this.error = error;
+        this.errorDescription = errorDescription;
+
+        this.setValid(!(this.accessToken == null || this.accessToken.isEmpty()));
+
+        if (this.isValid()) {
+            saveToPropertiesFile(Misc.TOKEN_FILENAME);
+        }
+    }
 
     public TokenResponse() {
     }
 
-    @JsonCreator
-    public TokenResponse(String accessToken, String tokenType, long expiresIn) {
-        this.accessToken = accessToken;
-        this.tokenType = tokenType;
-        this.expiresIn = expiresIn;
+    /**
+     * Checks if this {@link gr.ntua.cn.zannis.dto.TokenResponse} object is valid and proceeds to save it
+     * in the given file.
+     * @param propFileName The destination properties filename.
+     */
+    public void saveToPropertiesFile(String propFileName) {
+        if (this.isValid()) {
+            Properties properties = new Properties();
+            properties.setProperty("access_token", accessToken);
+            properties.setProperty("token_type", tokenType);
+            properties.setProperty("expires_in", String.valueOf(expiresIn));
+            Utils.savePropertiesToFile(properties, propFileName);
+            log.debug("Token saved successfully!");
+        } else {
+            log.debug("Invalid token given. Nothing was saved");
+        }
     }
 
-    @JsonCreator
-    public TokenResponse(String error, String errorDescription) {
-        this.error = error;
-        this.errorDescription = errorDescription;
-    }
-
-    @JsonProperty("access_token")
+    @JsonProperty
     public String getAccessToken() {
         return accessToken;
     }
@@ -39,7 +73,7 @@ public class TokenResponse {
         this.accessToken = accessToken;
     }
 
-    @JsonProperty("token_type")
+    @JsonProperty
     public String getTokenType() {
         return tokenType;
     }
@@ -48,16 +82,16 @@ public class TokenResponse {
         this.tokenType = tokenType;
     }
 
-    @JsonProperty("expires_in")
-    public long getExpiresIn() {
+    @JsonProperty
+    public Long getExpiresIn() {
         return expiresIn;
     }
 
-    public void setExpiresIn(long expiresIn) {
+    public void setExpiresIn(Long expiresIn) {
         this.expiresIn = expiresIn;
     }
 
-    @JsonProperty("error")
+    @JsonProperty
     public String getError() {
         return error;
     }
@@ -66,7 +100,7 @@ public class TokenResponse {
         this.error = error;
     }
 
-    @JsonProperty("error_description")
+    @JsonProperty
     public String getErrorDescription() {
         return errorDescription;
     }
@@ -75,5 +109,18 @@ public class TokenResponse {
         this.errorDescription = errorDescription;
     }
 
+    @JsonIgnore
+    public boolean isValid() {
+        return valid;
+    }
 
+    public void setValid(boolean valid) {
+        this.valid = valid;
+    }
+
+    @JsonIgnore
+    public boolean checkValid() {
+        this.setValid(this.accessToken != null && this.tokenType != null && this.expiresIn != null);
+        return this.isValid();
+    }
 }
