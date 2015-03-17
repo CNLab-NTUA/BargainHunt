@@ -1,17 +1,18 @@
-package gr.ntua.cn.zannis.dto;
+package gr.ntua.cn.zannis.bargains.crawler.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import gr.ntua.cn.zannis.misc.Misc;
-import gr.ntua.cn.zannis.misc.Utils;
+import gr.ntua.cn.zannis.bargains.crawler.misc.Misc;
+import gr.ntua.cn.zannis.bargains.crawler.misc.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
 /**
- * @author zannis <zannis.kal@gmail.com
+ * The class that wraps the response given from an access token request.
+ * @author zannis <zannis.kal@gmail.com>
  */
 public class TokenResponse {
 
@@ -47,7 +48,7 @@ public class TokenResponse {
     }
 
     /**
-     * Checks if this {@link gr.ntua.cn.zannis.dto.TokenResponse} object is valid and proceeds to save it
+     * Checks if this {@link TokenResponse} object is valid and proceeds to save it
      * in the given file.
      * @param propFileName The destination properties filename.
      */

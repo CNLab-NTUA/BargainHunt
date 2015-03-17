@@ -1,4 +1,4 @@
-package gr.ntua.cn.zannis;
+package gr.ntua.cn.zannis.bargains.entities;
 
 /**
  * Created by zannis on 3/13/15.

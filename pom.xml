@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>gr.ntua.cn.zannis</groupId>
-    <artifactId>Thesis</artifactId>
+    <groupId>gr.ntua.cn.zannis.bargains</groupId>
+    <artifactId>BargainHunt</artifactId>
     <packaging>pom</packaging>
     <version>0.1-INIT</version>
 

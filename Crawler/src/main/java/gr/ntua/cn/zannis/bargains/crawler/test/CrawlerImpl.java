@@ -1,9 +1,11 @@
-package gr.ntua.cn.zannis.test;
+package gr.ntua.cn.zannis.bargains.crawler.test;
 
-import gr.ntua.cn.zannis.Crawler;
-import gr.ntua.cn.zannis.Product;
-import gr.ntua.cn.zannis.dto.TokenResponse;
-import gr.ntua.cn.zannis.misc.Utils;
+import gr.ntua.cn.zannis.bargains.crawler.Crawler;
+import gr.ntua.cn.zannis.bargains.crawler.dto.TokenResponse;
+import gr.ntua.cn.zannis.bargains.crawler.misc.Utils;
+import gr.ntua.cn.zannis.bargains.entities.Category;
+import gr.ntua.cn.zannis.bargains.entities.Product;
+import gr.ntua.cn.zannis.bargains.entities.Shop;
 import org.glassfish.jersey.uri.UriTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +17,7 @@ import java.util.Map;
 
 /**
  * Crawler implementation for Bargain hunting application.
- * @author zannis <zannis.kal@gmail.com
+ * @author zannis <zannis.kal@gmail.com>
  */
 public class CrawlerImpl implements Crawler {
     private static final Logger log = LoggerFactory.getLogger(Crawler.class);
@@ -55,6 +57,26 @@ public class CrawlerImpl implements Crawler {
 
     @Override
     public Product getProduct(String productName) {
+        return null;
+    }
+
+    @Override
+    public Shop getShop(Integer shopId) {
+        return null;
+    }
+
+    @Override
+    public Shop getShop(String shopName) {
+        return null;
+    }
+
+    @Override
+    public Category getCategory(Integer categoryId) {
+        return null;
+    }
+
+    @Override
+    public Category getCategory(String categoryName) {
         return null;
     }
 

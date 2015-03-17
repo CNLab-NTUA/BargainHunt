@@ -1,6 +1,6 @@
-package gr.ntua.cn.zannis.misc;
+package gr.ntua.cn.zannis.bargains.crawler.misc;
 
-import gr.ntua.cn.zannis.dto.TokenResponse;
+import gr.ntua.cn.zannis.bargains.crawler.dto.TokenResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +14,8 @@ import java.nio.file.Files;
 import java.util.Properties;
 
 /**
- * @author zannis <zannis.kal@gmail.com
+ * General utilities class for use in the entire project.
+ * @author zannis <zannis.kal@gmail.com>
  */
 public class Utils {
 

@@ -1,12 +1,11 @@
-package gr.ntua.cn.zannis.misc;
+package gr.ntua.cn.zannis.bargains.crawler.misc;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Created by zannis on 3/15/15.
+ * Miscellaneous strings and other constants.
+ * @author zannis <zannis.kal@gmail.com>
  */
 public class Misc {
     public static final String CONFIG_FILENAME = "config.properties";
