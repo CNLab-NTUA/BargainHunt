@@ -1,5 +1,7 @@
 package gr.ntua.cn.zannis.bargains.crawler.misc;
 
+import org.glassfish.jersey.uri.UriTemplate;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -13,4 +15,6 @@ public class Misc {
     public static final Path DOTFOLDER = Paths.get(System.getProperty("user.home"), ".BargainCrawler");
     public static final Path CONFIG_PATH = DOTFOLDER.resolve(Paths.get(CONFIG_FILENAME));
     public static final Path TOKEN_PATH = DOTFOLDER.resolve(Paths.get(TOKEN_FILENAME));
+
+    public static final UriTemplate PRODUCT_TEMPLATE = new UriTemplate("")
 }

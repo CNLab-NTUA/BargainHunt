@@ -1,6 +1,6 @@
 package gr.ntua.cn.zannis.bargains.crawler.test;
 
-import gr.ntua.cn.zannis.bargains.crawler.Crawler;
+import gr.ntua.cn.zannis.bargains.crawler.Client;
 import gr.ntua.cn.zannis.bargains.crawler.dto.TokenResponse;
 import gr.ntua.cn.zannis.bargains.crawler.misc.Utils;
 import gr.ntua.cn.zannis.bargains.entities.Category;
@@ -19,16 +19,15 @@ import java.util.Map;
  * Crawler implementation for Bargain hunting application.
  * @author zannis <zannis.kal@gmail.com>
  */
-public class CrawlerImpl implements Crawler {
-    private static final Logger log = LoggerFactory.getLogger(Crawler.class);
+public class SkroutzClient implements Client {
+    private static final Logger log = LoggerFactory.getLogger(SkroutzClient.class);
     private String token;
     private Map<String, String> args;
     private UriTemplate template;
     private WebTarget target;
 
-    public CrawlerImpl() {
-        log.debug("BargainCrawler started.");
-        //        requestAccessToken();
+    public SkroutzClient() {
+        log.debug("SkroutzClient started.");
     }
 
     public static void main(String[] args) {
@@ -47,8 +46,6 @@ public class CrawlerImpl implements Crawler {
         }
 
     }
-
-    private void connect() {}
 
     @Override
     public Product getProduct(Integer productId) {
