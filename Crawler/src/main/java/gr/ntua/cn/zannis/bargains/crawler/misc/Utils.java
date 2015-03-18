@@ -1,6 +1,7 @@
 package gr.ntua.cn.zannis.bargains.crawler.misc;
 
 import gr.ntua.cn.zannis.bargains.crawler.dto.TokenResponse;
+import gr.ntua.cn.zannis.bargains.misc.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ public class Utils {
         Properties properties = null;
         InputStream stream = null;
         try {
-            stream = new FileInputStream(new File(Misc.DOTFOLDER.toString(), propFileName));
+            stream = new FileInputStream(new File(Const.DOTFOLDER.toString(), propFileName));
             properties = new Properties();
             properties.load(stream);
         } catch (IOException e) {
@@ -63,7 +64,7 @@ public class Utils {
         boolean result = false;
         OutputStream stream = null;
         try {
-            stream = new FileOutputStream(new File(Misc.DOTFOLDER.toString(), propFileName));
+            stream = new FileOutputStream(new File(Const.DOTFOLDER.toString(), propFileName));
             props.store(stream, null);
             result = true;
         } catch (FileNotFoundException e) {
@@ -90,10 +91,10 @@ public class Utils {
     public static String getAccessToken() {
         log.debug("Getting access token...");
         String property = null;
-        Properties tokenProperties = getPropertiesFromFile(Misc.TOKEN_FILENAME);
+        Properties tokenProperties = getPropertiesFromFile(Const.TOKEN_FILENAME);
 
         if (tokenProperties == null) {
-            log.error("Error accessing " + Misc.TOKEN_FILENAME + ".");
+            log.error("Error accessing " + Const.TOKEN_FILENAME + ".");
         } else if (tokenProperties.containsKey("access_token")) {
             property = tokenProperties.getProperty("access_token");
             if (property == null) {
@@ -111,17 +112,17 @@ public class Utils {
      */
     public static void initPropertiesFiles() throws IOException {
         log.debug("Initializing properties files...");
-        if (!Files.isDirectory(Misc.DOTFOLDER)) {
-            Files.createDirectory(Misc.DOTFOLDER);
+        if (!Files.isDirectory(Const.DOTFOLDER)) {
+            Files.createDirectory(Const.DOTFOLDER);
             log.debug("Created .BargainCrawler directory.");
         }
-        if (!Files.isWritable(Misc.CONFIG_PATH)) {
-            Files.createFile(Misc.CONFIG_PATH);
-            log.debug("Created " + Misc.CONFIG_FILENAME);
+        if (!Files.isWritable(Const.CONFIG_PATH)) {
+            Files.createFile(Const.CONFIG_PATH);
+            log.debug("Created " + Const.CONFIG_FILENAME);
         }
-        if (!Files.isWritable(Misc.TOKEN_PATH)) {
-            Files.createFile(Misc.TOKEN_PATH);
-            log.debug("Created " + Misc.TOKEN_FILENAME);
+        if (!Files.isWritable(Const.TOKEN_PATH)) {
+            Files.createFile(Const.TOKEN_PATH);
+            log.debug("Created " + Const.TOKEN_FILENAME);
         }
         log.debug("Properties files initialized successfully!");
     }
@@ -133,7 +134,7 @@ public class Utils {
     public static TokenResponse requestAccessToken() {
         log.debug("Requesting access token...");
 
-        Properties config = Utils.getPropertiesFromFile(Misc.CONFIG_FILENAME);
+        Properties config = Utils.getPropertiesFromFile(Const.CONFIG_FILENAME);
 
         if (config == null) {
             log.debug("Config file empty, please get a proper client_id and client_secret.");

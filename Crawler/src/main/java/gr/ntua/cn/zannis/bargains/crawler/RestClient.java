@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by zannis on 3/13/15.
  */
-public interface Client {
+public interface RestClient {
 
     public Product getProduct(Integer productId);
 
