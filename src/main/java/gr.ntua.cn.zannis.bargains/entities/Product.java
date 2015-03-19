@@ -1,9 +1,14 @@
 package gr.ntua.cn.zannis.bargains.entities;
 
 /**
- * Created by zannis on 3/13/15.
+ * @author zannis <zannis.kal@gmail.com
  */
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Product {
+
     private long id;
     private String name;
     private long skuId;
@@ -17,6 +22,20 @@ public class Product {
     public Product() {
     }
 
+    @JsonCreator
+    public Product(long id, String name, long skuId, long shopId, int categoryId, String availability, String clickUrl, int shopUid, double price) {
+        this.id = id;
+        this.name = name;
+        this.skuId = skuId;
+        this.shopId = shopId;
+        this.categoryId = categoryId;
+        this.availability = availability;
+        this.clickUrl = clickUrl;
+        this.shopUid = shopUid;
+        this.price = price;
+    }
+
+    @JsonProperty
     public long getId() {
         return id;
     }
@@ -25,6 +44,7 @@ public class Product {
         this.id = id;
     }
 
+    @JsonProperty
     public String getName() {
         return name;
     }
@@ -33,6 +53,7 @@ public class Product {
         this.name = name;
     }
 
+    @JsonProperty("sku_id")
     public long getSkuId() {
         return skuId;
     }
@@ -41,6 +62,7 @@ public class Product {
         this.skuId = skuId;
     }
 
+    @JsonProperty("shop_id")
     public long getShopId() {
         return shopId;
     }
@@ -49,6 +71,7 @@ public class Product {
         this.shopId = shopId;
     }
 
+    @JsonProperty("category_id")
     public int getCategoryId() {
         return categoryId;
     }
@@ -57,6 +80,7 @@ public class Product {
         this.categoryId = categoryId;
     }
 
+    @JsonProperty
     public String getAvailability() {
         return availability;
     }
@@ -65,6 +89,7 @@ public class Product {
         this.availability = availability;
     }
 
+    @JsonProperty("click_url")
     public String getClickUrl() {
         return clickUrl;
     }
@@ -73,6 +98,7 @@ public class Product {
         this.clickUrl = clickUrl;
     }
 
+    @JsonProperty("shop_uid")
     public int getShopUid() {
         return shopUid;
     }
@@ -81,6 +107,7 @@ public class Product {
         this.shopUid = shopUid;
     }
 
+    @JsonProperty
     public double getPrice() {
         return price;
     }

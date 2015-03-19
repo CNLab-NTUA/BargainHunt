@@ -24,6 +24,7 @@ public class Utils {
 
     /**
      * Gets key-value pairs from given properties file.
+     * @param propFileName The filename to look for.
      * @return A Properties object with all the read values or null.
      */
     public static Properties getPropertiesFromFile(String propFileName) {
@@ -86,7 +87,6 @@ public class Utils {
     /**
      * Attempts to find the access token in the TOKEN_FILENAME variable.
      * @return The access token or null if an error occured.
-     * @throws IOException Exception thrown if there are problems accessing TOKEN_FILENAME.
      */
     public static String getAccessToken() {
         log.debug("Getting access token...");

@@ -3,17 +3,20 @@ package gr.ntua.cn.zannis.bargains.crawler;
 import gr.ntua.cn.zannis.bargains.entities.Category;
 import gr.ntua.cn.zannis.bargains.entities.Product;
 import gr.ntua.cn.zannis.bargains.entities.Shop;
+import gr.ntua.cn.zannis.bargains.entities.Sku;
 
 import java.util.List;
 
 /**
- * Created by zannis on 3/13/15.
+ * @author zannis <zannis.kal@gmail.com
  */
 public interface RestClient {
 
-    public Product getProduct(Integer productId);
+    public Product getProductById(Integer productId);
 
-    public Product getProduct(String productName);
+    public List<Product> searchProductsByName(String name);
+
+    public List<Sku> searchSkuByName(String productName);
 
     public Shop getShop(Integer shopId);
 

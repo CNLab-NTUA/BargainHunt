@@ -5,6 +5,6 @@
 * Δημιουργία tables - in progress
 * Conditional requests sto api tou skroutz.
 
-create a product request
+create a product request - done
 create a category request
 create a shop request

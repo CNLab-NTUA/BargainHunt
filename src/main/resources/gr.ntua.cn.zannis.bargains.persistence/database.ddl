@@ -3,7 +3,10 @@ CREATE SEQUENCE public.prod_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
 ALTER SEQUENCE public.prod_seq OWNED BY products.id;
 /* create shops table sequence and add it to shops table */
 CREATE SEQUENCE public.shop_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
-ALTER SEQUENCE public.prod_seq OWNED BY shops.id;
+ALTER SEQUENCE public.shop_seq OWNED BY shops.id;
+/* create categories table sequence and add it to categories table */
+CREATE SEQUENCE public.categ_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
+ALTER SEQUENCE public.categ_seq OWNED BY categories.id;
 
 /* products table */
 CREATE TABLE IF NOT EXISTS public.products
@@ -12,7 +15,7 @@ CREATE TABLE IF NOT EXISTS public.products
   skroutz_id          INT                NOT NULL, -- the product id we get from a request to the Skroutz API
   name                VARCHAR(100)       NOT NULL, -- the product name
   sku_id              INT                NOT NULL, -- the product code given from the current shop
-  shop_id             INT                NOT NULL REFERENCES shops (id)
+  shop_id             INT                NOT NULL REFERENCES shops (id),
   category_id         INT                NOT NULL REFERENCES categories(id),
   skroutz_category_id INT                NOT NULL, -- TODO: move to categories table
   availability        VARCHAR(50),       -- the current availability
@@ -30,6 +33,17 @@ CREATE TABLE IF NOT EXISTS public.shops
 (
   id         SERIAL PRIMARY KEY NOT NULL DEFAULT nextval('shop_seq'),
   skroutz_id INT                NOT NULL, -- the shop id we get from a request to the Skroutz API
-  name VARCHAR(100) NOT NULL, -- the shop name
+  name VARCHAR(100) NOT NULL -- the shop name
 
 );
+
+/* categories table */
+CREATE TABLE IF NOT EXISTS public.categories
+(
+  id         SERIAL PRIMARY KEY NOT NULL DEFAULT nextval('categ_seq'),
+  skroutz_id INT                NOT NULL, -- the shop id we get from a request to the Skroutz API
+  name VARCHAR(100) NOT NULL -- the shop name
+
+);
+
+-- TODO : price history table
