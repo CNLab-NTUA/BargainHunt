@@ -1,9 +1,9 @@
-package gr.ntua.cn.zannis.bargains.crawler.dto;
+package gr.ntua.cn.zannis.bargains.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import gr.ntua.cn.zannis.bargains.crawler.misc.Utils;
+import gr.ntua.cn.zannis.bargains.client.misc.Utils;
 import gr.ntua.cn.zannis.bargains.misc.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

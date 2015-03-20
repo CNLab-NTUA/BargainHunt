@@ -5,26 +5,39 @@ package gr.ntua.cn.zannis.bargains.entities;
  */
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
+@JsonRootName("product")
 public class Product {
 
     private long id;
+    private long skroutzId;
     private String name;
     private long skuId;
-    private long shopId;
+    private int shopId;
     private int categoryId;
+    private String etag;
     private String availability;
     private String clickUrl;
-    private int shopUid;
+    private String shopUid;
     private double price;
 
     public Product() {
     }
 
     @JsonCreator
-    public Product(long id, String name, long skuId, long shopId, int categoryId, String availability, String clickUrl, int shopUid, double price) {
-        this.id = id;
+    public Product(@JsonProperty("id") long skroutzId,
+                   @JsonProperty("name") String name,
+                   @JsonProperty("sku_id") long skuId,
+                   @JsonProperty("shop_id") int shopId,
+                   @JsonProperty("category_id") int categoryId,
+                   @JsonProperty("availability") String availability,
+                   @JsonProperty("click_url") String clickUrl,
+                   @JsonProperty("shop_uid") String shopUid,
+                   @JsonProperty("price") double price) {
+        this.skroutzId = skroutzId;
         this.name = name;
         this.skuId = skuId;
         this.shopId = shopId;
@@ -35,7 +48,6 @@ public class Product {
         this.price = price;
     }
 
-    @JsonProperty
     public long getId() {
         return id;
     }
@@ -44,7 +56,6 @@ public class Product {
         this.id = id;
     }
 
-    @JsonProperty
     public String getName() {
         return name;
     }
@@ -53,7 +64,6 @@ public class Product {
         this.name = name;
     }
 
-    @JsonProperty("sku_id")
     public long getSkuId() {
         return skuId;
     }
@@ -62,16 +72,14 @@ public class Product {
         this.skuId = skuId;
     }
 
-    @JsonProperty("shop_id")
-    public long getShopId() {
+    public int getShopId() {
         return shopId;
     }
 
-    public void setShopId(long shopId) {
+    public void setShopId(int shopId) {
         this.shopId = shopId;
     }
 
-    @JsonProperty("category_id")
     public int getCategoryId() {
         return categoryId;
     }
@@ -80,7 +88,6 @@ public class Product {
         this.categoryId = categoryId;
     }
 
-    @JsonProperty
     public String getAvailability() {
         return availability;
     }
@@ -89,7 +96,6 @@ public class Product {
         this.availability = availability;
     }
 
-    @JsonProperty("click_url")
     public String getClickUrl() {
         return clickUrl;
     }
@@ -98,21 +104,36 @@ public class Product {
         this.clickUrl = clickUrl;
     }
 
-    @JsonProperty("shop_uid")
-    public int getShopUid() {
+    public String getShopUid() {
         return shopUid;
     }
 
-    public void setShopUid(int shopUid) {
+    public void setShopUid(String shopUid) {
         this.shopUid = shopUid;
     }
 
-    @JsonProperty
     public double getPrice() {
         return price;
     }
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    @JsonIgnore
+    public String getEtag() {
+        return etag;
+    }
+
+    public void setEtag(String etag) {
+        this.etag = etag;
+    }
+
+    public long getSkroutzId() {
+        return skroutzId;
+    }
+
+    public void setSkroutzId(long skroutzId) {
+        this.skroutzId = skroutzId;
     }
 }

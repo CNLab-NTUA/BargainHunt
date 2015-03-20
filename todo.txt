@@ -8,3 +8,4 @@
 create a product request - done
 create a category request
 create a shop request
+create a sku request
