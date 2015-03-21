@@ -13,13 +13,14 @@ CREATE TABLE IF NOT EXISTS public.products
   id                 SERIAL PRIMARY KEY NOT NULL DEFAULT nextval('prod_seq'),
   skroutz_id         INT                NOT NULL, -- the product id we get from a request to the Skroutz API
   name               VARCHAR(100)       NOT NULL, -- the product name
-  sku_id             VARCHAR(30)        NOT NULL, -- the product code given from the current shop
+  sku_id             INT                NOT NULL, -- the product code given to match this product in other shops
   shop_id            INT                NOT NULL REFERENCES shops (id),
+  shop_uid           VARCHAR(30)        NOT NULL, -- the unique uid given from the shop
   category_id        INT                NOT NULL REFERENCES categories (id),
   etag               VARCHAR(32),       -- a tag used for conditional http requests
   availability       VARCHAR(50),       -- the current availability
   click_url          VARCHAR(300),      -- the url given from Skroutz API
-  price_id           NUMERIC(5, 2),     -- the current price
+  price              NUMERIC(5, 2),     -- the current price
   price_changes      INT                NOT NULL DEFAULT 0, -- how many times the product's price has changed
   average_past_price NUMERIC(5, 2)      NOT NULL, -- the average price we have calculated for the product in the past
   inserted_at        TIMESTAMP          NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -7,24 +7,10 @@
     <groupId>gr.ntua.cn.zannis.bargains</groupId>
     <artifactId>BargainHunt</artifactId>
     <packaging>pom</packaging>
-    <version>0.1-INIT</version>
+    <version>0.1</version>
 
 
     <dependencies>
-
-        <!-- Jersey for JAX-RS -->
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>2.16</version>
-        </dependency>
-
-        <!-- Jackson for JSON parsing -->
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-jackson</artifactId>
-            <version>2.16</version>
-        </dependency>
 
         <!--JUnit Testing-->
         <dependency>
@@ -54,7 +40,7 @@
 
 
     <modules>
-        <module>Crawler</module>
+        <module>Client</module>
     </modules>
 
 </project>

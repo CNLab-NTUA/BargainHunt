@@ -1,11 +1,9 @@
-Βήματα
-
 * OAuth 2 token - done
 * PostgreSQL @ Heroku - done
+* Conditional requests sto api tou skroutz. - done
 * Δημιουργία tables - in progress
-* Conditional requests sto api tou skroutz.
 
-create a product request - done
-create a category request
-create a shop request
-create a sku request
+* create a product request - done
+* create a category request
+* create a shop request
+* create a sku request

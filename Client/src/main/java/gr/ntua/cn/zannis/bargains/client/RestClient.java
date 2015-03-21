@@ -21,14 +21,13 @@ public interface RestClient {
     public Product getProductById(Integer productId);
 
     /**
-     * Create a conditional request for a specific product using its id and an Etag
-     * acquired from the server.
-     * @param productId The product id.
-     * @param eTag The 32-character tag.
+     * Create a conditional request for a specific product using its persistent
+     * entity.
+     * @param product The persistent entity.
      * @return The {@link gr.ntua.cn.zannis.bargains.entities.Product} entity
      * or null if there was an error
      */
-    public Product getProductById(Integer productId, String eTag);
+    public Product checkProduct(Product product);
 
     public List<Product> searchProductsByName(String name);
 

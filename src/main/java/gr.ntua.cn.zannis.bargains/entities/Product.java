@@ -1,14 +1,18 @@
 package gr.ntua.cn.zannis.bargains.entities;
 
-/**
- * @author zannis <zannis.kal@gmail.com
- */
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
+import java.util.Date;
+
+/**
+ * The Product class that contains all the information we get from the Skroutz API
+ * including the persistent fields such as inserted, checked, and modified dates.
+ *
+ * @author zannis <zannis.kal@gmail.com
+ */
 @JsonRootName("product")
 public class Product {
 
@@ -23,6 +27,9 @@ public class Product {
     private String clickUrl;
     private String shopUid;
     private double price;
+    private Date insertedAt;
+    private Date checkedAt;
+    private Date modifiedAt;
 
     public Product() {
     }
@@ -120,7 +127,6 @@ public class Product {
         this.price = price;
     }
 
-    @JsonIgnore
     public String getEtag() {
         return etag;
     }
@@ -135,5 +141,38 @@ public class Product {
 
     public void setSkroutzId(long skroutzId) {
         this.skroutzId = skroutzId;
+    }
+
+    public Date getInsertedAt() {
+        return insertedAt;
+    }
+
+    public void setInsertedAt(Date insertedAt) {
+        this.insertedAt = insertedAt;
+    }
+
+    public Date getCheckedAt() {
+        return checkedAt;
+    }
+
+    public void setCheckedAt(Date checkedAt) {
+        this.checkedAt = checkedAt;
+    }
+
+    public Date getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(Date modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "name='" + name + '\'' +
+                ", checkedAt=" + checkedAt +
+                ", skroutzId=" + skroutzId +
+                '}';
     }
 }

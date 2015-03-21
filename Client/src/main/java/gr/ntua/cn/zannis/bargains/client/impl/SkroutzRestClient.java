@@ -11,10 +11,12 @@ import gr.ntua.cn.zannis.bargains.entities.Product;
 import gr.ntua.cn.zannis.bargains.entities.Shop;
 import gr.ntua.cn.zannis.bargains.entities.Sku;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
@@ -22,6 +24,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -49,19 +52,59 @@ public final class SkroutzRestClient implements RestClient {
             TokenResponse response = Utils.requestAccessToken();
         }
 
-        initConfig();
+        initClientConfig();
     }
 
-    private void initConfig() {
-        // custom Jackson ObjectMapper to process wrapped entities
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
-        // configure our client with the custom JacksonJaxbJsonProvider
+    /**
+     * Method that initializes our custom client configuration to
+     * deserialize wrapped objects from JSON.
+     */
+    private void initClientConfig() {
+        // Jersey uses java.util.logging - bridge to slf4
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
         JacksonJaxbJsonProvider jacksonProvider = new JacksonJaxbJsonProvider();
-        jacksonProvider.setMapper(mapper);
+        jacksonProvider.setMapper(new ObjectMapper()
+                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true));
         config.register(new LoggingFilter())
                 .register(new CsrfProtectionFilter())
                 .register(jacksonProvider);
+    }
+
+    /**
+     * Creates an unconditional GET HTTP request to the Skroutz API. All unconditional
+     * public GET methods should use this since its preconfigured using our custom
+     * configuration. This method follows redirects, accepts JSON entities and contains
+     * the required authorization headers.
+     * @param requestUri The target URI.
+     * @return A {@link javax.ws.rs.core.Response} containing one or more entities.
+     */
+    private Response sendUnconditionalGetRequest(URI requestUri) {
+        return ClientBuilder.newClient(config).target(requestUri)
+                .property(ClientProperties.FOLLOW_REDIRECTS, true)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header("Authorization", "Bearer " + token)
+                .accept("application/vnd.skroutz+json; version=3")
+                .get();
+    }
+
+    /**
+     * Creates a conditional GET HTTP request to the Skroutz API. All conditional
+     * public GET methods should use this since its preconfigured using our custom
+     * configuration. This method follows redirects, accepts JSON entities and contains
+     * the required authorization headers. It uses an If-None-Match condition
+     * with the provided Etag argument.
+     * @param requestUri The target URI.
+     * @return A {@link javax.ws.rs.core.Response} containing one or more entities.
+     */
+    private Response sendConditionalGetRequest(URI requestUri, String eTag) {
+        return ClientBuilder.newClient(config).target(requestUri)
+                .property(ClientProperties.FOLLOW_REDIRECTS, true)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header("Authorization", "Bearer " + token)
+                .header("If-None-Match", eTag)
+                .accept("application/vnd.skroutz+json; version=3")
+                .get();
     }
 
     public static void main(String[] args) {
@@ -69,6 +112,7 @@ public final class SkroutzRestClient implements RestClient {
             Utils.initPropertiesFiles();
             SkroutzRestClient client = new SkroutzRestClient();
             Product p = client.getProductById(18427940);
+            System.out.println(p);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -79,15 +123,9 @@ public final class SkroutzRestClient implements RestClient {
     @Override
     public Product getProductById(Integer productId) {
         URI productUri = UriBuilder.fromPath(API_HOST).path(SINGLE_PRODUCT).build(productId);
-        // generate GET request and send it
-        Response response = ClientBuilder.newClient(config).target(productUri)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .header("Authorization", "Bearer " + token)
-                .accept("application/vnd.skroutz+json; version=3")
-                .get();
+        Response response = sendUnconditionalGetRequest(productUri);
         // check response status first
         if (response.getStatus() != 200) {
-            log.error("Error " + response.getStatus() + " - " + response.getStatusInfo().getReasonPhrase());
             return null;
         } else {
             // parse useful headers
@@ -97,25 +135,41 @@ public final class SkroutzRestClient implements RestClient {
             if (response.hasEntity()) {
                 Product product = response.readEntity(Product.class);
                 product.setEtag(eTag);
+                product.setInsertedAt(new Date());
                 return product;
             } else {
                 log.error("No entity in the response.");
-                log.debug(response.toString());
                 return null;
             }
         }
     }
 
     @Override
-    public Product getProductById(Integer productId, String eTag) {
-        URI productUri = UriBuilder.fromPath(API_HOST).path(SINGLE_PRODUCT).build(productId);
+    public Product checkProduct(Product product) {
+        URI productUri = UriBuilder.fromPath(API_HOST).path(SINGLE_PRODUCT).build(product.getSkroutzId());
         Response response = ClientBuilder.newClient(config).target(productUri).request(MediaType.APPLICATION_JSON_TYPE)
                 .header("Authorization", "Bearer " + token)
+                .header("If-None-Match", product.getEtag())
                 .accept("application/vnd.skroutz+json; version=3")
                 .get();
-        System.out.println(response.getHeaders());
-        if (response.hasEntity()) {
-            return response.readEntity(Product.class);
+        // check response status first
+        if (response.getStatus() == 304) {
+            // if the product hasn't changed, update only the checked time
+            product.setCheckedAt(new Date());
+            return product;
+        } else if (response.getStatus() == 200) {
+            // parse useful headers
+            String eTag = response.getHeaderString("ETag");
+            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            // parse entity
+            if (response.hasEntity()) {
+                product = response.readEntity(Product.class);
+                product.setEtag(eTag);
+                return product;
+            } else {
+                log.error("No entity in the response.");
+                return null;
+            }
         } else {
             log.error("Error " + response.getStatus() + " - " + response.getStatusInfo().getReasonPhrase());
             return null;
@@ -161,9 +215,5 @@ public final class SkroutzRestClient implements RestClient {
 
     public int getRemainingRequests() {
         return remainingRequests;
-    }
-
-    public void setRemainingRequests(int remainingRequests) {
-        this.remainingRequests = remainingRequests;
     }
 }
