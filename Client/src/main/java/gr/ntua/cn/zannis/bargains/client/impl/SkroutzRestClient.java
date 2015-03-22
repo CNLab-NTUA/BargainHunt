@@ -1,10 +1,10 @@
 package gr.ntua.cn.zannis.bargains.client.impl;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.client.RestClient;
-import gr.ntua.cn.zannis.bargains.client.dto.TokenResponse;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
 import gr.ntua.cn.zannis.bargains.entities.Category;
 import gr.ntua.cn.zannis.bargains.entities.Product;
@@ -49,9 +49,8 @@ public final class SkroutzRestClient implements RestClient {
         log.debug("SkroutzClient started.");
         token = Utils.getAccessToken();
         if (token == null) {
-            TokenResponse response = Utils.requestAccessToken();
+            Utils.requestAccessToken();
         }
-
         initClientConfig();
     }
 
@@ -65,8 +64,9 @@ public final class SkroutzRestClient implements RestClient {
         SLF4JBridgeHandler.install();
         JacksonJaxbJsonProvider jacksonProvider = new JacksonJaxbJsonProvider();
         jacksonProvider.setMapper(new ObjectMapper()
+                .configure(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)
                 .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true));
-        config.register(new LoggingFilter())
+        config.register(new LoggingFilter(java.util.logging.Logger.getLogger(getClass().getCanonicalName()), true))
                 .register(new CsrfProtectionFilter())
                 .register(jacksonProvider);
     }
@@ -152,7 +152,6 @@ public final class SkroutzRestClient implements RestClient {
         Response response = sendConditionalGetRequest(productUri, product.getEtag());
         // check response status first
         if (response.getStatus() == 304) {
-            // the product hasn't changed, update only the checked time
             product.wasJustChecked();
             return product;
         } else if (response.getStatus() == 200) {

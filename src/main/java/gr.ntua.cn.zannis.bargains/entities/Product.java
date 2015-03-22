@@ -3,6 +3,7 @@ package gr.ntua.cn.zannis.bargains.entities;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.util.Date;
 
@@ -44,14 +45,17 @@ public class Product {
                    @JsonProperty("shop_uid") String shopUid,
                    @JsonProperty("price") float price) {
         this.skroutzId = skroutzId;
-        this.name = name;
+        this.name = StringEscapeUtils.unescapeJson(name);
         this.skuId = skuId;
         this.shopId = shopId;
         this.categoryId = categoryId;
-        this.availability = availability;
+        this.availability = StringEscapeUtils.unescapeJson(availability);
         this.clickUrl = clickUrl;
         this.shopUid = shopUid;
         this.price = price;
+        Date now = new Date();
+        this.checkedAt = now;
+        this.insertedAt = now;
     }
 
     public long getId() {
@@ -166,15 +170,6 @@ public class Product {
         this.modifiedAt = modifiedAt;
     }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "name='" + name + '\'' +
-                ", checkedAt=" + checkedAt +
-                ", skroutzId=" + skroutzId +
-                '}';
-    }
-
     /**
      * Update our persistent product entity with information from the API service.
      * @param product The product entity containing the updated information.
@@ -197,5 +192,15 @@ public class Product {
 
     public void wasJustChecked() {
         this.checkedAt = new Date();
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "name='" + name + '\'' +
+                ", checkedAt=" + checkedAt +
+                ", availability=" + availability +
+                ", skroutzId=" + skroutzId +
+                '}';
     }
 }

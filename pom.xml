@@ -12,6 +12,13 @@
 
     <dependencies>
 
+        <!--Apache Commons Lang3 for string manipulation-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+
         <!--Dependency to redirect java.util.Logger to Logback-->
         <dependency>
             <groupId>org.slf4j</groupId>
