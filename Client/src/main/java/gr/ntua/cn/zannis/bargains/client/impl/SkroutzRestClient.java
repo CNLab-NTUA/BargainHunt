@@ -112,7 +112,8 @@ public final class SkroutzRestClient implements RestClient {
             Utils.initPropertiesFiles();
             SkroutzRestClient client = new SkroutzRestClient();
             Product p = client.getProductById(18427940);
-            System.out.println(p);
+            Product p2 = client.checkProduct(p);
+            System.out.println(p2);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -136,6 +137,7 @@ public final class SkroutzRestClient implements RestClient {
                 Product product = response.readEntity(Product.class);
                 product.setEtag(eTag);
                 product.setInsertedAt(new Date());
+                product.setCheckedAt(new Date());
                 return product;
             } else {
                 log.error("No entity in the response.");
@@ -147,15 +149,11 @@ public final class SkroutzRestClient implements RestClient {
     @Override
     public Product checkProduct(Product product) {
         URI productUri = UriBuilder.fromPath(API_HOST).path(SINGLE_PRODUCT).build(product.getSkroutzId());
-        Response response = ClientBuilder.newClient(config).target(productUri).request(MediaType.APPLICATION_JSON_TYPE)
-                .header("Authorization", "Bearer " + token)
-                .header("If-None-Match", product.getEtag())
-                .accept("application/vnd.skroutz+json; version=3")
-                .get();
+        Response response = sendConditionalGetRequest(productUri, product.getEtag());
         // check response status first
         if (response.getStatus() == 304) {
-            // if the product hasn't changed, update only the checked time
-            product.setCheckedAt(new Date());
+            // the product hasn't changed, update only the checked time
+            product.wasJustChecked();
             return product;
         } else if (response.getStatus() == 200) {
             // parse useful headers
@@ -163,8 +161,7 @@ public final class SkroutzRestClient implements RestClient {
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
-                product = response.readEntity(Product.class);
-                product.setEtag(eTag);
+                product.updateFromJson(response.readEntity(Product.class), eTag);
                 return product;
             } else {
                 log.error("No entity in the response.");

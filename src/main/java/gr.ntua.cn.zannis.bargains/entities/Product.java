@@ -1,6 +1,5 @@
 package gr.ntua.cn.zannis.bargains.entities;
 
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
@@ -26,7 +25,7 @@ public class Product {
     private String availability;
     private String clickUrl;
     private String shopUid;
-    private double price;
+    private float price;
     private Date insertedAt;
     private Date checkedAt;
     private Date modifiedAt;
@@ -43,7 +42,7 @@ public class Product {
                    @JsonProperty("availability") String availability,
                    @JsonProperty("click_url") String clickUrl,
                    @JsonProperty("shop_uid") String shopUid,
-                   @JsonProperty("price") double price) {
+                   @JsonProperty("price") float price) {
         this.skroutzId = skroutzId;
         this.name = name;
         this.skuId = skuId;
@@ -119,11 +118,11 @@ public class Product {
         this.shopUid = shopUid;
     }
 
-    public double getPrice() {
+    public float getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 
@@ -174,5 +173,29 @@ public class Product {
                 ", checkedAt=" + checkedAt +
                 ", skroutzId=" + skroutzId +
                 '}';
+    }
+
+    /**
+     * Update our persistent product entity with information from the API service.
+     * @param product The product entity containing the updated information.
+     * @param eTag The Etag taken from the HTTP Response headers.
+     * @return The updated entity.
+     */
+    public Product updateFromJson(Product product, String eTag) {
+        Date now = new Date();
+        this.name = product.name;
+        this.skuId = product.skuId;
+        this.availability = product.availability;
+        this.clickUrl = product.clickUrl;
+        this.shopUid = product.shopUid;
+        this.price = product.price;
+        this.checkedAt = now;
+        this.modifiedAt = now;
+        this.etag = eTag;
+        return this;
+    }
+
+    public void wasJustChecked() {
+        this.checkedAt = new Date();
     }
 }

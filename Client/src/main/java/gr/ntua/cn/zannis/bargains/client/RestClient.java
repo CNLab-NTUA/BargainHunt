@@ -8,15 +8,18 @@ import gr.ntua.cn.zannis.bargains.entities.Sku;
 import java.util.List;
 
 /**
+ * The RESTful Client interface that targets an API that can provide
+ * products, shops, and their metadata.
  * @author zannis <zannis.kal@gmail.com
  */
 public interface RestClient {
 
     /**
-     * Create a request for a specific product using its id.
+     * Create a request for a specific product using its id. This is supposed to
+     * be used when we don't have a persistent instance of the product.
      * @param productId The product id.
      * @return The {@link gr.ntua.cn.zannis.bargains.entities.Product} entity
-     * or null if there was an error
+     * or null if there was an error.
      */
     public Product getProductById(Integer productId);
 
@@ -25,7 +28,7 @@ public interface RestClient {
      * entity.
      * @param product The persistent entity.
      * @return The {@link gr.ntua.cn.zannis.bargains.entities.Product} entity
-     * or null if there was an error
+     * with its possibly updated fields or null if there was an error.
      */
     public Product checkProduct(Product product);
 

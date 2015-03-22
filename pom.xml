@@ -12,6 +12,27 @@
 
     <dependencies>
 
+        <!--Dependency to redirect java.util.Logger to Logback-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>1.7.10</version>
+        </dependency>
+
+        <!-- Jersey for JAX-RS -->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.16</version>
+        </dependency>
+
+        <!-- Jackson for JSON parsing -->
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>2.16</version>
+        </dependency>
+
         <!--JUnit Testing-->
         <dependency>
             <groupId>junit</groupId>
