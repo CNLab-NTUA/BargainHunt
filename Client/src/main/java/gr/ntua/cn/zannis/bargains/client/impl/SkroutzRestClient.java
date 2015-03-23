@@ -173,6 +173,33 @@ public final class SkroutzRestClient implements RestClient {
     }
 
     @Override
+    public Product getProductByShopUid(long shopId, String shopUid) {
+        URI productUri = UriBuilder.fromPath(API_HOST).path(SEARCH_PRODUCTS)
+                .queryParam("shop_uid", shopUid).build(shopId);
+        Response response = sendUnconditionalGetRequest(productUri);
+        // check response status first
+        if (response.getStatus() == 200) {
+            // parse useful headers
+            String eTag = response.getHeaderString("ETag");
+            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            // parse entity
+            if (response.hasEntity()) {
+                Product product = response.readEntity(Product.class);
+                product.setEtag(eTag);
+                product.setInsertedAt(new Date());
+                product.setCheckedAt(new Date());
+                return product;
+            } else {
+                log.error("No entity in the response.");
+                return null;
+            }
+        } else {
+            log.error("Error " + response.getStatus() + " - " + response.getStatusInfo().getReasonPhrase());
+            return null;
+        }
+    }
+
+    @Override
     public List<Product> searchProductsByName(String productName) {
 //        URI productsUri = UriBuilder.fromPath(API_HOST).path(SEARCH_PRODUCTS)
 //                .queryParam("shop_uid", "{shopUid}").build(shopId, shopUid);

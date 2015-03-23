@@ -32,6 +32,8 @@ public interface RestClient {
      */
     public Product checkProduct(Product product);
 
+    public Product getProductByShopUid(String shopUid);
+
     public List<Product> searchProductsByName(String name);
 
     public List<Sku> searchSkuByName(String productName);
