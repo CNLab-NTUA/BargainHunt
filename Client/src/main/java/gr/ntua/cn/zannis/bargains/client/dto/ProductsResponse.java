@@ -3,7 +3,7 @@ package gr.ntua.cn.zannis.bargains.client.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gr.ntua.cn.zannis.bargains.client.dto.pagination.Meta;
-import gr.ntua.cn.zannis.bargains.entities.Product;
+import gr.ntua.cn.zannis.bargains.client.entities.Product;
 
 import java.util.List;
 

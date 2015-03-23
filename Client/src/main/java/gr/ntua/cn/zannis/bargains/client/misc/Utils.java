@@ -1,7 +1,6 @@
 package gr.ntua.cn.zannis.bargains.client.misc;
 
 import gr.ntua.cn.zannis.bargains.client.dto.TokenResponse;
-import gr.ntua.cn.zannis.bargains.misc.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

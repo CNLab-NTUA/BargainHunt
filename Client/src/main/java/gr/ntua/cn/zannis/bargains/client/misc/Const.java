@@ -1,4 +1,4 @@
-package gr.ntua.cn.zannis.bargains.misc;
+package gr.ntua.cn.zannis.bargains.client.misc;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
