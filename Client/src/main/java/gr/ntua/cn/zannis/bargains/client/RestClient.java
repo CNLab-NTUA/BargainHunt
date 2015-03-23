@@ -1,15 +1,14 @@
 package gr.ntua.cn.zannis.bargains.client;
 
+import gr.ntua.cn.zannis.bargains.client.components.Page;
 import gr.ntua.cn.zannis.bargains.client.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.entities.Product;
 import gr.ntua.cn.zannis.bargains.client.entities.Shop;
 import gr.ntua.cn.zannis.bargains.client.entities.Sku;
 
-import java.util.List;
-
 /**
  * The RESTful Client interface that targets an API that can provide
- * products, shops, and their metadata.
+ * products, shops, categories, skus and their metadata.
  * @author zannis <zannis.kal@gmail.com
  */
 public interface RestClient {
@@ -32,20 +31,33 @@ public interface RestClient {
      */
     public Product checkProduct(Product product);
 
+    /**
+     * Create a request for a specific product in a specific shop when we know its shop_uid.
+     * This is supposed to be used when we don't have a persistent instance of the product.
+     * @param shopId The shop id.
+     * @param shopUid The product's shop_uid.
+     * @return The {@link gr.ntua.cn.zannis.bargains.client.entities.Product} entity
+     * or null if there was an error.
+     */
     public Product getProductByShopUid(long shopId, String shopUid);
 
-    public List<Product> searchProductsByName(String name);
+    public Page<Product> searchProductsByName(String name);
 
-    public List<Sku> searchSkuByName(String productName);
+    public Page<Sku> searchSkuByName(String productName);
 
-    public Shop getShop(Integer shopId);
+    /**
+     * Create a request for a specific shop using its id. This is supposed to
+     * be used when we don't have a persistent instance of the shop.
+     * @param shopId The shop id.
+     * @return The {@link gr.ntua.cn.zannis.bargains.client.entities.Shop} entity
+     * or null if there was an error.
+     */
+    public Shop getShopById(Integer shopId);
 
-    public Shop getShop(String shopName);
+    public Page<Shop> searchShopsByName(String shopName);
 
     public Category getCategory(Integer categoryId);
 
     public Category getCategory(String categoryName);
-
-    public List<Product> getAllProducts();
 
 }

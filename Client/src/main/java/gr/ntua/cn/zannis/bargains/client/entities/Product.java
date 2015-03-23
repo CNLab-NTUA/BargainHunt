@@ -22,11 +22,11 @@ public class Product {
     private long skuId;
     private int shopId;
     private int categoryId;
-    private String etag;
     private String availability;
     private String clickUrl;
     private String shopUid;
     private float price;
+    private String etag;
     private Date insertedAt;
     private Date checkedAt;
     private Date modifiedAt;

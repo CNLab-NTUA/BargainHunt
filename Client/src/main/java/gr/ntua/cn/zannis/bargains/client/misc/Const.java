@@ -19,4 +19,11 @@ public class Const {
     public static final Path TOKEN_PATH = DOTFOLDER.resolve(Paths.get(TOKEN_FILENAME));
     public static final Path DB_PATH = DOTFOLDER.resolve(Paths.get(DB_FILENAME));
 
+    // uri templates
+    public static final String API_HOST = "https://api.skroutz.gr";
+    public static final String SINGLE_PRODUCT = "/products/{id}";
+    public static final String SEARCH_PRODUCTS = "/shops/{shopId}/products/search";
+    public static final String SINGLE_SHOP = "/shops/{id}";
+    public static final String SKUS = "/categories/{categoryId}/skus";
+
 }

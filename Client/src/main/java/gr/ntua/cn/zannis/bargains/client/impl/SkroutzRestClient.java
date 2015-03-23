@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.client.RestClient;
+import gr.ntua.cn.zannis.bargains.client.components.Page;
 import gr.ntua.cn.zannis.bargains.client.dto.ProductsResponse;
+import gr.ntua.cn.zannis.bargains.client.dto.ShopsResponse;
 import gr.ntua.cn.zannis.bargains.client.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.entities.Product;
 import gr.ntua.cn.zannis.bargains.client.entities.Shop;
@@ -18,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -28,6 +30,8 @@ import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
+import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
+
 /**
  * Crawler implementation for Bargain hunting application.
  * @author zannis <zannis.kal@gmail.com>
@@ -35,12 +39,6 @@ import java.util.List;
 public final class SkroutzRestClient implements RestClient {
 
     private static final Logger log = LoggerFactory.getLogger(SkroutzRestClient.class);
-
-    private static final String API_HOST = "https://api.skroutz.gr";
-    private static final String SINGLE_PRODUCT = "/products/{id}";
-    private static final String SEARCH_PRODUCTS = "/shops/{shopId}/products/search";
-    private static final String SINGLE_SHOP = "/shops/{id}";
-    private static final String SKUS = "/categories/{categoryId}/skus";
     private final ClientConfig config = new ClientConfig();
 
     private String token;
@@ -59,9 +57,10 @@ public final class SkroutzRestClient implements RestClient {
         try {
             Utils.initPropertiesFiles();
             SkroutzRestClient client = new SkroutzRestClient();
-            Product p = client.getProductById(18427940);
+//            Product p = client.getProductById(18427940);
 //            Product p2 = client.checkProduct(p);
 //            client.getProductByShopUid(11, "2209985");
+            client.searchShopsByName("plaisio");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -128,29 +127,24 @@ public final class SkroutzRestClient implements RestClient {
         Response response = sendUnconditionalGetRequest(productUri);
         // check response status first
         if (response.getStatus() != 200) {
+            log.error(response.getStatusInfo().getReasonPhrase());
             return null;
         } else {
             // parse useful headers
             String eTag = response.getHeaderString("ETag");
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
-            // try to parse entity
-            try {
-                if (response.hasEntity()) {
-                    ProductsResponse wrapper = response.readEntity(ProductsResponse.class);
-                    wrapper.getProduct().setEtag(eTag);
-                    wrapper.getProduct().setInsertedAt(new Date());
-                    wrapper.getProduct().setCheckedAt(new Date());
-                    return wrapper.getProduct();
-                } else {
-                    log.error("No entity in the response.");
-                    return null;
-                }
-            } catch (ProcessingException e) {
-                log.error("Error parsing JSON");
-                e.printStackTrace();
+            // parse entity
+            if (response.hasEntity()) {
+                ProductsResponse wrapper = response.readEntity(ProductsResponse.class);
+                wrapper.getProduct().setEtag(eTag);
+                wrapper.getProduct().setInsertedAt(new Date());
+                wrapper.getProduct().setCheckedAt(new Date());
+                return wrapper.getProduct();
+            } else {
+                log.error("No entity in the response.");
+                return null;
             }
         }
-        return null;
     }
 
     @Override
@@ -174,7 +168,7 @@ public final class SkroutzRestClient implements RestClient {
                 return null;
             }
         } else {
-            log.error("Error " + response.getStatus() + " - " + response.getStatusInfo().getReasonPhrase());
+            log.error(response.getStatusInfo().getReasonPhrase());
             return null;
         }
     }
@@ -185,7 +179,10 @@ public final class SkroutzRestClient implements RestClient {
                 .queryParam("shop_uid", shopUid).build(shopId);
         Response response = sendUnconditionalGetRequest(productUri);
         // check response status first
-        if (response.getStatus() == 200) {
+        if (response.getStatus() != 200) {
+            log.error(response.getStatusInfo().getReasonPhrase());
+            return null;
+        } else {
             // parse useful headers
             String eTag = response.getHeaderString("ETag");
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
@@ -201,31 +198,87 @@ public final class SkroutzRestClient implements RestClient {
                 log.error("No entity in the response.");
                 return null;
             }
+        }
+    }
+
+    @Override
+    public Shop getShopById(Integer shopId) {
+        URI shopUri = UriBuilder.fromPath(API_HOST).path(SINGLE_SHOP).build(shopId);
+        Response response = sendUnconditionalGetRequest(shopUri);
+        // check response status first
+        if (response.getStatus() != 200) {
+            log.error(response.getStatusInfo().getReasonPhrase());
+            return null;
         } else {
-            log.error("Error " + response.getStatus() + " - " + response.getStatusInfo().getReasonPhrase());
+            // parse useful headers
+            String eTag = response.getHeaderString("ETag");
+            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            // parse entity
+            if (response.hasEntity()) {
+                ShopsResponse wrapper = response.readEntity(ShopsResponse.class);
+                wrapper.getShop().setEtag(eTag);
+                wrapper.getShop().setInsertedAt(new Date());
+                return wrapper.getShop();
+            } else {
+                log.error("No entity in the response.");
+                return null;
+            }
+        }
+    }
+
+    @Override
+    public Page<Shop> searchShopsByName(String shopName) {
+        URI shopUri = UriBuilder.fromPath(API_HOST).path("/shops/search")
+                .queryParam("q", shopName).build();
+        Response response = sendUnconditionalGetRequest(shopUri);
+        // check response status first
+        if (response.getStatus() != 200) {
+            log.error(response.getStatusInfo().getReasonPhrase());
+            return null;
+        } else {
+            // parse useful headers
+
+            Link next = checkLinks(response);
+
+            // TODO: parse Link headers for more pages
+            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            // parse entity
+            if (response.hasEntity()) {
+                ShopsResponse wrapper = response.readEntity(ShopsResponse.class);
+                List<Shop> shops = wrapper.getShops();
+                for (Shop shop : shops) {
+                    shop.setInsertedAt(new Date());
+                }
+//                if (next != null) {
+//                    shops.addAll()
+//                }
+                return null;
+            } else {
+                log.error("No entity in the response.");
+                return null;
+            }
+        }
+    }
+
+    private Link checkLinks(Response response) {
+        if (response.hasLink("next")) {
+            return response.getLink("next");
+        } else if (response.hasLink("last")) {
+            return response.getLink("last");
+        } else {
             return null;
         }
     }
 
     @Override
-    public List<Product> searchProductsByName(String productName) {
+    public Page<Sku> searchSkuByName(String productName) {
+        return null;
+    }
+
+    @Override
+    public Page<Product> searchProductsByName(String productName) {
 //        URI productsUri = UriBuilder.fromPath(API_HOST).path(SEARCH_PRODUCTS)
 //                .queryParam("shop_uid", "{shopUid}").build(shopId, shopUid);
-        return null;
-    }
-
-    @Override
-    public List<Sku> searchSkuByName(String productName) {
-        return null;
-    }
-
-    @Override
-    public Shop getShop(Integer shopId) {
-        return null;
-    }
-
-    @Override
-    public Shop getShop(String shopName) {
         return null;
     }
 
@@ -236,11 +289,6 @@ public final class SkroutzRestClient implements RestClient {
 
     @Override
     public Category getCategory(String categoryName) {
-        return null;
-    }
-
-    @Override
-    public List<Product> getAllProducts() {
         return null;
     }
 
