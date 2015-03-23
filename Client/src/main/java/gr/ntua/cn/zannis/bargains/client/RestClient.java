@@ -32,7 +32,7 @@ public interface RestClient {
      */
     public Product checkProduct(Product product);
 
-    public Product getProductByShopUid(String shopUid);
+    public Product getProductByShopUid(long shopId, String shopUid);
 
     public List<Product> searchProductsByName(String name);
 

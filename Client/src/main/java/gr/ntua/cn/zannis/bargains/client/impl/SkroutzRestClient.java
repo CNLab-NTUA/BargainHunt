@@ -1,10 +1,10 @@
 package gr.ntua.cn.zannis.bargains.client.impl;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.client.RestClient;
+import gr.ntua.cn.zannis.bargains.client.dto.ProductsResponse;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
 import gr.ntua.cn.zannis.bargains.entities.Category;
 import gr.ntua.cn.zannis.bargains.entities.Product;
@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -54,9 +55,24 @@ public final class SkroutzRestClient implements RestClient {
         initClientConfig();
     }
 
+    public static void main(String[] args) {
+        try {
+            Utils.initPropertiesFiles();
+            SkroutzRestClient client = new SkroutzRestClient();
+            Product p = client.getProductById(18427940);
+//            Product p2 = client.checkProduct(p);
+//            client.getProductByShopUid(11, "2209985");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     /**
      * Method that initializes our custom client configuration to
      * deserialize wrapped objects from JSON.
+     * Update: removed Root Unwrapping.
      */
     private void initClientConfig() {
         // Jersey uses java.util.logging - bridge to slf4
@@ -64,8 +80,7 @@ public final class SkroutzRestClient implements RestClient {
         SLF4JBridgeHandler.install();
         JacksonJaxbJsonProvider jacksonProvider = new JacksonJaxbJsonProvider();
         jacksonProvider.setMapper(new ObjectMapper()
-                .configure(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)
-                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true));
+                .configure(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true));
         config.register(new LoggingFilter(java.util.logging.Logger.getLogger(getClass().getCanonicalName()), true))
                 .register(new CsrfProtectionFilter())
                 .register(jacksonProvider);
@@ -107,20 +122,6 @@ public final class SkroutzRestClient implements RestClient {
                 .get();
     }
 
-    public static void main(String[] args) {
-        try {
-            Utils.initPropertiesFiles();
-            SkroutzRestClient client = new SkroutzRestClient();
-            Product p = client.getProductById(18427940);
-            Product p2 = client.checkProduct(p);
-            System.out.println(p2);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     @Override
     public Product getProductById(Integer productId) {
         URI productUri = UriBuilder.fromPath(API_HOST).path(SINGLE_PRODUCT).build(productId);
@@ -132,18 +133,24 @@ public final class SkroutzRestClient implements RestClient {
             // parse useful headers
             String eTag = response.getHeaderString("ETag");
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
-            // parse entity
-            if (response.hasEntity()) {
-                Product product = response.readEntity(Product.class);
-                product.setEtag(eTag);
-                product.setInsertedAt(new Date());
-                product.setCheckedAt(new Date());
-                return product;
-            } else {
-                log.error("No entity in the response.");
-                return null;
+            // try to parse entity
+            try {
+                if (response.hasEntity()) {
+                    ProductsResponse wrapper = response.readEntity(ProductsResponse.class);
+                    wrapper.getProduct().setEtag(eTag);
+                    wrapper.getProduct().setInsertedAt(new Date());
+                    wrapper.getProduct().setCheckedAt(new Date());
+                    return wrapper.getProduct();
+                } else {
+                    log.error("No entity in the response.");
+                    return null;
+                }
+            } catch (ProcessingException e) {
+                log.error("Error parsing JSON");
+                e.printStackTrace();
             }
         }
+        return null;
     }
 
     @Override
@@ -160,7 +167,7 @@ public final class SkroutzRestClient implements RestClient {
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
-                product.updateFromJson(response.readEntity(Product.class), eTag);
+                product.updateFromJson(response.readEntity(ProductsResponse.class).getProduct(), eTag);
                 return product;
             } else {
                 log.error("No entity in the response.");
@@ -184,7 +191,8 @@ public final class SkroutzRestClient implements RestClient {
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
-                Product product = response.readEntity(Product.class);
+                ProductsResponse wrapper = response.readEntity(ProductsResponse.class);
+                Product product = wrapper.getProducts().get(0);
                 product.setEtag(eTag);
                 product.setInsertedAt(new Date());
                 product.setCheckedAt(new Date());
