@@ -2,6 +2,7 @@ package gr.ntua.cn.zannis.bargains.client.entities;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.util.Date;
 
@@ -9,6 +10,7 @@ import java.util.Date;
  * The shop persistent entity containing JSON fields as well as custom database fields.
  * @author zannis <zannis.kal@gmail.com>
  */
+@JsonRootName("shop")
 public class Shop {
     private long id;
     private long skroutzId;

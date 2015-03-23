@@ -25,5 +25,6 @@ public class Const {
     public static final String SEARCH_PRODUCTS = "/shops/{shopId}/products/search";
     public static final String SINGLE_SHOP = "/shops/{id}";
     public static final String SKUS = "/categories/{categoryId}/skus";
+    public static final String ALL_CATEGORIES = "/categories";
 
 }

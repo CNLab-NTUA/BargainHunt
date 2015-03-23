@@ -17,7 +17,7 @@ import java.util.Properties;
 @SuppressWarnings("unused")
 public class TokenResponse {
 
-    Logger log = LoggerFactory.getLogger(TokenResponse.class);
+    private final Logger log = LoggerFactory.getLogger(TokenResponse.class);
 
     private String accessToken;
     private String tokenType;

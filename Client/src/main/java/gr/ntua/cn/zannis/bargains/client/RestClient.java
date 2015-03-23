@@ -1,6 +1,6 @@
 package gr.ntua.cn.zannis.bargains.client;
 
-import gr.ntua.cn.zannis.bargains.client.components.Page;
+import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.entities.Product;
 import gr.ntua.cn.zannis.bargains.client.entities.Shop;
@@ -54,10 +54,20 @@ public interface RestClient {
      */
     public Shop getShopById(Integer shopId);
 
+    /**
+     * Create a request for a specific shop using a String query. This is supposed to
+     * be used when we don't have a persistent instance of the shop and we don't know
+     * its id. Can return multiple results.
+     * @param shopName The shop name we search for.
+     * @return A {@link gr.ntua.cn.zannis.bargains.client.dto.meta.Page} containing
+     * the returned shops.
+     */
     public Page<Shop> searchShopsByName(String shopName);
 
     public Category getCategory(Integer categoryId);
 
     public Category getCategory(String categoryName);
+
+    public Page<Category> getAllCategories();
 
 }

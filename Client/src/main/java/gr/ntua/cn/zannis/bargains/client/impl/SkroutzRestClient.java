@@ -4,9 +4,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.client.RestClient;
-import gr.ntua.cn.zannis.bargains.client.components.Page;
-import gr.ntua.cn.zannis.bargains.client.dto.ProductsResponse;
-import gr.ntua.cn.zannis.bargains.client.dto.ShopsResponse;
+import gr.ntua.cn.zannis.bargains.client.dto.CategoryResponse;
+import gr.ntua.cn.zannis.bargains.client.dto.ProductResponse;
+import gr.ntua.cn.zannis.bargains.client.dto.ShopResponse;
+import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.entities.Product;
 import gr.ntua.cn.zannis.bargains.client.entities.Shop;
@@ -28,7 +29,8 @@ import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
 
@@ -103,6 +105,25 @@ public final class SkroutzRestClient implements RestClient {
     }
 
     /**
+     * Helper function to extract Link headers from a HTTP response.
+     * @param response The response to extract headers from.
+     * @return A map of Link urls.
+     */
+    private Map<String, Link> getLinks(Response response) {
+        Map<String, Link> map = new HashMap<>(3);
+        if (response.hasLink("next")) {
+            map.put("next", response.getLink("next"));
+        }
+        if (response.hasLink("prev")) {
+            map.put("prev", response.getLink("prev"));
+        }
+        if (response.hasLink("last")) {
+            map.put("last", response.getLink("last"));
+        }
+        return map;
+    }
+
+    /**
      * Creates a conditional GET HTTP request to the Skroutz API. All conditional
      * public GET methods should use this since its preconfigured using our custom
      * configuration. This method follows redirects, accepts JSON entities and contains
@@ -135,7 +156,7 @@ public final class SkroutzRestClient implements RestClient {
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
-                ProductsResponse wrapper = response.readEntity(ProductsResponse.class);
+                ProductResponse wrapper = response.readEntity(ProductResponse.class);
                 wrapper.getProduct().setEtag(eTag);
                 wrapper.getProduct().setInsertedAt(new Date());
                 wrapper.getProduct().setCheckedAt(new Date());
@@ -161,7 +182,7 @@ public final class SkroutzRestClient implements RestClient {
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
-                product.updateFromJson(response.readEntity(ProductsResponse.class).getProduct(), eTag);
+                product.updateFromJson(response.readEntity(ProductResponse.class).getProduct(), eTag);
                 return product;
             } else {
                 log.error("No entity in the response.");
@@ -188,7 +209,7 @@ public final class SkroutzRestClient implements RestClient {
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
-                ProductsResponse wrapper = response.readEntity(ProductsResponse.class);
+                ProductResponse wrapper = response.readEntity(ProductResponse.class);
                 Product product = wrapper.getProducts().get(0);
                 product.setEtag(eTag);
                 product.setInsertedAt(new Date());
@@ -215,7 +236,7 @@ public final class SkroutzRestClient implements RestClient {
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
-                ShopsResponse wrapper = response.readEntity(ShopsResponse.class);
+                ShopResponse wrapper = response.readEntity(ShopResponse.class);
                 wrapper.getShop().setEtag(eTag);
                 wrapper.getShop().setInsertedAt(new Date());
                 return wrapper.getShop();
@@ -237,36 +258,19 @@ public final class SkroutzRestClient implements RestClient {
             return null;
         } else {
             // parse useful headers
-
-            Link next = checkLinks(response);
-
-            // TODO: parse Link headers for more pages
+            Map<String, Link> links = getLinks(response);
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
-                ShopsResponse wrapper = response.readEntity(ShopsResponse.class);
-                List<Shop> shops = wrapper.getShops();
-                for (Shop shop : shops) {
+                Page<Shop> page = response.readEntity(ShopResponse.class).toPage(links);
+                for (Shop shop : page.getItems()) {
                     shop.setInsertedAt(new Date());
                 }
-//                if (next != null) {
-//                    shops.addAll()
-//                }
-                return null;
+                return page;
             } else {
                 log.error("No entity in the response.");
                 return null;
             }
-        }
-    }
-
-    private Link checkLinks(Response response) {
-        if (response.hasLink("next")) {
-            return response.getLink("next");
-        } else if (response.hasLink("last")) {
-            return response.getLink("last");
-        } else {
-            return null;
         }
     }
 
@@ -290,6 +294,38 @@ public final class SkroutzRestClient implements RestClient {
     @Override
     public Category getCategory(String categoryName) {
         return null;
+    }
+
+    @Override
+    public Page<Category> getAllCategories() {
+        URI shopUri = UriBuilder.fromPath(API_HOST).path(ALL_CATEGORIES).build();
+        Response response = sendUnconditionalGetRequest(shopUri);
+        // check response status first
+        if (response.getStatus() != 200) {
+            log.error(response.getStatusInfo().getReasonPhrase());
+            return null;
+        } else {
+            // parse useful headers
+            Map<String, Link> links = getLinks(response);
+            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            // parse entity
+            if (response.hasEntity()) {
+                Page<Category> page = response.readEntity(CategoryResponse.class).toPage(links);
+                for (Category category : page.getItems()) {
+                    category.setInsertedAt(new Date());
+                }
+                return page;
+            } else {
+                log.error("No entity in the response.");
+                return null;
+            }
+        }
+    }
+
+    public Page<?> nextPage(Page<?> page) {
+        if (page.hasNext()) {
+            if (page.getClass().equals(Page.class))
+        }
     }
 
     public int getRemainingRequests() {

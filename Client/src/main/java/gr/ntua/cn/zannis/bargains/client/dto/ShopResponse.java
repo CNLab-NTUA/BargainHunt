@@ -2,15 +2,18 @@ package gr.ntua.cn.zannis.bargains.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Meta;
+import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.entities.Shop;
 
+import javax.ws.rs.core.Link;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The class that wraps the JSON entity responses from shop related requests.
  * @author zannis <zannis.kal@gmail.com>
  */
-public class ShopsResponse {
+public class ShopResponse {
     private Shop shop;
     private List<Shop> shops;
     private List<Shop.Review> reviews;
@@ -18,12 +21,12 @@ public class ShopsResponse {
     private Shop.Location location;
     private Meta meta;
 
-    public ShopsResponse(@JsonProperty("shop") Shop shop,
-                         @JsonProperty("shops") List<Shop> shops,
-                         @JsonProperty("reviews") List<Shop.Review> reviews,
-                         @JsonProperty("locations") List<Shop.Location> locations,
-                         @JsonProperty("location") Shop.Location location,
-                         @JsonProperty("meta") Meta meta) {
+    public ShopResponse(@JsonProperty("shop") Shop shop,
+                        @JsonProperty("shops") List<Shop> shops,
+                        @JsonProperty("reviews") List<Shop.Review> reviews,
+                        @JsonProperty("locations") List<Shop.Location> locations,
+                        @JsonProperty("location") Shop.Location location,
+                        @JsonProperty("meta") Meta meta) {
         this.shop = shop;
         this.shops = shops;
         this.reviews = reviews;
@@ -78,5 +81,9 @@ public class ShopsResponse {
 
     public void setMeta(Meta meta) {
         this.meta = meta;
+    }
+
+    public Page<Shop> toPage(Map<String, Link> links) {
+        return new Page<>(shops, meta.getPagination(), links.get("prev"), links.get("next"), links.get("last"));
     }
 }

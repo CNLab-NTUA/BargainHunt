@@ -71,4 +71,8 @@ public class Pagination {
     public boolean isLastPage() {
         return (page == totalPages);
     }
+
+    public boolean hasNext() {
+        return (page < totalPages);
+    }
 }
