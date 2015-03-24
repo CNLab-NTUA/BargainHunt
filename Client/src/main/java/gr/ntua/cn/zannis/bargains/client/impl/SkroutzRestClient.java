@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.client.RestClient;
-import gr.ntua.cn.zannis.bargains.client.dto.RestResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.impl.*;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
@@ -274,8 +273,23 @@ public final class SkroutzRestClient implements RestClient {
 
     @Override
     public Page<Category> getAllCategories() {
-        URI shopUri = UriBuilder.fromPath(API_HOST).path(ALL_CATEGORIES).build();
-        Response response = sendUnconditionalGetRequest(shopUri);
+        return getAll(Category.class);
+    }
+
+    public <T extends PersistentEntity> Page<T> nextPage(Page<T> page) {
+        if (page.hasNext()) {
+            // get link, unconditional query at link, getFirstPage
+        }
+    }
+
+    public <T extends PersistentEntity> Page<T> getAll(Class<T> tClass) {
+        URI uri = getMatchingUri(tClass, null, null);
+        Class<? extends RestResponseImpl<T>> responseClass = getMatchingResponse(tClass);
+        Response response = sendUnconditionalGetRequest(uri);
+        return getFirstPage(responseClass, response);
+    }
+
+    private <T extends PersistentEntity> Page<T> getFirstPage(Class<? extends RestResponseImpl<T>> responseClass, Response response) {
         // check response status first
         if (response.getStatus() != 200) {
             log.error(response.getStatusInfo().getReasonPhrase());
@@ -286,9 +300,9 @@ public final class SkroutzRestClient implements RestClient {
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
-                Page<Category> page = response.readEntity(CategoryResponse.class).toPage(links);
-                for (Category category : page.getItems()) {
-                    category.setInsertedAt(new Date());
+                Page<T> page = response.readEntity(responseClass).getPage();
+                for (T item : page.getItems()) {
+                    item.setInsertedAt(new Date());
                 }
                 return page;
             } else {
@@ -298,34 +312,35 @@ public final class SkroutzRestClient implements RestClient {
         }
     }
 
-//    public Page<?> nextPage(Page<?> page) {
-//        if (page.hasNext()) {
-//            if (page.getClass().equals(Page.class))
-//        }
-//    }
-
     public <T extends PersistentEntity> T getById(Class<T> tClass, Integer id) {
-        URI uri;
-        Class<? extends RestResponseImpl<T>> responseClass;
-        if (tClass.equals(Product.class)) {
-            uri = UriBuilder.fromPath(API_HOST).path(PRODUCTS).path(ID).build(id);
-            responseClass = ProductResponse.class;
-        } else if (tClass.equals(Shop.class)) {
-            uri = UriBuilder.fromPath(API_HOST).path(SHOPS).path(ID).build(id);
-            responseClass = (Class<? extends RestResponseImpl<T>>) ShopResponse.class;
-        } else if (tClass.equals(Category.class)) {
-            uri = UriBuilder.fromPath(API_HOST).path(CATEGORIES).path(ID).build(id);
-            responseClass = CategoryResponse.class;
-        } else if (tClass.equals(Sku.class)) {
-            uri = UriBuilder.fromPath(API_HOST).path(SKUS).path(ID).build(id);
-            responseClass = SkuResponse.class;
-        } else if (tClass.equals(Manufacturer.class)) {
-            uri = UriBuilder.fromPath(API_HOST).path(MANUFACTURERS).path(ID).build(id);
-            responseClass = ManufacturerResponse.class;
+        URI uri = getMatchingUri(tClass, ID, id);
+        Class<? extends RestResponseImpl<T>> responseClass = getMatchingResponse(tClass);
+        if (uri != null && responseClass != null) {
+            Response response = sendUnconditionalGetRequest(uri);
+            return getEntity(responseClass, response);
         } else {
             return null;
         }
-        Response response = sendUnconditionalGetRequest(uri);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends PersistentEntity> Class<? extends RestResponseImpl<T>> getMatchingResponse(Class<T> tClass) {
+        if (tClass.equals(Product.class)) {
+            return (Class<? extends RestResponseImpl<T>>) ProductResponse.class;
+        } else if (tClass.equals(Shop.class)) {
+            return (Class<? extends RestResponseImpl<T>>) ShopResponse.class;
+        } else if (tClass.equals(Category.class)) {
+            return (Class<? extends RestResponseImpl<T>>) CategoryResponse.class;
+        } else if (tClass.equals(Sku.class)) {
+            return (Class<? extends RestResponseImpl<T>>) SkuResponse.class;
+        } else if (tClass.equals(Manufacturer.class)) {
+            return (Class<? extends RestResponseImpl<T>>) ManufacturerResponse.class;
+        } else {
+            return null;
+        }
+    }
+
+    private <T extends PersistentEntity> T getEntity(Class<? extends RestResponseImpl<T>> responseClass, Response response) {
         // check response status first
         if (response.getStatus() != 200) {
             log.error(response.getStatusInfo().getReasonPhrase());
@@ -336,16 +351,34 @@ public final class SkroutzRestClient implements RestClient {
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
-                RestResponse wrapper = response.readEntity(responseClass);
+                RestResponseImpl<T> wrapper = response.readEntity(responseClass);
                 wrapper.getItem().setEtag(eTag);
                 wrapper.getItem().setInsertedAt(new Date());
                 wrapper.getItem().setCheckedAt(new Date());
-                return (T) wrapper.getItem();
+                return wrapper.getItem();
             } else {
                 log.error("No entity in the response.");
                 return null;
             }
         }
+    }
+
+    private <T extends PersistentEntity> URI getMatchingUri(Class<T> tClass, String template, Object value) {
+        UriBuilder builder = UriBuilder.fromPath(API_HOST);
+        if (tClass.equals(Product.class)) {
+            builder.path(PRODUCTS);
+        } else if (tClass.equals(Shop.class)) {
+            builder.path(SHOPS);
+        } else if (tClass.equals(Category.class)) {
+            builder.path(CATEGORIES);
+        } else if (tClass.equals(Sku.class)) {
+            builder.path(SKUS);
+        } else if (tClass.equals(Manufacturer.class)) {
+            builder.path(MANUFACTURERS);
+        } else {
+            return null;
+        }
+        return builder.path(template).build(value);
     }
 
     public int getRemainingRequests() {
