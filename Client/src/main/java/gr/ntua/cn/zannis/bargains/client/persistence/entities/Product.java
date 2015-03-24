@@ -1,8 +1,9 @@
-package gr.ntua.cn.zannis.bargains.client.entities;
+package gr.ntua.cn.zannis.bargains.client.persistence.entities;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.util.Date;
@@ -14,7 +15,7 @@ import java.util.Date;
  * @author zannis <zannis.kal@gmail.com
  */
 @JsonRootName("product")
-public class Product {
+public class Product extends PersistentEntity {
 
     private long id;
     private long skroutzId;
@@ -26,13 +27,6 @@ public class Product {
     private String clickUrl;
     private String shopUid;
     private float price;
-    private String etag;
-    private Date insertedAt;
-    private Date checkedAt;
-    private Date modifiedAt;
-
-    public Product() {
-    }
 
     @JsonCreator
     public Product(@JsonProperty("id") long skroutzId,
@@ -44,6 +38,7 @@ public class Product {
                    @JsonProperty("click_url") String clickUrl,
                    @JsonProperty("shop_uid") String shopUid,
                    @JsonProperty("price") float price) {
+        super();
         this.skroutzId = skroutzId;
         this.name = StringEscapeUtils.unescapeJson(name);
         this.skuId = skuId;
@@ -53,9 +48,6 @@ public class Product {
         this.clickUrl = clickUrl;
         this.shopUid = shopUid;
         this.price = price;
-        Date now = new Date();
-        this.checkedAt = now;
-        this.insertedAt = now;
     }
 
     public long getId() {
@@ -130,44 +122,12 @@ public class Product {
         this.price = price;
     }
 
-    public String getEtag() {
-        return etag;
-    }
-
-    public void setEtag(String etag) {
-        this.etag = etag;
-    }
-
     public long getSkroutzId() {
         return skroutzId;
     }
 
     public void setSkroutzId(long skroutzId) {
         this.skroutzId = skroutzId;
-    }
-
-    public Date getInsertedAt() {
-        return insertedAt;
-    }
-
-    public void setInsertedAt(Date insertedAt) {
-        this.insertedAt = insertedAt;
-    }
-
-    public Date getCheckedAt() {
-        return checkedAt;
-    }
-
-    public void setCheckedAt(Date checkedAt) {
-        this.checkedAt = checkedAt;
-    }
-
-    public Date getModifiedAt() {
-        return modifiedAt;
-    }
-
-    public void setModifiedAt(Date modifiedAt) {
-        this.modifiedAt = modifiedAt;
     }
 
     /**
@@ -186,12 +146,10 @@ public class Product {
         this.price = product.price;
         this.checkedAt = now;
         this.modifiedAt = now;
-        this.etag = eTag;
+        if (eTag != null) {
+            this.etag = eTag;
+        }
         return this;
-    }
-
-    public void wasJustChecked() {
-        this.checkedAt = new Date();
     }
 
     @Override

@@ -1,4 +1,6 @@
-package gr.ntua.cn.zannis.bargains.client.entities;
+package gr.ntua.cn.zannis.bargains.client.persistence.entities;
+
+import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
 
 import java.util.List;
 
@@ -6,7 +8,7 @@ import java.util.List;
  * The persistent class for a collection of products.
  * @author zannis <zannis.kal@gmail.com
  */
-public class Sku {
+public class Sku extends PersistentEntity {
     private long id;
     private long skroutzId;
     private String ean;

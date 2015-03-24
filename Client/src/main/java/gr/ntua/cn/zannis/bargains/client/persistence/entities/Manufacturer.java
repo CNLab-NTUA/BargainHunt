@@ -1,4 +1,6 @@
-package gr.ntua.cn.zannis.bargains.client.entities;
+package gr.ntua.cn.zannis.bargains.client.persistence.entities;
+
+import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
 
 import java.util.List;
 
@@ -6,7 +8,7 @@ import java.util.List;
  * Persistent class for the Manufacturer entity.
  * @author zannis <zannis.kal@gmail.com
  */
-public class Manufacturer {
+public class Manufacturer extends PersistentEntity {
     private long id;
     private long skroutzId;
     private String name;

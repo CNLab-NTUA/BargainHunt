@@ -4,15 +4,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.client.RestClient;
-import gr.ntua.cn.zannis.bargains.client.dto.CategoryResponse;
-import gr.ntua.cn.zannis.bargains.client.dto.ProductResponse;
-import gr.ntua.cn.zannis.bargains.client.dto.ShopResponse;
+import gr.ntua.cn.zannis.bargains.client.dto.RestResponse;
+import gr.ntua.cn.zannis.bargains.client.dto.impl.*;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
-import gr.ntua.cn.zannis.bargains.client.entities.Category;
-import gr.ntua.cn.zannis.bargains.client.entities.Product;
-import gr.ntua.cn.zannis.bargains.client.entities.Shop;
-import gr.ntua.cn.zannis.bargains.client.entities.Sku;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
+import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
@@ -144,33 +141,12 @@ public final class SkroutzRestClient implements RestClient {
 
     @Override
     public Product getProductById(Integer productId) {
-        URI productUri = UriBuilder.fromPath(API_HOST).path(SINGLE_PRODUCT).build(productId);
-        Response response = sendUnconditionalGetRequest(productUri);
-        // check response status first
-        if (response.getStatus() != 200) {
-            log.error(response.getStatusInfo().getReasonPhrase());
-            return null;
-        } else {
-            // parse useful headers
-            String eTag = response.getHeaderString("ETag");
-            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
-            // parse entity
-            if (response.hasEntity()) {
-                ProductResponse wrapper = response.readEntity(ProductResponse.class);
-                wrapper.getProduct().setEtag(eTag);
-                wrapper.getProduct().setInsertedAt(new Date());
-                wrapper.getProduct().setCheckedAt(new Date());
-                return wrapper.getProduct();
-            } else {
-                log.error("No entity in the response.");
-                return null;
-            }
-        }
+        return getById(Product.class, productId);
     }
 
     @Override
     public Product checkProduct(Product product) {
-        URI productUri = UriBuilder.fromPath(API_HOST).path(SINGLE_PRODUCT).build(product.getSkroutzId());
+        URI productUri = UriBuilder.fromPath(API_HOST).path(PRODUCTS).build(product.getSkroutzId());
         Response response = sendConditionalGetRequest(productUri, product.getEtag());
         // check response status first
         if (response.getStatus() == 304) {
@@ -224,7 +200,7 @@ public final class SkroutzRestClient implements RestClient {
 
     @Override
     public Shop getShopById(Integer shopId) {
-        URI shopUri = UriBuilder.fromPath(API_HOST).path(SINGLE_SHOP).build(shopId);
+        URI shopUri = UriBuilder.fromPath(API_HOST).path(SHOPS).build(shopId);
         Response response = sendUnconditionalGetRequest(shopUri);
         // check response status first
         if (response.getStatus() != 200) {
@@ -322,9 +298,53 @@ public final class SkroutzRestClient implements RestClient {
         }
     }
 
-    public Page<?> nextPage(Page<?> page) {
-        if (page.hasNext()) {
-            if (page.getClass().equals(Page.class))
+//    public Page<?> nextPage(Page<?> page) {
+//        if (page.hasNext()) {
+//            if (page.getClass().equals(Page.class))
+//        }
+//    }
+
+    public <T extends PersistentEntity> T getById(Class<T> tClass, Integer id) {
+        URI uri;
+        Class<? extends RestResponseImpl<T>> responseClass;
+        if (tClass.equals(Product.class)) {
+            uri = UriBuilder.fromPath(API_HOST).path(PRODUCTS).path(ID).build(id);
+            responseClass = ProductResponse.class;
+        } else if (tClass.equals(Shop.class)) {
+            uri = UriBuilder.fromPath(API_HOST).path(SHOPS).path(ID).build(id);
+            responseClass = (Class<? extends RestResponseImpl<T>>) ShopResponse.class;
+        } else if (tClass.equals(Category.class)) {
+            uri = UriBuilder.fromPath(API_HOST).path(CATEGORIES).path(ID).build(id);
+            responseClass = CategoryResponse.class;
+        } else if (tClass.equals(Sku.class)) {
+            uri = UriBuilder.fromPath(API_HOST).path(SKUS).path(ID).build(id);
+            responseClass = SkuResponse.class;
+        } else if (tClass.equals(Manufacturer.class)) {
+            uri = UriBuilder.fromPath(API_HOST).path(MANUFACTURERS).path(ID).build(id);
+            responseClass = ManufacturerResponse.class;
+        } else {
+            return null;
+        }
+        Response response = sendUnconditionalGetRequest(uri);
+        // check response status first
+        if (response.getStatus() != 200) {
+            log.error(response.getStatusInfo().getReasonPhrase());
+            return null;
+        } else {
+            // parse useful headers
+            String eTag = response.getHeaderString("ETag");
+            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            // parse entity
+            if (response.hasEntity()) {
+                RestResponse wrapper = response.readEntity(responseClass);
+                wrapper.getItem().setEtag(eTag);
+                wrapper.getItem().setInsertedAt(new Date());
+                wrapper.getItem().setCheckedAt(new Date());
+                return (T) wrapper.getItem();
+            } else {
+                log.error("No entity in the response.");
+                return null;
+            }
         }
     }
 

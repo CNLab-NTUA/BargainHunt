@@ -1,10 +1,10 @@
-package gr.ntua.cn.zannis.bargains.client.entities;
+package gr.ntua.cn.zannis.bargains.client.persistence.entities;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,7 +12,7 @@ import java.util.List;
  * @author zannis <zannis.kal@gmail.com>
  */
 @JsonRootName("category")
-public class Category {
+public class Category extends PersistentEntity {
     private long id;
     private long skroutzId;
     private String name;
@@ -23,7 +23,6 @@ public class Category {
     private List<Long> parentPath;
     private boolean showSpecifications;
     private String manufacturerTitle;
-    private Date insertedAt;
 
     @JsonCreator
     public Category(@JsonProperty("id") long skroutzId,
@@ -124,13 +123,5 @@ public class Category {
 
     public void setManufacturerTitle(String manufacturerTitle) {
         this.manufacturerTitle = manufacturerTitle;
-    }
-
-    public Date getInsertedAt() {
-        return insertedAt;
-    }
-
-    public void setInsertedAt(Date insertedAt) {
-        this.insertedAt = insertedAt;
     }
 }

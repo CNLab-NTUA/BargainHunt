@@ -1,4 +1,4 @@
-package gr.ntua.cn.zannis.bargains.client.dto;
+package gr.ntua.cn.zannis.bargains.client.dto.impl;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;

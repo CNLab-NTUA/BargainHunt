@@ -1,17 +1,16 @@
-package gr.ntua.cn.zannis.bargains.client.entities;
+package gr.ntua.cn.zannis.bargains.client.persistence.entities;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import java.util.Date;
+import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
 
 /**
  * The shop persistent entity containing JSON fields as well as custom database fields.
  * @author zannis <zannis.kal@gmail.com>
  */
 @JsonRootName("shop")
-public class Shop {
+public class Shop extends PersistentEntity {
     private long id;
     private long skroutzId;
     private String name;
@@ -22,8 +21,6 @@ public class Shop {
     private int reviewCount;
     private int reviewScore;
     private PaymentMethods paymentMethods;
-    private String etag;
-    private Date insertedAt;
     private int bargainsFound;
 
     @JsonCreator
@@ -190,22 +187,6 @@ public class Shop {
 
     public void setPaymentMethods(PaymentMethods paymentMethods) {
         this.paymentMethods = paymentMethods;
-    }
-
-    public String getEtag() {
-        return etag;
-    }
-
-    public void setEtag(String etag) {
-        this.etag = etag;
-    }
-
-    public Date getInsertedAt() {
-        return insertedAt;
-    }
-
-    public void setInsertedAt(Date insertedAt) {
-        this.insertedAt = insertedAt;
     }
 
     public int getBargainsFound() {

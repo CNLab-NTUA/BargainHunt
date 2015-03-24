@@ -21,10 +21,17 @@ public class Const {
 
     // uri templates
     public static final String API_HOST = "https://api.skroutz.gr";
-    public static final String SINGLE_PRODUCT = "/products/{id}";
+    public static final String PRODUCTS = "/products";
+    public static final String SHOPS = "/shops";
+    public static final String CATEGORIES = "/categories";
+    public static final String SKUS = "/skus";
+    public static final String MANUFACTURERS = "/manufacturers";
+    public static final String ID = "/{id}";
+    public static final String SEARCH = "/search";
+
+
     public static final String SEARCH_PRODUCTS = "/shops/{shopId}/products/search";
-    public static final String SINGLE_SHOP = "/shops/{id}";
-    public static final String SKUS = "/categories/{categoryId}/skus";
+    public static final String SKUS1 = "/categories/{categoryId}/skus";
     public static final String ALL_CATEGORIES = "/categories";
 
 }
