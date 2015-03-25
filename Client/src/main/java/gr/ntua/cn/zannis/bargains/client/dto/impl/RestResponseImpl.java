@@ -3,7 +3,7 @@ package gr.ntua.cn.zannis.bargains.client.dto.impl;
 import gr.ntua.cn.zannis.bargains.client.dto.RestResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Meta;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
-import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
+import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
 import javax.ws.rs.core.Link;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @author zannis <zannis.kal@gmail.com
  */
-public class RestResponseImpl<T extends PersistentEntity> implements RestResponse<T> {
+public class RestResponseImpl<T extends SkroutzEntity> implements RestResponse<T> {
     protected Map<String, Link> links;
     protected List<T> items;
     protected T item;

@@ -1,7 +1,7 @@
 package gr.ntua.cn.zannis.bargains.client.persistence.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
+import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import java.util.List;
  * Persistent class for the Manufacturer entity.
  * @author zannis <zannis.kal@gmail.com
  */
-public class Manufacturer extends PersistentEntity {
+public class Manufacturer extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
 

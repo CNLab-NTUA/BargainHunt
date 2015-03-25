@@ -3,7 +3,7 @@ package gr.ntua.cn.zannis.bargains.client.impl;
 import gr.ntua.cn.zannis.bargains.client.dto.RestResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.impl.*;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
-import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
+import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -46,10 +46,10 @@ public abstract class RestClientImpl {
      * Method to get the next page in a multi-page result scenario.
      * @param tClass The target class type.
      * @param page The previous {@link Page<T>}
-     * @param <T> The class entity that extends {@link PersistentEntity}
+     * @param <T> The class entity that extends {@link SkroutzEntity}
      * @return The next page if it exists
      */
-    protected <T extends PersistentEntity> Page<T> nextPage(Class<T> tClass, Page<T> page) {
+    protected <T extends SkroutzEntity> Page<T> nextPage(Class<T> tClass, Page<T> page) {
         if (page.hasNext()) {
             URI nextUri;
             // could be the last page
@@ -120,10 +120,10 @@ public abstract class RestClientImpl {
     /**
      * Method to get all entities from a given {@link T} entity.
      * @param tClass The class type to retrieve.
-     * @param <T> A class type that represents a {@link PersistentEntity}
+     * @param <T> A class type that represents a {@link SkroutzEntity}
      * @return The first page of the list.
      */
-    protected <T extends PersistentEntity> Page<T> getAll(Class<T> tClass) {
+    protected <T extends SkroutzEntity> Page<T> getAll(Class<T> tClass) {
         URI uri = getMatchingUri(tClass, null);
         Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
         Response response = sendUnconditionalGetRequest(uri);
@@ -134,10 +134,10 @@ public abstract class RestClientImpl {
      * Helper method to wrap a result as a {@link Page}
      * @param responseClass The {@link RestResponseImpl<T>} class used to deserialize the response.
      * @param response The response we got from the server.
-     * @param <T> A class type that extends {@link PersistentEntity}
+     * @param <T> A class type that extends {@link SkroutzEntity}
      * @return The first {@link Page<T>} from the result list.
      */
-    private <T extends PersistentEntity> Page<T> getFirstPage(Class<? extends RestResponse<T>> responseClass, Response response) {
+    private <T extends SkroutzEntity> Page<T> getFirstPage(Class<? extends RestResponse<T>> responseClass, Response response) {
         // check response status first
         if (response.getStatus() != 200) {
             log.error(response.getStatusInfo().getReasonPhrase());
@@ -167,10 +167,10 @@ public abstract class RestClientImpl {
      * Method used to fetch a {@link T} object from the server using its id.
      * @param tClass The class type to fetch.
      * @param id The object's id on the server.
-     * @param <T> A class type that extends {@link PersistentEntity}
+     * @param <T> A class type that extends {@link SkroutzEntity}
      * @return A {@link T} object or null if it wasn't found.
      */
-    protected <T extends PersistentEntity> T getById(Class<T> tClass, Integer id) {
+    protected <T extends SkroutzEntity> T getById(Class<T> tClass, Integer id) {
         URI uri = getMatchingUri(tClass, ID, id);
         Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
         if (uri != null && responseClass != null) {
@@ -183,10 +183,10 @@ public abstract class RestClientImpl {
 
     /**
      * Method to fetch paginated results that use query parameters.
-     * @param <T> The class that extends {@link PersistentEntity}
+     * @param <T> The class that extends {@link SkroutzEntity}
      * @return A {@link Page<T>} object.
      */
-    protected <T extends PersistentEntity> Page<T> getPageByCustomUri(Class<T> tClass, URI uri) {
+    protected <T extends SkroutzEntity> Page<T> getPageByCustomUri(Class<T> tClass, URI uri) {
         Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
         if (uri != null && responseClass != null) {
             Response response = sendUnconditionalGetRequest(uri);
@@ -198,10 +198,10 @@ public abstract class RestClientImpl {
 
     /**
      * Method to fetch entity results that use query parameters.
-     * @param <T> The class that extends {@link PersistentEntity}
+     * @param <T> The class that extends {@link SkroutzEntity}
      * @return A {@link T} object.
      */
-    protected <T extends PersistentEntity> T getEntityByCustomUri(Class<T> tClass, URI uri) {
+    protected <T extends SkroutzEntity> T getEntityByCustomUri(Class<T> tClass, URI uri) {
         Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
         if (uri != null && responseClass != null) {
             Response response = sendUnconditionalGetRequest(uri);
@@ -212,13 +212,13 @@ public abstract class RestClientImpl {
     }
 
     /**
-     * Method that matches a {@link PersistentEntity} to its corresponding {@link RestResponseImpl}
-     * @param tClass The {@link PersistentEntity} class type.
-     * @param <T>    The actual {@link PersistentEntity}.
+     * Method that matches a {@link SkroutzEntity} to its corresponding {@link RestResponseImpl}
+     * @param tClass The {@link SkroutzEntity} class type.
+     * @param <T>    The actual {@link SkroutzEntity}.
      * @return The matching {@link RestResponseImpl}.
      */
     @SuppressWarnings("unchecked")
-    private <T extends PersistentEntity> Class<? extends RestResponse<T>> getMatchingResponse(Class<T> tClass) {
+    private <T extends SkroutzEntity> Class<? extends RestResponse<T>> getMatchingResponse(Class<T> tClass) {
         if (tClass.equals(Product.class)) {
             return (Class<? extends RestResponse<T>>) ProductResponse.class;
         } else if (tClass.equals(Shop.class)) {
@@ -235,7 +235,7 @@ public abstract class RestClientImpl {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends PersistentEntity> Class<? extends RestResponse<T>> getMatchingResponse(T entity) {
+    private <T extends SkroutzEntity> Class<? extends RestResponse<T>> getMatchingResponse(T entity) {
         if (entity instanceof Product) {
             return (Class<? extends RestResponse<T>>) ProductResponse.class;
         } else if (entity instanceof Shop) {
@@ -252,13 +252,13 @@ public abstract class RestClientImpl {
     }
 
     /**
-     * Method that gets a {@link PersistentEntity} from a received {@link Response}.
+     * Method that gets a {@link SkroutzEntity} from a received {@link Response}.
      * @param responseClass The {@link RestResponseImpl} class to use for deserialization.
      * @param response The {@link Response} we got from the API.
-     * @param <T> The {@link PersistentEntity} class we want.
+     * @param <T> The {@link SkroutzEntity} class we want.
      * @return An entity of type {@link T}
      */
-    protected <T extends PersistentEntity> T getEntity(Class<? extends RestResponse<T>> responseClass, Response response) {
+    protected <T extends SkroutzEntity> T getEntity(Class<? extends RestResponse<T>> responseClass, Response response) {
         // check response status first
         if (response.getStatus() != 200) {
             log.error(response.getStatusInfo().getReasonPhrase());
@@ -284,10 +284,10 @@ public abstract class RestClientImpl {
     /**
      * Method used to check for updates to a persistent entity.
      * @param entity The persistent entity.
-     * @return The {@link PersistentEntity} entity
+     * @return The {@link SkroutzEntity} entity
      * with its possibly updated fields or null if there was an error.
      */
-    protected <T extends PersistentEntity> T getByEntity(T entity) {
+    protected <T extends SkroutzEntity> T getByEntity(T entity) {
         URI uri = getMatchingUri(entity.getClass(), ID, entity.getSkroutzId());
         Class<? extends RestResponse<T>> responseClass = getMatchingResponse(entity);
         if (uri != null && responseClass != null) {
@@ -304,10 +304,10 @@ public abstract class RestClientImpl {
      * @param tClass   The persistent entity class type to use as path.
      * @param template The query template.
      * @param values   The values to use to build the query.
-     * @param <T>      A class type extending {@link PersistentEntity}
+     * @param <T>      A class type extending {@link SkroutzEntity}
      * @return A URI matching the above input.
      */
-    private <T extends PersistentEntity> URI getMatchingUri(Class<T> tClass, String template, Object... values) {
+    private <T extends SkroutzEntity> URI getMatchingUri(Class<T> tClass, String template, Object... values) {
         UriBuilder builder = UriBuilder.fromPath(target);
         if (tClass.equals(Product.class)) {
             builder.path(PRODUCTS);

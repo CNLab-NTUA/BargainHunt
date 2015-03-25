@@ -3,14 +3,14 @@ package gr.ntua.cn.zannis.bargains.client.persistence.entities;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
+import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
 /**
  * The Category persistent entity.
  * @author zannis <zannis.kal@gmail.com>
  */
 @JsonRootName("category")
-public class Category extends PersistentEntity {
+public class Category extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
 

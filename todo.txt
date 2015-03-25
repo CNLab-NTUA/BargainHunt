@@ -3,10 +3,6 @@
 * Conditional requests sto api tou skroutz. - done
 * Implement product requests - done
 * Paginated results - done
-* Generic client - in progress
-* Implement shop requests - in progress
+* Generic client - done
 * Δημιουργία tables - in progress
-
-* create a category request
-* create a shop request
-* create a sku request
+* Implement shop requests - in progress

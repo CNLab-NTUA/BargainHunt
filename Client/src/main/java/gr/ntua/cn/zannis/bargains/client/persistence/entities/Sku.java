@@ -1,15 +1,16 @@
 package gr.ntua.cn.zannis.bargains.client.persistence.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
+import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
 import java.util.List;
 
 /**
- * The persistent class for a collection of products.
+ * The persistent class for a Stock Keeping Unit which practically is
+ * a collection of products.
  * @author zannis <zannis.kal@gmail.com
  */
-public class Sku extends PersistentEntity {
+public class Sku extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
 

@@ -8,7 +8,7 @@ import java.util.Date;
  * among all custom classes.
  * @author zannis <zannis.kal@gmail.com
  */
-public class PersistentEntity implements Serializable {
+public class SkroutzEntity implements Serializable {
 
     protected long skroutzId;
     protected Date insertedAt;
@@ -16,7 +16,7 @@ public class PersistentEntity implements Serializable {
     protected Date modifiedAt;
     protected String etag;
 
-    public PersistentEntity() {
+    public SkroutzEntity() {
         Date now = new Date();
         this.checkedAt = now;
         this.insertedAt = now;

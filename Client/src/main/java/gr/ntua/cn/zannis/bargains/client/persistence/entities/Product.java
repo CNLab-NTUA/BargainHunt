@@ -3,7 +3,7 @@ package gr.ntua.cn.zannis.bargains.client.persistence.entities;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
+import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.util.Date;
@@ -15,7 +15,7 @@ import java.util.Date;
  * @author zannis <zannis.kal@gmail.com
  */
 @JsonRootName("product")
-public class Product extends PersistentEntity {
+public class Product extends SkroutzEntity {
 
     private static final long serialVersionUID = -1L;
 
