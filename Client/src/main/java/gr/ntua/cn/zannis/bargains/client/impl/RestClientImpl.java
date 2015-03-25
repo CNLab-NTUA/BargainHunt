@@ -208,6 +208,23 @@ public abstract class RestClientImpl {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private <T extends PersistentEntity> Class<? extends RestResponseImpl<T>> getMatchingResponse(T entity) {
+        if (entity instanceof Product) {
+            return (Class<? extends RestResponseImpl<T>>) ProductResponse.class;
+        } else if (entity instanceof Shop) {
+            return (Class<? extends RestResponseImpl<T>>) ShopResponse.class;
+        } else if (entity instanceof Category) {
+            return (Class<? extends RestResponseImpl<T>>) CategoryResponse.class;
+        } else if (entity instanceof Sku) {
+            return (Class<? extends RestResponseImpl<T>>) SkuResponse.class;
+        } else if (entity instanceof Manufacturer) {
+            return (Class<? extends RestResponseImpl<T>>) ManufacturerResponse.class;
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Method that gets a {@link PersistentEntity} from a received {@link Response}.
      * @param responseClass The {@link RestResponseImpl} class to use for deserialization.
@@ -235,6 +252,23 @@ public abstract class RestClientImpl {
                 log.error("No entity in the response.");
                 return null;
             }
+        }
+    }
+
+    /**
+     * Method used to check for updates to a persistent entity.
+     * @param entity The persistent entity.
+     * @return The {@link PersistentEntity} entity
+     * with its possibly updated fields or null if there was an error.
+     */
+    protected <T extends PersistentEntity> T getByEntity(T entity) {
+        URI uri = getMatchingUri(entity.getClass(), ID, entity.getSkroutzId());
+        Class<? extends RestResponseImpl<T>> responseClass = getMatchingResponse(entity);
+        if (uri != null && responseClass != null) {
+            Response response = sendConditionalGetRequest(uri, entity.getEtag());
+            return getEntity(responseClass, response);
+        } else {
+            return null;
         }
     }
 

@@ -4,22 +4,32 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * A Base class to mark our custom persistent classes.
+ * A Base class to mark our custom persistent classes. Also includes common fields
+ * among all custom classes.
  * @author zannis <zannis.kal@gmail.com
  */
 public class PersistentEntity implements Serializable {
 
     static final long serialVersionUID = -1L;
 
-    protected String etag;
+    protected int skroutzId;
+
     protected Date insertedAt;
     protected Date checkedAt;
     protected Date modifiedAt;
+    protected String etag;
 
     public PersistentEntity() {
         Date now = new Date();
         this.checkedAt = now;
         this.insertedAt = now;
+    }
+    public int getSkroutzId() {
+        return skroutzId;
+    }
+
+    public void setSkroutzId(int skroutzId) {
+        this.skroutzId = skroutzId;
     }
 
     public String getEtag() {

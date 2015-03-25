@@ -23,7 +23,8 @@ import java.net.URI;
 import java.util.Date;
 import java.util.Map;
 
-import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
+import static gr.ntua.cn.zannis.bargains.client.misc.Const.API_HOST;
+import static gr.ntua.cn.zannis.bargains.client.misc.Const.SEARCH_PRODUCTS;
 
 /**
  * Crawler implementation for Bargain hunting application.
@@ -81,37 +82,8 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
 
-    // TODO: implement getByEntity
-    /**
-     * Create a conditional request for a specific product using its persistent
-     * entity.
-     * @param product The persistent entity.
-     * @return The {@link gr.ntua.cn.zannis.bargains.client.persistence.entities.Product} entity
-     * with its possibly updated fields or null if there was an error.
-     */
     public Product checkProduct(Product product) {
-        URI productUri = UriBuilder.fromPath(API_HOST).path(PRODUCTS).build(product.getSkroutzId());
-        Response response = sendConditionalGetRequest(productUri, product.getEtag());
-        // check response status first
-        if (response.getStatus() == 304) {
-            product.wasJustChecked();
-            return product;
-        } else if (response.getStatus() == 200) {
-            // parse useful headers
-            String eTag = response.getHeaderString("ETag");
-            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
-            // parse entity
-            if (response.hasEntity()) {
-                product.updateFromJson(response.readEntity(ProductResponse.class).getProduct(), eTag);
-                return product;
-            } else {
-                log.error("No entity in the response.");
-                return null;
-            }
-        } else {
-            log.error(response.getStatusInfo().getReasonPhrase());
-            return null;
-        }
+        return getByEntity(product);
     }
 
     /**
