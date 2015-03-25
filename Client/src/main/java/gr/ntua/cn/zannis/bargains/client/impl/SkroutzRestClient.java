@@ -24,6 +24,7 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
  * Crawler implementation for Bargain hunting application.
  * @author zannis <zannis.kal@gmail.com>
  */
+@SuppressWarnings("unused")
 public final class SkroutzRestClient extends RestClientImpl {
 
     public SkroutzRestClient(String token) {

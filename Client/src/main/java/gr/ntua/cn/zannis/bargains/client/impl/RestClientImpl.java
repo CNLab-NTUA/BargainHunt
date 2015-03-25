@@ -26,6 +26,7 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
  * to extend this.
  * @author zannis <zannis.kal@gmail.com>
  */
+@SuppressWarnings("unused")
 public abstract class RestClientImpl {
 
     protected static final Logger log = LoggerFactory.getLogger(SkroutzRestClient.class);
