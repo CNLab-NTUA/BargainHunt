@@ -9,8 +9,10 @@ import java.util.List;
  * @author zannis <zannis.kal@gmail.com
  */
 public class Sku extends PersistentEntity {
+
+    protected static final long serialVersionUID = -1L;
+
     private long id;
-    private long skroutzId;
     private String ean;
     private String pn;
     private String name;

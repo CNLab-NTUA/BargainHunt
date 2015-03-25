@@ -11,6 +11,9 @@ import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
  */
 @JsonRootName("shop")
 public class Shop extends PersistentEntity {
+
+    protected static final long serialVersionUID = -1L;
+
     private long id;
     private String name;
     private String link;
@@ -32,6 +35,7 @@ public class Shop extends PersistentEntity {
                 @JsonProperty("reviews_count") int reviewCount,
                 @JsonProperty("review_score") int reviewScore,
                 @JsonProperty("payment_methods") PaymentMethods paymentMethods) {
+        super();
         this.skroutzId = skroutzId;
         this.name = name;
         this.link = link;
@@ -42,71 +46,6 @@ public class Shop extends PersistentEntity {
         this.reviewScore = reviewScore;
         this.paymentMethods = paymentMethods;
     }
-
-    public static class PaymentMethods {
-        private boolean creditCard;
-        private boolean paypal;
-        private boolean bank;
-        private boolean cash;
-        private String comments;
-
-        @JsonCreator
-        public PaymentMethods(@JsonProperty("credit_card") boolean creditCard,
-                              @JsonProperty("paypal") boolean paypal,
-                              @JsonProperty("bank") boolean bank,
-                              @JsonProperty("spot_cash") boolean cash,
-                              @JsonProperty("installments") String comments) {
-            this.creditCard = creditCard;
-            this.paypal = paypal;
-            this.bank = bank;
-            this.cash = cash;
-            this.comments = comments;
-        }
-
-        public boolean isCreditCard() {
-            return creditCard;
-        }
-
-        public void setCreditCard(boolean creditCard) {
-            this.creditCard = creditCard;
-        }
-
-        public boolean isPaypal() {
-            return paypal;
-        }
-
-        public void setPaypal(boolean paypal) {
-            this.paypal = paypal;
-        }
-
-        public boolean isBank() {
-            return bank;
-        }
-
-        public void setBank(boolean bank) {
-            this.bank = bank;
-        }
-
-        public boolean isCash() {
-            return cash;
-        }
-
-        public void setCash(boolean cash) {
-            this.cash = cash;
-        }
-
-        public String getComments() {
-            return comments;
-        }
-
-        public void setComments(String comments) {
-            this.comments = comments;
-        }
-    }
-
-    public static class Review {}
-
-    public static class Location {}
 
     public long getId() {
         return id;
@@ -186,5 +125,72 @@ public class Shop extends PersistentEntity {
 
     public void setBargainsFound(int bargainsFound) {
         this.bargainsFound = bargainsFound;
+    }
+
+    public static class PaymentMethods {
+        private boolean creditCard;
+        private boolean paypal;
+        private boolean bank;
+        private boolean cash;
+        private String comments;
+
+        @JsonCreator
+        public PaymentMethods(@JsonProperty("credit_card") boolean creditCard,
+                              @JsonProperty("paypal") boolean paypal,
+                              @JsonProperty("bank") boolean bank,
+                              @JsonProperty("spot_cash") boolean cash,
+                              @JsonProperty("installments") String comments) {
+            this.creditCard = creditCard;
+            this.paypal = paypal;
+            this.bank = bank;
+            this.cash = cash;
+            this.comments = comments;
+        }
+
+        public boolean isCreditCard() {
+            return creditCard;
+        }
+
+        public void setCreditCard(boolean creditCard) {
+            this.creditCard = creditCard;
+        }
+
+        public boolean isPaypal() {
+            return paypal;
+        }
+
+        public void setPaypal(boolean paypal) {
+            this.paypal = paypal;
+        }
+
+        public boolean isBank() {
+            return bank;
+        }
+
+        public void setBank(boolean bank) {
+            this.bank = bank;
+        }
+
+        public boolean isCash() {
+            return cash;
+        }
+
+        public void setCash(boolean cash) {
+            this.cash = cash;
+        }
+
+        public String getComments() {
+            return comments;
+        }
+
+        public void setComments(String comments) {
+            this.comments = comments;
+        }
+    }
+
+    public static class Review {
+    }
+
+    public static class Location {
     }
 }

@@ -9,13 +9,16 @@ import java.util.List;
  * @author zannis <zannis.kal@gmail.com
  */
 public class Manufacturer extends PersistentEntity {
+
+    protected static final long serialVersionUID = -1L;
+
     private long id;
-    private long skroutzId;
     private String name;
     private String imageUrl;
     private List<Category> categories;
 
     // TODO add jsoncreator
+    private List<Sku> skus;
 
     public long getId() {
         return id;
@@ -64,6 +67,4 @@ public class Manufacturer extends PersistentEntity {
     public void setSkus(List<Sku> skus) {
         this.skus = skus;
     }
-
-    private List<Sku> skus;
 }

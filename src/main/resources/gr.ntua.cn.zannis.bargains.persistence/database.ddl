@@ -3,9 +3,13 @@ CREATE SEQUENCE public.prod_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
 /* create shops table sequence */
 CREATE SEQUENCE public.shop_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
 /* create categories table sequence */
-CREATE SEQUENCE public.categ_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
-/* create categories table sequence */
+CREATE SEQUENCE public.category_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
+/* create prices table sequence */
 CREATE SEQUENCE public.price_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
+/* create skus table sequence */
+CREATE SEQUENCE public.sku_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
+/* create manufacturers table sequence */
+CREATE SEQUENCE public.manufacturer_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
 
 /* products table */
 CREATE TABLE IF NOT EXISTS public.products
@@ -40,7 +44,25 @@ CREATE TABLE IF NOT EXISTS public.shops
 /* categories table */
 CREATE TABLE IF NOT EXISTS public.categories
 (
-  id         SERIAL PRIMARY KEY NOT NULL DEFAULT nextval('categ_seq'),
+  id SERIAL PRIMARY KEY NOT NULL DEFAULT nextval('category_seq'),
+  skroutz_id INT                NOT NULL, -- the shop id we get from a request to the Skroutz API
+  name       VARCHAR(100)       NOT NULL -- the shop name
+
+);
+
+/* skus table */
+CREATE TABLE IF NOT EXISTS public.skus
+(
+  id         SERIAL PRIMARY KEY NOT NULL DEFAULT nextval('sku_seq'),
+  skroutz_id INT                NOT NULL, -- the shop id we get from a request to the Skroutz API
+  name       VARCHAR(100)       NOT NULL -- the shop name
+
+);
+
+/* manufacturers table */
+CREATE TABLE IF NOT EXISTS public.manufacturers
+(
+  id         SERIAL PRIMARY KEY NOT NULL DEFAULT nextval('manufacturer_seq'),
   skroutz_id INT                NOT NULL, -- the shop id we get from a request to the Skroutz API
   name       VARCHAR(100)       NOT NULL -- the shop name
 
@@ -56,12 +78,12 @@ CREATE TABLE IF NOT EXISTS public.prices
 
 );
 
--- TODO : client log table??
-
 -- match sequences to their tables
 ALTER SEQUENCE public.prod_seq OWNED BY products.id;
 ALTER SEQUENCE public.shop_seq OWNED BY shops.id;
-ALTER SEQUENCE public.categ_seq OWNED BY categories.id;
+ALTER SEQUENCE public.category_seq OWNED BY categories.id;
 ALTER SEQUENCE public.price_seq OWNED BY prices.id;
+ALTER SEQUENCE public.sku_seq OWNED BY skus.id;
+ALTER SEQUENCE public.manufacturer_seq OWNED BY manufacturers.id;
 
 

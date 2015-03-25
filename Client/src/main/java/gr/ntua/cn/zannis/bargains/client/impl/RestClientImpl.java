@@ -1,5 +1,6 @@
 package gr.ntua.cn.zannis.bargains.client.impl;
 
+import gr.ntua.cn.zannis.bargains.client.dto.RestResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.impl.*;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
@@ -33,8 +34,8 @@ public abstract class RestClientImpl {
 
     protected final String target;
     protected final String token;
-    protected int remainingRequests;
     protected final ClientConfig config = new ClientConfig();
+    protected int remainingRequests;
 
     public RestClientImpl(String targetURi, String token) {
         this.target = targetURi;
@@ -50,14 +51,10 @@ public abstract class RestClientImpl {
      */
     protected <T extends PersistentEntity> Page<T> nextPage(Class<T> tClass, Page<T> page) {
         if (page.hasNext()) {
-            // could be the last page
             URI nextUri;
-            if (page.getNext() != null) {
-                nextUri = page.getNext().getUri();
-            } else {
-                nextUri = page.getLast().getUri();
-            }
-            Class<? extends RestResponseImpl<T>> responseClass = getMatchingResponse(tClass);
+            // could be the last page
+            nextUri = page.getNext() != null ? page.getNext().getUri() : page.getLast().getUri();
+            Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
             Response response = sendUnconditionalGetRequest(nextUri);
             return getFirstPage(responseClass, response);
         } else {
@@ -128,7 +125,7 @@ public abstract class RestClientImpl {
      */
     protected <T extends PersistentEntity> Page<T> getAll(Class<T> tClass) {
         URI uri = getMatchingUri(tClass, null);
-        Class<? extends RestResponseImpl<T>> responseClass = getMatchingResponse(tClass);
+        Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
         Response response = sendUnconditionalGetRequest(uri);
         return getFirstPage(responseClass, response);
     }
@@ -140,7 +137,7 @@ public abstract class RestClientImpl {
      * @param <T> A class type that extends {@link PersistentEntity}
      * @return The first {@link Page<T>} from the result list.
      */
-    private <T extends PersistentEntity> Page<T> getFirstPage(Class<? extends RestResponseImpl<T>> responseClass, Response response) {
+    private <T extends PersistentEntity> Page<T> getFirstPage(Class<? extends RestResponse<T>> responseClass, Response response) {
         // check response status first
         if (response.getStatus() != 200) {
             log.error(response.getStatusInfo().getReasonPhrase());
@@ -175,7 +172,7 @@ public abstract class RestClientImpl {
      */
     protected <T extends PersistentEntity> T getById(Class<T> tClass, Integer id) {
         URI uri = getMatchingUri(tClass, ID, id);
-        Class<? extends RestResponseImpl<T>> responseClass = getMatchingResponse(tClass);
+        Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
         if (uri != null && responseClass != null) {
             Response response = sendUnconditionalGetRequest(uri);
             return getEntity(responseClass, response);
@@ -190,7 +187,7 @@ public abstract class RestClientImpl {
      * @return A {@link Page<T>} object.
      */
     protected <T extends PersistentEntity> Page<T> getPageByCustomUri(Class<T> tClass, URI uri) {
-        Class<? extends RestResponseImpl<T>> responseClass = getMatchingResponse(tClass);
+        Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
         if (uri != null && responseClass != null) {
             Response response = sendUnconditionalGetRequest(uri);
             return getFirstPage(responseClass, response);
@@ -205,7 +202,7 @@ public abstract class RestClientImpl {
      * @return A {@link T} object.
      */
     protected <T extends PersistentEntity> T getEntityByCustomUri(Class<T> tClass, URI uri) {
-        Class<? extends RestResponseImpl<T>> responseClass = getMatchingResponse(tClass);
+        Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
         if (uri != null && responseClass != null) {
             Response response = sendUnconditionalGetRequest(uri);
             return getEntity(responseClass, response);
@@ -221,38 +218,38 @@ public abstract class RestClientImpl {
      * @return The matching {@link RestResponseImpl}.
      */
     @SuppressWarnings("unchecked")
-    private <T extends PersistentEntity> Class<? extends RestResponseImpl<T>> getMatchingResponse(Class<T> tClass) {
+    private <T extends PersistentEntity> Class<? extends RestResponse<T>> getMatchingResponse(Class<T> tClass) {
         if (tClass.equals(Product.class)) {
-            return (Class<? extends RestResponseImpl<T>>) ProductResponse.class;
+            return (Class<? extends RestResponse<T>>) ProductResponse.class;
         } else if (tClass.equals(Shop.class)) {
-            return (Class<? extends RestResponseImpl<T>>) ShopResponse.class;
+            return (Class<? extends RestResponse<T>>) ShopResponse.class;
         } else if (tClass.equals(Category.class)) {
-            return (Class<? extends RestResponseImpl<T>>) CategoryResponse.class;
+            return (Class<? extends RestResponse<T>>) CategoryResponse.class;
         } else if (tClass.equals(Sku.class)) {
-            return (Class<? extends RestResponseImpl<T>>) SkuResponse.class;
+            return (Class<? extends RestResponse<T>>) SkuResponse.class;
         } else if (tClass.equals(Manufacturer.class)) {
-            return (Class<? extends RestResponseImpl<T>>) ManufacturerResponse.class;
+            return (Class<? extends RestResponse<T>>) ManufacturerResponse.class;
         } else {
             return null;
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private <T extends PersistentEntity> Class<? extends RestResponseImpl<T>> getMatchingResponse(T entity) {
+/*    @SuppressWarnings("unchecked")
+    private <T extends PersistentEntity> Class<? extends RestResponse> getMatchingResponse(T entity) {
         if (entity instanceof Product) {
-            return (Class<? extends RestResponseImpl<T>>) ProductResponse.class;
+            return (Class<? extends RestResponse>) ProductResponse.class;
         } else if (entity instanceof Shop) {
-            return (Class<? extends RestResponseImpl<T>>) ShopResponse.class;
+            return (Class<? extends RestResponse>) ShopResponse.class;
         } else if (entity instanceof Category) {
-            return (Class<? extends RestResponseImpl<T>>) CategoryResponse.class;
+            return (Class<? extends RestResponse>) CategoryResponse.class;
         } else if (entity instanceof Sku) {
-            return (Class<? extends RestResponseImpl<T>>) SkuResponse.class;
+            return (Class<? extends RestResponse>) SkuResponse.class;
         } else if (entity instanceof Manufacturer) {
-            return (Class<? extends RestResponseImpl<T>>) ManufacturerResponse.class;
+            return (Class<? extends RestResponse>) ManufacturerResponse.class;
         } else {
             return null;
         }
-    }
+    }*/
 
     /**
      * Method that gets a {@link PersistentEntity} from a received {@link Response}.
@@ -261,7 +258,7 @@ public abstract class RestClientImpl {
      * @param <T> The {@link PersistentEntity} class we want.
      * @return An entity of type {@link T}
      */
-    protected  <T extends PersistentEntity> T getEntity(Class<? extends RestResponseImpl<T>> responseClass, Response response) {
+    protected <T extends PersistentEntity> T getEntity(Class<? extends RestResponse<T>> responseClass, Response response) {
         // check response status first
         if (response.getStatus() != 200) {
             log.error(response.getStatusInfo().getReasonPhrase());
@@ -272,7 +269,7 @@ public abstract class RestClientImpl {
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
-                RestResponseImpl<T> wrapper = response.readEntity(responseClass);
+                RestResponse<T> wrapper = response.readEntity(responseClass);
                 wrapper.getItem().setEtag(eTag);
                 wrapper.getItem().setInsertedAt(new Date());
                 wrapper.getItem().setCheckedAt(new Date());
@@ -284,22 +281,22 @@ public abstract class RestClientImpl {
         }
     }
 
-    /**
+/*    *//**
      * Method used to check for updates to a persistent entity.
      * @param entity The persistent entity.
      * @return The {@link PersistentEntity} entity
      * with its possibly updated fields or null if there was an error.
-     */
+     *//*
     protected <T extends PersistentEntity> T getByEntity(T entity) {
         URI uri = getMatchingUri(entity.getClass(), ID, entity.getSkroutzId());
-        Class<? extends RestResponseImpl<T>> responseClass = getMatchingResponse(entity);
+        Class<? extends RestResponse<T>> responseClass = getMatchingResponse(entity.getClass());
         if (uri != null && responseClass != null) {
             Response response = sendConditionalGetRequest(uri, entity.getEtag());
             return getEntity(responseClass, response);
         } else {
             return null;
         }
-    }
+    }*/
 
     /**
      * Method that generates a {@link URI} for a specific request.

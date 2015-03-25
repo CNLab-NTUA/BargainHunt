@@ -5,22 +5,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
 
-import java.util.List;
-
 /**
  * The Category persistent entity.
  * @author zannis <zannis.kal@gmail.com>
  */
 @JsonRootName("category")
 public class Category extends PersistentEntity {
+
+    protected static final long serialVersionUID = -1L;
+
     private long id;
     private String name;
     private int childrenCount;
     private String imageUrl;
     private long parentId;
     private boolean fashion;
-    // TODO this probably needs fixing
-    private List<Long> parentPath;
+    private String parentPath;
     private boolean showSpecifications;
     private String manufacturerTitle;
 
@@ -31,9 +31,10 @@ public class Category extends PersistentEntity {
                     @JsonProperty("image_url") String imageUrl,
                     @JsonProperty("parent_id") long parentId,
                     @JsonProperty("fashion") boolean fashion,
-                    @JsonProperty("parent_path") List<Long> parentPath,
+                    @JsonProperty("path") String parentPath,
                     @JsonProperty("show_specifications") boolean showSpecifications,
                     @JsonProperty("manufacturer_title") String manufacturerTitle) {
+        super();
         this.skroutzId = skroutzId;
         this.name = name;
         this.childrenCount = childrenCount;
@@ -93,11 +94,11 @@ public class Category extends PersistentEntity {
         this.fashion = fashion;
     }
 
-    public List<Long> getParentPath() {
+    public String getParentPath() {
         return parentPath;
     }
 
-    public void setParentPath(List<Long> parentPath) {
+    public void setParentPath(String parentPath) {
         this.parentPath = parentPath;
     }
 

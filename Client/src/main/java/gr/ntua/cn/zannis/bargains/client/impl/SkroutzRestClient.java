@@ -49,11 +49,12 @@ public final class SkroutzRestClient extends RestClientImpl {
             }
             if (client != null) {
                 // run queries here!
-//            Product p = client.getProductById(18427940);
-//            Product p2 = client.checkProduct(p);
-//            client.getProductByShopUid(11, "2209985");
-                client.searchShopsByName("plaisio");
-
+//                Product p = client.getProductById(18427940);
+//                Product p2 = client.checkProduct(p);
+//                Product p3 = client.getProductByShopUid(11, "2209985");
+                Page<Shop> plaisioPage = client.searchShopsByName("pla");
+                Category testCateg = client.getCategoryById(30);
+                System.out.println("test done");
             }
 
         } catch (IOException e) {
@@ -87,7 +88,8 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
     public Product checkProduct(Product product) {
-        return getByEntity(product);
+//        return getByEntity(product);
+        return null;
     }
 
     /**

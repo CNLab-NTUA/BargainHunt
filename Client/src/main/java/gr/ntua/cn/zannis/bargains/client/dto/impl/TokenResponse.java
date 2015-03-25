@@ -14,7 +14,6 @@ import java.util.Properties;
  * The class that wraps the response given from an access token request.
  * @author zannis <zannis.kal@gmail.com>
  */
-@SuppressWarnings("unused")
 public class TokenResponse {
 
     private final Logger log = LoggerFactory.getLogger(TokenResponse.class);
