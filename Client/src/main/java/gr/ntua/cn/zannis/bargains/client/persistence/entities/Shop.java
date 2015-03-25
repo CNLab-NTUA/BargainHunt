@@ -12,7 +12,6 @@ import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
 @JsonRootName("shop")
 public class Shop extends PersistentEntity {
     private long id;
-    private long skroutzId;
     private String name;
     private String link;
     private String phone;
@@ -115,14 +114,6 @@ public class Shop extends PersistentEntity {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public long getSkroutzId() {
-        return skroutzId;
-    }
-
-    public void setSkroutzId(long skroutzId) {
-        this.skroutzId = skroutzId;
     }
 
     public String getName() {

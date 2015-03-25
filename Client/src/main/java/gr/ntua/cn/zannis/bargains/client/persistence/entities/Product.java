@@ -18,7 +18,6 @@ import java.util.Date;
 public class Product extends PersistentEntity {
 
     private long id;
-    private long skroutzId;
     private String name;
     private long skuId;
     private int shopId;
@@ -120,14 +119,6 @@ public class Product extends PersistentEntity {
 
     public void setPrice(float price) {
         this.price = price;
-    }
-
-    public long getSkroutzId() {
-        return skroutzId;
-    }
-
-    public void setSkroutzId(long skroutzId) {
-        this.skroutzId = skroutzId;
     }
 
     /**

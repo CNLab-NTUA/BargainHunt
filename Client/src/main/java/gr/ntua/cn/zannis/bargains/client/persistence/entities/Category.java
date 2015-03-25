@@ -14,12 +14,12 @@ import java.util.List;
 @JsonRootName("category")
 public class Category extends PersistentEntity {
     private long id;
-    private long skroutzId;
     private String name;
     private int childrenCount;
     private String imageUrl;
     private long parentId;
     private boolean fashion;
+    // TODO this probably needs fixing
     private List<Long> parentPath;
     private boolean showSpecifications;
     private String manufacturerTitle;
@@ -51,14 +51,6 @@ public class Category extends PersistentEntity {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public long getSkroutzId() {
-        return skroutzId;
-    }
-
-    public void setSkroutzId(long skroutzId) {
-        this.skroutzId = skroutzId;
     }
 
     public String getName() {

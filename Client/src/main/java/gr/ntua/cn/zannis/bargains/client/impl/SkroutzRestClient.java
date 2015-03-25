@@ -3,8 +3,6 @@ package gr.ntua.cn.zannis.bargains.client.impl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import gr.ntua.cn.zannis.bargains.client.dto.impl.ProductResponse;
-import gr.ntua.cn.zannis.bargains.client.dto.impl.ShopResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.impl.TokenResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
@@ -16,16 +14,11 @@ import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import javax.ws.rs.core.Link;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
-import java.util.Map;
 
-import static gr.ntua.cn.zannis.bargains.client.misc.Const.API_HOST;
-import static gr.ntua.cn.zannis.bargains.client.misc.Const.SEARCH_PRODUCTS;
+import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
 
 /**
  * Crawler implementation for Bargain hunting application.
@@ -101,33 +94,18 @@ public final class SkroutzRestClient extends RestClientImpl {
      * This is supposed to be used when we don't have a persistent instance of the product.
      * @param shopId The shop id.
      * @param shopUid The product's shop_uid.
-     * @return The {@link gr.ntua.cn.zannis.bargains.client.persistence.entities.Product} entity
+     * @return The {@link Product} entity
      * or null if there was an error.
      */
     public Product getProductByShopUid(long shopId, String shopUid) {
-        URI productUri = UriBuilder.fromPath(API_HOST).path(SEARCH_PRODUCTS)
+        URI uri = UriBuilder.fromPath(API_HOST).path(SEARCH_PRODUCTS)
                 .queryParam("shop_uid", shopUid).build(shopId);
-        Response response = sendUnconditionalGetRequest(productUri);
-        // check response status first
-        if (response.getStatus() != 200) {
-            log.error(response.getStatusInfo().getReasonPhrase());
-            return null;
+        // we use this because the response is wrapped in an array.
+        Page<Product> page = getPageByCustomUri(Product.class, uri);
+        if (page != null) {
+            return page.getItems().get(0);
         } else {
-            // parse useful headers
-            String eTag = response.getHeaderString("ETag");
-            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
-            // parse entity
-            if (response.hasEntity()) {
-                ProductResponse wrapper = response.readEntity(ProductResponse.class);
-                Product product = wrapper.getProducts().get(0);
-                product.setEtag(eTag);
-                product.setInsertedAt(new Date());
-                product.setCheckedAt(new Date());
-                return product;
-            } else {
-                log.error("No entity in the response.");
-                return null;
-            }
+            return null;
         }
     }
 
@@ -143,53 +121,63 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
     /**
-     * Create a request for a specific shop using a String query. This is supposed to
-     * be used when we don't have a persistent instance of the shop and we don't know
-     * its id. Can return multiple results.
-     * @param shopName The shop name we search for.
-     * @return A {@link gr.ntua.cn.zannis.bargains.client.dto.meta.Page} containing
+     * Create a request for a specific {@link Shop} using a String query. This is supposed to
+     * be used when we don't have a persistent instance of the {@link Shop} and we don't know
+     * its' id. Can return multiple results.
+     * @param shopName The {@link Shop} name we search for.
+     * @return A {@link Page} containing
      * the returned shops.
      */
     public Page<Shop> searchShopsByName(String shopName) {
-        URI shopUri = UriBuilder.fromPath(API_HOST).path("/shops/search")
+        URI uri = UriBuilder.fromPath(API_HOST).path(SHOPS).path(SEARCH)
                 .queryParam("q", shopName).build();
-        Response response = sendUnconditionalGetRequest(shopUri);
-        // check response status first
-        if (response.getStatus() != 200) {
-            log.error(response.getStatusInfo().getReasonPhrase());
-            return null;
-        } else {
-            // parse useful headers
-            Map<String, Link> links = getLinks(response);
-            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
-            // parse entity
-            if (response.hasEntity()) {
-                Page<Shop> page = response.readEntity(ShopResponse.class).toPage(links);
-                for (Shop shop : page.getItems()) {
-                    shop.setInsertedAt(new Date());
-                }
-                return page;
-            } else {
-                log.error("No entity in the response.");
-                return null;
-            }
-        }
+        return getPageByCustomUri(Shop.class, uri);
     }
 
-    public Page<Sku> searchSkuByName(String productName) {
-        return null;
+    /**
+     * Create a request for a specific {@link Sku} using a String query. This is supposed to
+     * be used when we don't have a persistent instance of the {@link Sku} and we don't know
+     * its' id. Can return multiple results.
+     * @param skuName The {@link Sku} name we search for.
+     * @return A {@link Page} containing
+     * the returned SKUs.
+     */
+    public Page<Sku> searchSkusByName(String skuName) {
+        URI uri = UriBuilder.fromPath(API_HOST).path(SKUS).path(SEARCH)
+                .queryParam("q", skuName).build();
+        return getPageByCustomUri(Sku.class, uri);
     }
 
+    /**
+     * Create a request for a specific {@link Product} using a String query. This is supposed to
+     * be used when we don't have a persistent instance of the {@link Product} and we don't know
+     * its' id. Can return multiple results.
+     * @param productName The {@link Product} name we search for.
+     * @return A {@link Page} containing
+     * the returned products.
+     */
     public Page<Product> searchProductsByName(String productName) {
-        return null;
+        URI uri = UriBuilder.fromPath(API_HOST).path(PRODUCTS).path(SEARCH)
+                .queryParam("q", productName).build();
+        return getPageByCustomUri(Product.class, uri);
     }
 
-    public Category getCategory(Integer categoryId) {
-        return null;
+    public Category getCategoryById(Integer categoryId) {
+        return getById(Category.class, categoryId);
     }
 
-    public Category getCategory(String categoryName) {
-        return null;
+    /**
+     * Create a request for a specific {@link Category} using a String query. This is supposed to
+     * be used when we don't have a persistent instance of the {@link Category} and we don't know
+     * its' id. Can return multiple results.
+     * @param categoryName The {@link Category} name we search for.
+     * @return A {@link Page} containing
+     * the returned categories.
+     */
+    public Category searchCategoriesByName(String categoryName) {
+        URI uri = UriBuilder.fromPath(API_HOST).path(CATEGORIES).path(SEARCH)
+                .queryParam("q", categoryName).build();
+        return getPageByCustomUri(Category.class, uri);
     }
 
     public Page<Category> getAllCategories() {

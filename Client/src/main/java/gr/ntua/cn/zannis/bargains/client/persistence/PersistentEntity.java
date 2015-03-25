@@ -12,7 +12,7 @@ public class PersistentEntity implements Serializable {
 
     static final long serialVersionUID = -1L;
 
-    protected int skroutzId;
+    protected long skroutzId;
 
     protected Date insertedAt;
     protected Date checkedAt;
@@ -24,11 +24,11 @@ public class PersistentEntity implements Serializable {
         this.checkedAt = now;
         this.insertedAt = now;
     }
-    public int getSkroutzId() {
+    public long getSkroutzId() {
         return skroutzId;
     }
 
-    public void setSkroutzId(int skroutzId) {
+    public void setSkroutzId(long skroutzId) {
         this.skroutzId = skroutzId;
     }
 

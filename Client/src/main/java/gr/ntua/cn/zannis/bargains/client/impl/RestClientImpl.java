@@ -30,8 +30,8 @@ public abstract class RestClientImpl {
 
     protected static final Logger log = LoggerFactory.getLogger(SkroutzRestClient.class);
 
-    protected String target;
-    protected String token;
+    protected final String target;
+    protected final String token;
     protected int remainingRequests;
     protected final ClientConfig config = new ClientConfig();
 
@@ -39,8 +39,6 @@ public abstract class RestClientImpl {
         this.target = targetURi;
         this.token = token;
     }
-
-    // TODO : a getMatchingUriWithQueryParams
 
     /**
      * Method to get the next page in a multi-page result scenario.

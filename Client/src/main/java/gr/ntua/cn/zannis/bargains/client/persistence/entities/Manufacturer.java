@@ -15,6 +15,8 @@ public class Manufacturer extends PersistentEntity {
     private String imageUrl;
     private List<Category> categories;
 
+    // TODO add jsoncreator
+
     public long getId() {
         return id;
     }
