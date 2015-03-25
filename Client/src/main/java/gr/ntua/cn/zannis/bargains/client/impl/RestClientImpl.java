@@ -234,22 +234,22 @@ public abstract class RestClientImpl {
         }
     }
 
-/*    @SuppressWarnings("unchecked")
-    private <T extends PersistentEntity> Class<? extends RestResponse> getMatchingResponse(T entity) {
+    @SuppressWarnings("unchecked")
+    private <T extends PersistentEntity> Class<? extends RestResponse<T>> getMatchingResponse(T entity) {
         if (entity instanceof Product) {
-            return (Class<? extends RestResponse>) ProductResponse.class;
+            return (Class<? extends RestResponse<T>>) ProductResponse.class;
         } else if (entity instanceof Shop) {
-            return (Class<? extends RestResponse>) ShopResponse.class;
+            return (Class<? extends RestResponse<T>>) ShopResponse.class;
         } else if (entity instanceof Category) {
-            return (Class<? extends RestResponse>) CategoryResponse.class;
+            return (Class<? extends RestResponse<T>>) CategoryResponse.class;
         } else if (entity instanceof Sku) {
-            return (Class<? extends RestResponse>) SkuResponse.class;
+            return (Class<? extends RestResponse<T>>) SkuResponse.class;
         } else if (entity instanceof Manufacturer) {
-            return (Class<? extends RestResponse>) ManufacturerResponse.class;
+            return (Class<? extends RestResponse<T>>) ManufacturerResponse.class;
         } else {
             return null;
         }
-    }*/
+    }
 
     /**
      * Method that gets a {@link PersistentEntity} from a received {@link Response}.
@@ -281,22 +281,22 @@ public abstract class RestClientImpl {
         }
     }
 
-/*    *//**
+    /**
      * Method used to check for updates to a persistent entity.
      * @param entity The persistent entity.
      * @return The {@link PersistentEntity} entity
      * with its possibly updated fields or null if there was an error.
-     *//*
+     */
     protected <T extends PersistentEntity> T getByEntity(T entity) {
         URI uri = getMatchingUri(entity.getClass(), ID, entity.getSkroutzId());
-        Class<? extends RestResponse<T>> responseClass = getMatchingResponse(entity.getClass());
+        Class<? extends RestResponse<T>> responseClass = getMatchingResponse(entity);
         if (uri != null && responseClass != null) {
             Response response = sendConditionalGetRequest(uri, entity.getEtag());
             return getEntity(responseClass, response);
         } else {
             return null;
         }
-    }*/
+    }
 
     /**
      * Method that generates a {@link URI} for a specific request.
