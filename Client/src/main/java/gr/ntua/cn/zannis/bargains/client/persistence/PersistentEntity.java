@@ -10,10 +10,7 @@ import java.util.Date;
  */
 public class PersistentEntity implements Serializable {
 
-    protected static final long serialVersionUID = -1L;
-
     protected long skroutzId;
-
     protected Date insertedAt;
     protected Date checkedAt;
     protected Date modifiedAt;

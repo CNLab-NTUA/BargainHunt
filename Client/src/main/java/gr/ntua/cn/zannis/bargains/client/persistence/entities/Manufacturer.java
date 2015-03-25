@@ -1,5 +1,6 @@
 package gr.ntua.cn.zannis.bargains.client.persistence.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import gr.ntua.cn.zannis.bargains.client.persistence.PersistentEntity;
 
 import java.util.List;
@@ -16,9 +17,16 @@ public class Manufacturer extends PersistentEntity {
     private String name;
     private String imageUrl;
     private List<Category> categories;
-
-    // TODO add jsoncreator
     private List<Sku> skus;
+
+    public Manufacturer(@JsonProperty("id") long id,
+                        @JsonProperty("name") String name,
+                        @JsonProperty("image_url") String imageUrl) {
+        super();
+        this.skroutzId = id;
+        this.name = name;
+        this.imageUrl = imageUrl;
+    }
 
     public long getId() {
         return id;
