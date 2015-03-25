@@ -143,6 +143,8 @@ public final class SkroutzRestClient implements RestClient {
         return getById(Product.class, productId);
     }
 
+
+    // TODO: getByEntity
     @Override
     public Product checkProduct(Product product) {
         URI productUri = UriBuilder.fromPath(API_HOST).path(PRODUCTS).build(product.getSkroutzId());
@@ -199,27 +201,7 @@ public final class SkroutzRestClient implements RestClient {
 
     @Override
     public Shop getShopById(Integer shopId) {
-        URI shopUri = UriBuilder.fromPath(API_HOST).path(SHOPS).build(shopId);
-        Response response = sendUnconditionalGetRequest(shopUri);
-        // check response status first
-        if (response.getStatus() != 200) {
-            log.error(response.getStatusInfo().getReasonPhrase());
-            return null;
-        } else {
-            // parse useful headers
-            String eTag = response.getHeaderString("ETag");
-            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
-            // parse entity
-            if (response.hasEntity()) {
-                ShopResponse wrapper = response.readEntity(ShopResponse.class);
-                wrapper.getShop().setEtag(eTag);
-                wrapper.getShop().setInsertedAt(new Date());
-                return wrapper.getShop();
-            } else {
-                log.error("No entity in the response.");
-                return null;
-            }
-        }
+        return getById(Shop.class, shopId);
     }
 
     @Override
@@ -256,8 +238,6 @@ public final class SkroutzRestClient implements RestClient {
 
     @Override
     public Page<Product> searchProductsByName(String productName) {
-//        URI productsUri = UriBuilder.fromPath(API_HOST).path(SEARCH_PRODUCTS)
-//                .queryParam("shop_uid", "{shopUid}").build(shopId, shopUid);
         return null;
     }
 
@@ -278,7 +258,7 @@ public final class SkroutzRestClient implements RestClient {
 
     public <T extends PersistentEntity> Page<T> nextPage(Page<T> page) {
         if (page.hasNext()) {
-            // get link, unconditional query at link, getFirstPage
+            // TODO get link, unconditional query at link, getFirstPage
         }
     }
 
@@ -323,6 +303,13 @@ public final class SkroutzRestClient implements RestClient {
         }
     }
 
+    /**
+     * Method that matches a {@link PersistentEntity} to its corresponding {@link RestResponseImpl}
+     *
+     * @param tClass The {@link PersistentEntity} class type.
+     * @param <T>    The actual {@link PersistentEntity}.
+     * @return The matching {@link RestResponseImpl}.
+     */
     @SuppressWarnings("unchecked")
     private <T extends PersistentEntity> Class<? extends RestResponseImpl<T>> getMatchingResponse(Class<T> tClass) {
         if (tClass.equals(Product.class)) {
@@ -340,6 +327,13 @@ public final class SkroutzRestClient implements RestClient {
         }
     }
 
+    /**
+     * Method that gets a {@link PersistentEntity} from a received {@link Response}.
+     * @param responseClass The {@link RestResponseImpl} class to use for deserialization.
+     * @param response The {@link Response} we got from the API.
+     * @param <T> The {@link PersistentEntity} class we want.
+     * @return An entity of type {@link T}
+     */
     private <T extends PersistentEntity> T getEntity(Class<? extends RestResponseImpl<T>> responseClass, Response response) {
         // check response status first
         if (response.getStatus() != 200) {
@@ -363,7 +357,16 @@ public final class SkroutzRestClient implements RestClient {
         }
     }
 
-    private <T extends PersistentEntity> URI getMatchingUri(Class<T> tClass, String template, Object value) {
+    /**
+     * Method that generates a {@link URI} for a specific request.
+     *
+     * @param tClass   The persistent entity class type to use as path.
+     * @param template The query template.
+     * @param values   The values to use to build the query.
+     * @param <T>      A class type extending {@link PersistentEntity}
+     * @return A URI matching the above input.
+     */
+    private <T extends PersistentEntity> URI getMatchingUri(Class<T> tClass, String template, Object... values) {
         UriBuilder builder = UriBuilder.fromPath(API_HOST);
         if (tClass.equals(Product.class)) {
             builder.path(PRODUCTS);
@@ -378,7 +381,7 @@ public final class SkroutzRestClient implements RestClient {
         } else {
             return null;
         }
-        return builder.path(template).build(value);
+        return builder.path(template).build(values);
     }
 
     public int getRemainingRequests() {
