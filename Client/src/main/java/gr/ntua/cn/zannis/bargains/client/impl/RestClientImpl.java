@@ -186,6 +186,36 @@ public abstract class RestClientImpl {
     }
 
     /**
+     * Method to fetch paginated results that use query parameters.
+     * @param <T> The class that extends {@link PersistentEntity}
+     * @return A {@link Page<T>} object.
+     */
+    protected <T extends PersistentEntity> Page<T> getPageByCustomUri(Class<T> tClass, URI uri) {
+        Class<? extends RestResponseImpl<T>> responseClass = getMatchingResponse(tClass);
+        if (uri != null && responseClass != null) {
+            Response response = sendUnconditionalGetRequest(uri);
+            return getFirstPage(responseClass, response);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Method to fetch entity results that use query parameters.
+     * @param <T> The class that extends {@link PersistentEntity}
+     * @return A {@link T} object.
+     */
+    protected <T extends PersistentEntity> T getEntityByCustomUri(Class<T> tClass, URI uri) {
+        Class<? extends RestResponseImpl<T>> responseClass = getMatchingResponse(tClass);
+        if (uri != null && responseClass != null) {
+            Response response = sendUnconditionalGetRequest(uri);
+            return getEntity(responseClass, response);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Method that matches a {@link PersistentEntity} to its corresponding {@link RestResponseImpl}
      * @param tClass The {@link PersistentEntity} class type.
      * @param <T>    The actual {@link PersistentEntity}.

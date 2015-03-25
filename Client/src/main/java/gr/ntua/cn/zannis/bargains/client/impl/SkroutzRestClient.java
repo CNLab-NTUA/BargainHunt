@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.client.dto.impl.ProductResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.impl.ShopResponse;
+import gr.ntua.cn.zannis.bargains.client.dto.impl.TokenResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
@@ -35,21 +36,31 @@ public final class SkroutzRestClient extends RestClientImpl {
     public SkroutzRestClient(String token) {
         super(API_HOST, token);
         log.debug("SkroutzClient started.");
-        token = Utils.getAccessToken();
-        if (token == null) {
-            Utils.requestAccessToken();
-        }
         initClientConfig();
+        log.debug("Client configuration done.");
     }
 
     public static void main(String[] args) {
         try {
+            SkroutzRestClient client = null;
             Utils.initPropertiesFiles();
-            SkroutzRestClient client = new SkroutzRestClient();
+            String token = Utils.getAccessToken();
+            if (token == null) {
+                TokenResponse response = Utils.requestAccessToken();
+                if (response != null) {
+                    client = new SkroutzRestClient(response.getAccessToken());
+                }
+            } else {
+                client = new SkroutzRestClient(token);
+            }
+            if (client != null) {
+                // run queries here!
 //            Product p = client.getProductById(18427940);
 //            Product p2 = client.checkProduct(p);
 //            client.getProductByShopUid(11, "2209985");
-            client.searchShopsByName("plaisio");
+                client.searchShopsByName("plaisio");
+
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,7 +91,6 @@ public final class SkroutzRestClient extends RestClientImpl {
     public Product getProductById(Integer productId) {
         return getById(Product.class, productId);
     }
-
 
     public Product checkProduct(Product product) {
         return getByEntity(product);
