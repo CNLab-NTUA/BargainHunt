@@ -175,7 +175,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * @return A {@link Page} containing
      * the returned categories.
      */
-    public Category searchCategoriesByName(String categoryName) {
+    public Page<Category> searchCategoriesByName(String categoryName) {
         URI uri = UriBuilder.fromPath(API_HOST).path(CATEGORIES).path(SEARCH)
                 .queryParam("q", categoryName).build();
         return getPageByCustomUri(Category.class, uri);
