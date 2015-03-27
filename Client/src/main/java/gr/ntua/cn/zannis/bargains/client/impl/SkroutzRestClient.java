@@ -52,11 +52,11 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                Product p = client.getProductById(18427940);
 //                Product p2 = client.checkProduct(p);
 //                Product p3 = client.getProductByShopUid(11, "2209985");
-                Page<Shop> plaisioPage = client.searchShopsByName("pla");
+                Page<Shop> plaisioPage = client.searchShopsByName("plaisi");
+                System.out.println(plaisioPage);
                 Category testCateg = client.getCategoryById(30);
                 System.out.println("test done");
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
