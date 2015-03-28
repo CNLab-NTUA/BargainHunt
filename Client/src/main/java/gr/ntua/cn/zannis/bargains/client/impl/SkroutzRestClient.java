@@ -17,6 +17,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
 
@@ -24,7 +25,6 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
  * Crawler implementation for Bargain hunting application.
  * @author zannis <zannis.kal@gmail.com>
  */
-@SuppressWarnings("unused")
 public final class SkroutzRestClient extends RestClientImpl {
 
     public SkroutzRestClient(String token) {
@@ -52,8 +52,15 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                Product p = client.getProductById(18427940);
 //                Product p2 = client.checkProduct(p);
 //                Product p3 = client.getProductByShopUid(11, "2209985");
-                Page<Shop> plaisioPage = client.searchShopsByName("pla");
-                Category testCateg = client.getCategoryById(30);
+//                Page<Shop> plaisioPage = client.searchShopsByName("pla");
+//                Category testCateg = client.getCategoryById(30);
+                Page<Sku> galaxyS5page = client.searchSkusByName("galaxy s5");
+
+                Sku samsungGalaxyS5 = galaxyS5page.getFirstItem();
+
+                Page<Product> s5productsPage = client.getProductsFromSku(samsungGalaxyS5);
+                List<Product> products = client.getAllResults(Product.class, s5productsPage);
+                System.out.println(products.size());
                 System.out.println("test done");
             }
 
@@ -61,6 +68,16 @@ public final class SkroutzRestClient extends RestClientImpl {
             e.printStackTrace();
         }
 
+    }
+
+    /**
+     * Method to get a page of {@link Product}s from a given {@link Sku}.
+     * @param sku The sku to retrieve products from.
+     * @return A {@link Page<Product>}.
+     */
+    private Page<Product> getProductsFromSku(Sku sku) {
+        URI uri = UriBuilder.fromPath(API_HOST).path(SKUS).path(ID).path(PRODUCTS).build(sku.getSkroutzId());
+        return getPageByCustomUri(Product.class, uri);
     }
 
     @Override
@@ -88,8 +105,7 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
     public Product checkProduct(Product product) {
-//        return getByEntity(product);
-        return null;
+        return getByEntity(product);
     }
 
     /**
@@ -101,7 +117,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * or null if there was an error.
      */
     public Product getProductByShopUid(long shopId, String shopUid) {
-        URI uri = UriBuilder.fromPath(API_HOST).path(SEARCH_PRODUCTS)
+        URI uri = UriBuilder.fromPath(API_HOST).path(SHOPS).path(ID).path(PRODUCTS).path(SEARCH)
                 .queryParam("shop_uid", shopUid).build(shopId);
         // we use this because the response is wrapped in an array.
         Page<Product> page = getPageByCustomUri(Product.class, uri);

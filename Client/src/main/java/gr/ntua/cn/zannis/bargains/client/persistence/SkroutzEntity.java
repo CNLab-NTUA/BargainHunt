@@ -10,6 +10,8 @@ import java.util.Date;
  */
 public class SkroutzEntity implements Serializable {
 
+    private static final long serialVersionUID = -1L;
+
     protected long skroutzId;
     protected Date insertedAt;
     protected Date checkedAt;

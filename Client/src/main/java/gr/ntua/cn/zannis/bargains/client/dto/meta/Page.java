@@ -24,6 +24,10 @@ public class Page<T> extends Pagination {
         this.totalResults = pagination.getTotalResults();
     }
 
+    public T getFirstItem() {
+        return !items.isEmpty() ? items.get(0) : null;
+    }
+
     public List<T> getItems() {
         return items;
     }

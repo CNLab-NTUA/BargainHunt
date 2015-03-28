@@ -6,3 +6,4 @@
 * Generic client - done
 * Δημιουργία tables - in progress
 * Implement shop requests - in progress
+* Implement OutlierFinder - in progress

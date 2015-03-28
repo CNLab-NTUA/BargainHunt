@@ -16,9 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
 
@@ -27,7 +25,6 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
  * to extend this.
  * @author zannis <zannis.kal@gmail.com>
  */
-@SuppressWarnings("unused")
 public abstract class RestClientImpl {
 
     protected static final Logger log = LoggerFactory.getLogger(SkroutzRestClient.class);
@@ -49,7 +46,7 @@ public abstract class RestClientImpl {
      * @param <T> The class entity that extends {@link SkroutzEntity}
      * @return The next page if it exists
      */
-    protected <T extends SkroutzEntity> Page<T> nextPage(Class<T> tClass, Page<T> page) {
+    protected <T extends SkroutzEntity> Page<T> getNextPage(Class<T> tClass, Page<T> page) {
         if (page.hasNext()) {
             URI nextUri;
             // could be the last page
@@ -330,4 +327,21 @@ public abstract class RestClientImpl {
      * deserialize wrapped objects from JSON.
      */
     protected abstract void initClientConfig();
+
+    /**
+     * Method to retrieve all results from a paginated response.
+     * @param tClass The type of the results.
+     * @param resultPage The first page of the results
+     * @param <T> The {@link SkroutzEntity} type.
+     * @return A list containing all the results that the web service returned.
+     */
+    protected  <T extends SkroutzEntity> List<T> getAllResults(Class<T> tClass, Page<T> resultPage) {
+        List<T> results = new LinkedList<>(resultPage.getItems());
+        while (resultPage.hasNext()) {
+            Page<T> nextPage = getNextPage(tClass, resultPage);
+            results.addAll(nextPage.getItems());
+            resultPage = nextPage;
+        }
+        return results;
+    }
 }
