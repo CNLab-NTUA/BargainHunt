@@ -1,8 +1,10 @@
 package gr.ntua.cn.zannis.bargains.client.persistence.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
+import javax.persistence.*;
 import java.util.List;
 
 /**
@@ -10,6 +12,9 @@ import java.util.List;
  * a collection of products.
  * @author zannis <zannis.kal@gmail.com
  */
+@JsonRootName("sku")
+@Entity
+@Table(name = "skus", schema = "public")
 public class Sku extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
@@ -32,6 +37,8 @@ public class Sku extends SkroutzEntity {
     private int reviewsCount;
     private boolean virtual;
     private Images images;
+    private List<Product> products;
+    private Category category;
 
     public Sku(@JsonProperty("id") long id,
                @JsonProperty("ean") String ean,
@@ -43,7 +50,7 @@ public class Sku extends SkroutzEntity {
                @JsonProperty("click_url") String clickUrl,
                @JsonProperty("price_max") float priceMax,
                @JsonProperty("price_min") float priceMin,
-               @JsonProperty("review_score") float reviewScore,
+               @JsonProperty("reviewscore") float reviewScore,
                @JsonProperty("shop_count") int shopCount,
                @JsonProperty("plain_spec_summary") String plainSpecSummary,
                @JsonProperty("manufacturer_id") long manufacturerId,
@@ -72,6 +79,13 @@ public class Sku extends SkroutzEntity {
         this.images = images;
     }
 
+    public Sku() {
+    }
+
+    @Id
+    @GeneratedValue(generator = "SkuSequence")
+    @SequenceGenerator(name = "SkuSequence", sequenceName = "sku_seq", allocationSize = 1)
+    @Column(name = "id")
     public long getId() {
         return id;
     }
@@ -80,6 +94,7 @@ public class Sku extends SkroutzEntity {
         this.id = id;
     }
 
+    @Transient
     public String getEan() {
         return ean;
     }
@@ -88,6 +103,7 @@ public class Sku extends SkroutzEntity {
         this.ean = ean;
     }
 
+    @Transient
     public String getPn() {
         return pn;
     }
@@ -96,6 +112,7 @@ public class Sku extends SkroutzEntity {
         this.pn = pn;
     }
 
+    @Column(name = "name", nullable = false, length = 100)
     public String getName() {
         return name;
     }
@@ -104,6 +121,7 @@ public class Sku extends SkroutzEntity {
         this.name = name;
     }
 
+    @Column(name = "display_name", nullable = false, length = 100)
     public String getDisplayName() {
         return displayName;
     }
@@ -112,6 +130,7 @@ public class Sku extends SkroutzEntity {
         this.displayName = displayName;
     }
 
+    @Transient
     public long getCategoryId() {
         return categoryId;
     }
@@ -120,6 +139,7 @@ public class Sku extends SkroutzEntity {
         this.categoryId = categoryId;
     }
 
+    @Transient
     public String getFirstProductShopInfo() {
         return firstProductShopInfo;
     }
@@ -128,6 +148,7 @@ public class Sku extends SkroutzEntity {
         this.firstProductShopInfo = firstProductShopInfo;
     }
 
+    @Column(name = "click_url", nullable = false, length = 100)
     public String getClickUrl() {
         return clickUrl;
     }
@@ -136,6 +157,7 @@ public class Sku extends SkroutzEntity {
         this.clickUrl = clickUrl;
     }
 
+    @Column(name = "price_max", nullable = false, precision = 2)
     public float getPriceMax() {
         return priceMax;
     }
@@ -144,6 +166,7 @@ public class Sku extends SkroutzEntity {
         this.priceMax = priceMax;
     }
 
+    @Column(name = "price_min", nullable = false, precision = 2)
     public float getPriceMin() {
         return priceMin;
     }
@@ -152,6 +175,7 @@ public class Sku extends SkroutzEntity {
         this.priceMin = priceMin;
     }
 
+    @Transient
     public float getReviewScore() {
         return reviewScore;
     }
@@ -160,6 +184,7 @@ public class Sku extends SkroutzEntity {
         this.reviewScore = reviewScore;
     }
 
+    @Transient
     public int getShopCount() {
         return shopCount;
     }
@@ -168,6 +193,7 @@ public class Sku extends SkroutzEntity {
         this.shopCount = shopCount;
     }
 
+    @Transient
     public String getPlainSpecSummary() {
         return plainSpecSummary;
     }
@@ -176,6 +202,7 @@ public class Sku extends SkroutzEntity {
         this.plainSpecSummary = plainSpecSummary;
     }
 
+    @Transient
     public long getManufacturerId() {
         return manufacturerId;
     }
@@ -184,6 +211,7 @@ public class Sku extends SkroutzEntity {
         this.manufacturerId = manufacturerId;
     }
 
+    @Transient
     public boolean isFuture() {
         return future;
     }
@@ -192,6 +220,7 @@ public class Sku extends SkroutzEntity {
         this.future = future;
     }
 
+    @Transient
     public int getReviewsCount() {
         return reviewsCount;
     }
@@ -200,6 +229,7 @@ public class Sku extends SkroutzEntity {
         this.reviewsCount = reviewsCount;
     }
 
+    @Transient
     public boolean isVirtual() {
         return virtual;
     }
@@ -208,6 +238,7 @@ public class Sku extends SkroutzEntity {
         this.virtual = virtual;
     }
 
+    @Transient
     public Images getImages() {
         return images;
     }
@@ -216,9 +247,34 @@ public class Sku extends SkroutzEntity {
         this.images = images;
     }
 
+    @OneToMany(mappedBy = "sku")
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id", nullable = false, insertable = false, updatable = false)
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
     public static class Images {
         String main;
         List<String> alternatives;
+
+        public Images(@JsonProperty("main") String main,
+                      @JsonProperty("alternatives") List<String> alternatives) {
+            this.main = main;
+            this.alternatives = alternatives;
+        }
 
         public String getMain() {
             return main;

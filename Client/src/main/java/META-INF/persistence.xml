@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
+
+    <persistence-unit name="NewPersistenceUnit">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <class>gr.ntua.cn.zannis.bargains.client.persistence.entities.Product</class>
+        <class>gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop</class>
+        <class>gr.ntua.cn.zannis.bargains.client.persistence.entities.Category</class>
+        <class>gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku</class>
+        <class>gr.ntua.cn.zannis.bargains.client.persistence.entities.Manufacturer</class>
+        <class>gr.ntua.cn.zannis.bargains.client.persistence.entities.Price</class>
+        <properties>
+            <property name="eclipselink.jdbc.url" value=""/>
+            <property name="eclipselink.jdbc.driver" value=""/>
+            <property name="eclipselink.jdbc.user" value=""/>
+            <property name="eclipselink.jdbc.password" value=""/>
+        </properties>
+    </persistence-unit>
+</persistence>

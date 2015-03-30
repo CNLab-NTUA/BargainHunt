@@ -6,7 +6,10 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * The Product class that contains all the information we get from the Skroutz API
@@ -15,6 +18,8 @@ import java.util.Date;
  * @author zannis <zannis.kal@gmail.com
  */
 @JsonRootName("product")
+@Entity
+@Table(name = "products", schema = "public")
 public class Product extends SkroutzEntity {
 
     private static final long serialVersionUID = -1L;
@@ -24,10 +29,17 @@ public class Product extends SkroutzEntity {
     private long skuId;
     private int shopId;
     private int categoryId;
+    private int priceChanges;
+    private float averagePastPrice;
     private String availability;
     private String clickUrl;
     private String shopUid;
     private float price;
+    private boolean bargain;
+    private Sku sku;
+    private Shop shop;
+    private Category category;
+    private List<Price> prices;
 
     @JsonCreator
     public Product(@JsonProperty("id") long skroutzId,
@@ -51,6 +63,13 @@ public class Product extends SkroutzEntity {
         this.price = price;
     }
 
+    public Product() {
+    }
+
+    @Id
+    @GeneratedValue(generator = "ProductSequence")
+    @SequenceGenerator(name = "ProductSequence", sequenceName = "prod_seq", allocationSize = 1)
+    @Column(name = "id", nullable = false, insertable = false, updatable = false)
     public long getId() {
         return id;
     }
@@ -59,6 +78,7 @@ public class Product extends SkroutzEntity {
         this.id = id;
     }
 
+    @Column(name = "name", nullable = false, insertable = false, updatable = false, length = 100)
     public String getName() {
         return name;
     }
@@ -67,6 +87,7 @@ public class Product extends SkroutzEntity {
         this.name = name;
     }
 
+    @Transient
     public long getSkuId() {
         return skuId;
     }
@@ -75,6 +96,7 @@ public class Product extends SkroutzEntity {
         this.skuId = skuId;
     }
 
+    @Transient
     public int getShopId() {
         return shopId;
     }
@@ -83,6 +105,7 @@ public class Product extends SkroutzEntity {
         this.shopId = shopId;
     }
 
+    @Transient
     public int getCategoryId() {
         return categoryId;
     }
@@ -91,6 +114,7 @@ public class Product extends SkroutzEntity {
         this.categoryId = categoryId;
     }
 
+    @Column(name = "availability", nullable = true, insertable = false, updatable = false, length = 50)
     public String getAvailability() {
         return availability;
     }
@@ -99,6 +123,7 @@ public class Product extends SkroutzEntity {
         this.availability = availability;
     }
 
+    @Column(name = "click_url", nullable = true, insertable = false, updatable = false, length = 200)
     public String getClickUrl() {
         return clickUrl;
     }
@@ -107,6 +132,7 @@ public class Product extends SkroutzEntity {
         this.clickUrl = clickUrl;
     }
 
+    @Column(name = "shop_uid", nullable = false, insertable = false, updatable = false, length = 30)
     public String getShopUid() {
         return shopUid;
     }
@@ -115,12 +141,40 @@ public class Product extends SkroutzEntity {
         this.shopUid = shopUid;
     }
 
+    @Column(name = "price", nullable = true, insertable = false, updatable = false, precision = 2)
     public float getPrice() {
         return price;
     }
 
     public void setPrice(float price) {
         this.price = price;
+    }
+
+    @Column(name = "price_changes", nullable = false, insertable = false, updatable = false)
+    public int getPriceChanges() {
+        return priceChanges;
+    }
+
+    public void setPriceChanges(int priceChanges) {
+        this.priceChanges = priceChanges;
+    }
+
+    @Column(name = "average_past_price", nullable = false, insertable = false, updatable = false, precision = 2)
+    public float getAveragePastPrice() {
+        return averagePastPrice;
+    }
+
+    public void setAveragePastPrice(float averagePastPrice) {
+        this.averagePastPrice = averagePastPrice;
+    }
+
+    @Column(name = "is_bargain", nullable = false, insertable = false, updatable = false)
+    public boolean isBargain() {
+        return bargain;
+    }
+
+    public void setBargain(boolean bargain) {
+        this.bargain = bargain;
     }
 
     /**
@@ -153,5 +207,72 @@ public class Product extends SkroutzEntity {
                 ", availability=" + availability +
                 ", skroutzId=" + skroutzId +
                 '}';
+    }
+
+    @OneToMany(mappedBy = "product")
+    public List<Price> getPrices() {
+        return prices;
+    }
+
+    public void setPrices(List<Price> prices) {
+        this.prices = prices;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "sku_id", referencedColumnName = "skroutz_id", nullable = false, insertable = false, updatable = false)
+    public Sku getSku() {
+        return sku;
+    }
+
+    public void setSku(Sku sku) {
+        this.sku = sku;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "shop_id", referencedColumnName = "skroutz_id", nullable = false, insertable = false, updatable = false)
+    public Shop getShop() {
+        return shop;
+    }
+
+    public void setShop(Shop shop) {
+        this.shop = shop;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id", nullable = false, insertable = false, updatable = false)
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return Objects.equals(id, product.id) &&
+                Objects.equals(skuId, product.skuId) &&
+                Objects.equals(shopId, product.shopId) &&
+                Objects.equals(categoryId, product.categoryId) &&
+                Objects.equals(priceChanges, product.priceChanges) &&
+                Objects.equals(averagePastPrice, product.averagePastPrice) &&
+                Objects.equals(price, product.price) &&
+                Objects.equals(bargain, product.bargain) &&
+                Objects.equals(name, product.name) &&
+                Objects.equals(availability, product.availability) &&
+                Objects.equals(clickUrl, product.clickUrl) &&
+                Objects.equals(shopUid, product.shopUid) &&
+                Objects.equals(sku, product.sku) &&
+                Objects.equals(shop, product.shop) &&
+                Objects.equals(category, product.category) &&
+                Objects.equals(prices, product.prices);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, skuId, shopId, categoryId, priceChanges, averagePastPrice, availability, clickUrl, shopUid, price, bargain, sku, shop, category, prices);
     }
 }

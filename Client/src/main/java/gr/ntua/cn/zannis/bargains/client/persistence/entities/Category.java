@@ -5,11 +5,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
+import javax.persistence.*;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * The Category persistent entity.
  * @author zannis <zannis.kal@gmail.com>
  */
+@Entity
 @JsonRootName("category")
+@Table(name = "categories", schema = "public")
 public class Category extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
@@ -23,6 +29,9 @@ public class Category extends SkroutzEntity {
     private String parentPath;
     private boolean showSpecifications;
     private String manufacturerTitle;
+    private Category parent;
+    private List<Category> children;
+    private List<Sku> skus;
 
     @JsonCreator
     public Category(@JsonProperty("id") long skroutzId,
@@ -46,6 +55,13 @@ public class Category extends SkroutzEntity {
         this.manufacturerTitle = manufacturerTitle;
     }
 
+    public Category() {
+    }
+
+    @Id
+    @GeneratedValue(generator = "CategorySequence")
+    @SequenceGenerator(name = "CategorySequence", sequenceName = "category_seq", allocationSize = 1)
+    @Column(name = "id", nullable = false, insertable = false, updatable = false)
     public long getId() {
         return id;
     }
@@ -54,6 +70,7 @@ public class Category extends SkroutzEntity {
         this.id = id;
     }
 
+    @Column(name = "name", nullable = false, insertable = false, updatable = false, length = 100)
     public String getName() {
         return name;
     }
@@ -62,6 +79,7 @@ public class Category extends SkroutzEntity {
         this.name = name;
     }
 
+    @Transient
     public int getChildrenCount() {
         return childrenCount;
     }
@@ -70,6 +88,7 @@ public class Category extends SkroutzEntity {
         this.childrenCount = childrenCount;
     }
 
+    @Column(name = "image_url", nullable = true, insertable = false, updatable = false, length = 100)
     public String getImageUrl() {
         return imageUrl;
     }
@@ -77,7 +96,8 @@ public class Category extends SkroutzEntity {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-
+    
+    @Transient
     public long getParentId() {
         return parentId;
     }
@@ -86,6 +106,7 @@ public class Category extends SkroutzEntity {
         this.parentId = parentId;
     }
 
+    @Transient
     public boolean isFashion() {
         return fashion;
     }
@@ -94,6 +115,7 @@ public class Category extends SkroutzEntity {
         this.fashion = fashion;
     }
 
+    @Transient
     public String getParentPath() {
         return parentPath;
     }
@@ -102,6 +124,7 @@ public class Category extends SkroutzEntity {
         this.parentPath = parentPath;
     }
 
+    @Transient
     public boolean isShowSpecifications() {
         return showSpecifications;
     }
@@ -110,11 +133,64 @@ public class Category extends SkroutzEntity {
         this.showSpecifications = showSpecifications;
     }
 
+    @Transient
     public String getManufacturerTitle() {
         return manufacturerTitle;
     }
 
     public void setManufacturerTitle(String manufacturerTitle) {
         this.manufacturerTitle = manufacturerTitle;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "skroutz_id", referencedColumnName = "parent_id", nullable = false, insertable = false, updatable = false)
+    public Category getParent() {
+        return parent;
+    }
+
+    public void setParent(Category parent) {
+        this.parent = parent;
+    }
+
+    @OneToMany(mappedBy = "parent")
+    public List<Category> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Category> children) {
+        this.children = children;
+    }
+
+    @OneToMany(mappedBy = "category")
+    public List<Sku> getSku() {
+        return skus;
+    }
+
+    public void setSku(List<Sku> skus) {
+        this.skus = skus;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Category category = (Category) o;
+        return Objects.equals(id, category.id) &&
+                Objects.equals(childrenCount, category.childrenCount) &&
+                Objects.equals(parentId, category.parentId) &&
+                Objects.equals(fashion, category.fashion) &&
+                Objects.equals(showSpecifications, category.showSpecifications) &&
+                Objects.equals(name, category.name) &&
+                Objects.equals(imageUrl, category.imageUrl) &&
+                Objects.equals(parentPath, category.parentPath) &&
+                Objects.equals(manufacturerTitle, category.manufacturerTitle) &&
+                Objects.equals(parent, category.parent) &&
+                Objects.equals(children, category.children) &&
+                Objects.equals(skus, category.skus);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, childrenCount, imageUrl, parentId, fashion, parentPath, showSpecifications, manufacturerTitle, parent, children, skus);
     }
 }

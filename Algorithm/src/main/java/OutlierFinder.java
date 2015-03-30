@@ -1,5 +1,6 @@
 import org.apache.commons.math3.stat.StatUtils;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -17,9 +18,25 @@ public class OutlierFinder {
         this.filterPercentage = filterPercentage;
         this.q1 = StatUtils.percentile(this.observations, 25);
         this.q3 = StatUtils.percentile(this.observations, 75);
-        System.out.println(q1 + " " + q3);
+        double min = StatUtils.min(this.observations);
+    }
 
-
+    public static void main(String... args) {
+        List<Float> floats = new LinkedList<>();
+        floats.add(10.10f);
+        floats.add(10.20f);
+        floats.add(10.50f);
+        floats.add(11.50f);
+        floats.add(15.50f);
+        floats.add(30.50f);
+        floats.add(16.50f);
+        floats.add(17.50f);
+        floats.add(12.50f);
+        floats.add(14.50f);
+        floats.add(25.50f);
+        floats.add(20.50f);
+        floats.add(19.50f);
+        new OutlierFinder(floats, 10);
     }
 //
 //    private Integer findMinOutlier() {

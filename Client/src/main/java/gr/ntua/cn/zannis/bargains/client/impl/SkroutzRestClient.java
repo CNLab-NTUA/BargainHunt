@@ -54,12 +54,9 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                Product p3 = client.getProductByShopUid(11, "2209985");
 //                Page<Shop> plaisioPage = client.searchShopsByName("pla");
 //                Category testCateg = client.getCategoryById(30);
-                Page<Sku> galaxyS5page = client.searchSkusByName("galaxy s5");
-
-                Sku samsungGalaxyS5 = galaxyS5page.getFirstItem();
-
-                Page<Product> s5productsPage = client.getProductsFromSku(samsungGalaxyS5);
-                List<Product> products = client.getAllResults(Product.class, s5productsPage);
+                Sku motoE = client.getSkuById(4977937);
+                Page<Product> motoeProductsPage = client.getProductsFromSku(motoE);
+                List<Product> products = client.getAllResults(Product.class, motoeProductsPage);
                 System.out.println(products.size());
                 System.out.println("test done");
             }
@@ -197,6 +194,10 @@ public final class SkroutzRestClient extends RestClientImpl {
         URI uri = UriBuilder.fromPath(API_HOST).path(CATEGORIES).path(SEARCH)
                 .queryParam("q", categoryName).build();
         return getPageByCustomUri(Category.class, uri);
+    }
+
+    public Sku getSkuById(Integer skuId) {
+        return getById(Sku.class, skuId);
     }
 
     public Page<Category> getAllCategories() {
