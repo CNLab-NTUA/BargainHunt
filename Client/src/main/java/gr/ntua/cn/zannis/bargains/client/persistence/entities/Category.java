@@ -16,6 +16,7 @@ import java.util.Objects;
 @Entity
 @JsonRootName("category")
 @Table(name = "categories", schema = "public")
+@NamedQuery(name = "findAll", query = "select c from Category c")
 public class Category extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;

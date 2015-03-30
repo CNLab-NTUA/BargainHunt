@@ -5,7 +5,7 @@ import gr.ntua.cn.zannis.bargains.client.dto.meta.Meta;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
-import javax.ws.rs.core.Link;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +13,7 @@ import java.util.Map;
  * @author zannis <zannis.kal@gmail.com
  */
 public class RestResponseImpl<T extends SkroutzEntity> implements RestResponse<T> {
-    protected Map<String, Link> links;
+    protected Map<String, URI> links;
     protected List<T> items;
     protected T item;
     protected Meta meta;
@@ -55,11 +55,11 @@ public class RestResponseImpl<T extends SkroutzEntity> implements RestResponse<T
         this.meta = meta;
     }
 
-    public Map<String, Link> getLinks() {
+    public Map<String, URI> getLinks() {
         return links;
     }
 
-    public void setLinks(Map<String, Link> links) {
+    public void setLinks(Map<String, URI> links) {
         this.links = links;
     }
 }

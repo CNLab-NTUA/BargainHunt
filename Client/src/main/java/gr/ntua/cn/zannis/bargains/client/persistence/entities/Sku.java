@@ -15,6 +15,7 @@ import java.util.List;
 @JsonRootName("sku")
 @Entity
 @Table(name = "skus", schema = "public")
+@NamedQuery(name = "findAll", query = "select s from Sku s")
 public class Sku extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;

@@ -120,7 +120,7 @@ public final class SkroutzRestClient extends RestClientImpl {
         // we use this because the response is wrapped in an array.
         Page<Product> page = getPageByCustomUri(Product.class, uri);
         if (page != null) {
-            return page.getItems().get(0);
+            return page.getFirstItem();
         } else {
             return null;
         }

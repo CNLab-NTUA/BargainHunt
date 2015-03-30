@@ -5,6 +5,7 @@ import gr.ntua.cn.zannis.bargains.client.dto.impl.*;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public abstract class RestClientImpl {
         if (page.hasNext()) {
             URI nextUri;
             // could be the last page
-            nextUri = page.getNext() != null ? page.getNext().getUri() : page.getLast().getUri();
+            nextUri = page.getNext() != null ? page.getNext() : page.getLast();
             Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
             Response response = sendUnconditionalGetRequest(nextUri);
             return getFirstPage(responseClass, response);
@@ -100,23 +101,19 @@ public abstract class RestClientImpl {
      * @param response The response to extract headers from.
      * @return A map of Link urls, empty if no {@link Link} is found.
      */
-    private Map<String, Link> getLinks(Response response) {
-        Map<String, Link> map = new HashMap<>();
+    private Map<String, URI> getLinks(Response response) {
+        Map<String, URI> map = new HashMap<>();
         // custom made parser to parse concatenated link headers cause Jersey can't do it
         String linkString = response.getHeaderString(HttpHeaders.LINK);
         if (linkString == null) {
             return map;
         } else {
             String[] links = linkString.split(",");
-        }
-        if (response.hasLink("next")) {
-            map.put("next", response.getLink("next"));
-        }
-        if (response.hasLink("prev")) {
-            map.put("prev", response.getLink("prev"));
-        }
-        if (response.hasLink("last")) {
-            map.put("last", response.getLink("last"));
+            for (String s : links) {
+                String url = StringUtils.substringBetween(s, "<", ">");
+                String tag = StringUtils.substringBetween(s, "\"");
+                map.put(tag, URI.create(url));
+            }
         }
         return map;
     }
@@ -148,7 +145,7 @@ public abstract class RestClientImpl {
             return null;
         } else {
             // parse useful headers
-            Map<String, Link> links = getLinks(response);
+            Map<String, URI> links = getLinks(response);
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {

@@ -6,7 +6,7 @@ import gr.ntua.cn.zannis.bargains.client.dto.meta.Meta;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku;
 
-import javax.ws.rs.core.Link;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +45,7 @@ public class SkuResponse extends RestResponseImpl<Sku> {
     }
 
     @Override
-    public Map<String, Link> getLinks() {
+    public Map<String, URI> getLinks() {
         return links;
     }
 }

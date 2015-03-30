@@ -13,6 +13,7 @@ import javax.persistence.*;
 @JsonRootName("manufacturer")
 @Entity
 @Table(name = "manufacturers", schema = "public")
+@NamedQuery(name = "findAll", query = "select m from Manufacturer m")
 public class Manufacturer extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;

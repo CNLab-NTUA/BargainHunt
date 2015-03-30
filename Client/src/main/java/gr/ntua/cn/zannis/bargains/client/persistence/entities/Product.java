@@ -20,6 +20,11 @@ import java.util.Objects;
 @JsonRootName("product")
 @Entity
 @Table(name = "products", schema = "public")
+@NamedQueries({
+        @NamedQuery(name = "findAll", query = "select p from Product p"),
+        @NamedQuery(name = "findAllByShop", query = "select p from Product p where p.shop = :shop"),
+        @NamedQuery(name = "findAllBySku", query = "select p from Product p where p.sku = :sku")
+})
 public class Product extends SkroutzEntity {
 
     private static final long serialVersionUID = -1L;

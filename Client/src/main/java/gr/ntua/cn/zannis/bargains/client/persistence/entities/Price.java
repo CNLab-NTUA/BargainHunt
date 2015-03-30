@@ -10,6 +10,10 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "prices", schema = "public")
+@NamedQueries({
+        @NamedQuery(name = "findAll", query = "select p from Price p"),
+        @NamedQuery(name = "findAllByProduct", query = "select p from Price p where p.product = :product")
+})
 public class Price {
     private Integer id;
     private BigDecimal price;
