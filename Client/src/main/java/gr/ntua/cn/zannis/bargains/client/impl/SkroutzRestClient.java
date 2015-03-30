@@ -54,11 +54,12 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                Product p3 = client.getProductByShopUid(11, "2209985");
 //                Page<Shop> plaisioPage = client.searchShopsByName("pla");
 //                Category testCateg = client.getCategoryById(30);
-                Sku motoE = client.getSkuById(4977937);
-                Page<Product> motoeProductsPage = client.getProductsFromSku(motoE);
-                List<Product> products = client.getAllResults(Product.class, motoeProductsPage);
-                System.out.println(products.size());
-                System.out.println("test done");
+//                Sku motoE = client.getSkuById(4977937);
+//                Page<Product> motoeProductsPage = client.getProductsFromSku(motoE);
+//                List<Product> products = client.getAllResults(Product.class, motoeProductsPage);
+//                System.out.println(products.size());
+                List<Category> categories = client.getAllCategories();
+                System.out.println(categories.size());
             }
 
         } catch (IOException e) {
@@ -200,8 +201,8 @@ public final class SkroutzRestClient extends RestClientImpl {
         return getById(Sku.class, skuId);
     }
 
-    public Page<Category> getAllCategories() {
-        return getAll(Category.class);
+    public List<Category> getAllCategories() {
+        return getAllResults(Category.class, getAll(Category.class));
     }
 
     public int getRemainingRequests() {

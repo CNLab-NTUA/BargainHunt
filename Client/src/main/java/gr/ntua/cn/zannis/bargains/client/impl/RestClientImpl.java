@@ -11,12 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Link;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.*;
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
 
@@ -89,8 +89,8 @@ public abstract class RestClientImpl {
         return ClientBuilder.newClient(config).target(requestUri)
                 .property(ClientProperties.FOLLOW_REDIRECTS, true)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .header("Authorization", "Bearer " + token)
-                .header("If-None-Match", eTag)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .header(HttpHeaders.IF_NONE_MATCH, eTag)
                 .accept("application/vnd.skroutz+json; version=3")
                 .get();
     }
@@ -102,6 +102,13 @@ public abstract class RestClientImpl {
      */
     private Map<String, Link> getLinks(Response response) {
         Map<String, Link> map = new HashMap<>();
+        // custom made parser to parse concatenated link headers cause Jersey can't do it
+        String linkString = response.getHeaderString(HttpHeaders.LINK);
+        if (linkString == null) {
+            return map;
+        } else {
+            String[] links = linkString.split(",");
+        }
         if (response.hasLink("next")) {
             map.put("next", response.getLink("next"));
         }
@@ -149,9 +156,6 @@ public abstract class RestClientImpl {
                 page.setPrev(links.get("prev"));
                 page.setNext(links.get("next"));
                 page.setLast(links.get("last"));
-                for (T item : page.getItems()) {
-                    item.setInsertedAt(new Date());
-                }
                 return page;
             } else {
                 log.error("No entity in the response.");
@@ -268,8 +272,6 @@ public abstract class RestClientImpl {
             if (response.hasEntity()) {
                 RestResponse<T> wrapper = response.readEntity(responseClass);
                 wrapper.getItem().setEtag(eTag);
-                wrapper.getItem().setInsertedAt(new Date());
-                wrapper.getItem().setCheckedAt(new Date());
                 return wrapper.getItem();
             } else {
                 log.error("No entity in the response.");
@@ -319,7 +321,10 @@ public abstract class RestClientImpl {
         } else {
             return null;
         }
-        return builder.path(template).build(values);
+        if (template != null) {
+            builder.path(template);
+        }
+        return builder.build(values);
     }
 
     /**

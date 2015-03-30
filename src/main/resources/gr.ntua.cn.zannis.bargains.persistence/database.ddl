@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS public.skus
   id           SERIAL PRIMARY KEY NOT NULL DEFAULT nextval('sku_seq'),
   skroutz_id   INT                NOT NULL, -- the sku id we get from a request to the Skroutz API
   name         VARCHAR(100)       NOT NULL, -- the sku name
---   ean          VARCHAR(100)       NOT NULL, -- TODO what is this UNNEEDED
+--   ean          VARCHAR(100)       NOT NULL, -- UNNEEDED
 --   pn           VARCHAR(100)       NOT NULL, -- part number UNNEEDED
   display_name VARCHAR(100)       NOT NULL, -- the sku display name
   category_id  INT                NOT NULL REFERENCES categories (skroutz_id), -- the category id
