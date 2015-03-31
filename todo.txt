@@ -4,5 +4,6 @@
 * Implement product requests - done
 * Paginated results - done
 * Generic client - done
-* Δημιουργία tables - in progress
-* Implement shop requests - in progress
+* Δημιουργία tables - done
+* Implement OutlierFinder - in progress
+* Images table?? - or maybe transient

@@ -1,6 +1,6 @@
 package gr.ntua.cn.zannis.bargains.client.dto.meta;
 
-import javax.ws.rs.core.Link;
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -9,11 +9,11 @@ import java.util.List;
  */
 public class Page<T> extends Pagination {
     private List<T> items;
-    private Link prev;
-    private Link next;
-    private Link last;
+    private URI prev;
+    private URI next;
+    private URI last;
 
-    public Page(List<T> items, Pagination pagination, Link prev, Link next, Link last) {
+    public Page(List<T> items, Pagination pagination, URI prev, URI next, URI last) {
         this.items = items;
         this.prev = prev;
         this.next = next;
@@ -24,6 +24,10 @@ public class Page<T> extends Pagination {
         this.totalResults = pagination.getTotalResults();
     }
 
+    public T getFirstItem() {
+        return !items.isEmpty() ? items.get(0) : null;
+    }
+
     public List<T> getItems() {
         return items;
     }
@@ -32,27 +36,27 @@ public class Page<T> extends Pagination {
         this.items = items;
     }
 
-    public Link getPrev() {
+    public URI getPrev() {
         return prev;
     }
 
-    public void setPrev(Link prev) {
+    public void setPrev(URI prev) {
         this.prev = prev;
     }
 
-    public Link getNext() {
+    public URI getNext() {
         return next;
     }
 
-    public void setNext(Link next) {
+    public void setNext(URI next) {
         this.next = next;
     }
 
-    public Link getLast() {
+    public URI getLast() {
         return last;
     }
 
-    public void setLast(Link last) {
+    public void setLast(URI last) {
         this.last = last;
     }
 }

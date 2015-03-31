@@ -5,19 +5,18 @@ import gr.ntua.cn.zannis.bargains.client.dto.impl.*;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Link;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.*;
 import java.net.URI;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
@@ -27,7 +26,6 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
  * to extend this.
  * @author zannis <zannis.kal@gmail.com>
  */
-@SuppressWarnings("unused")
 public abstract class RestClientImpl {
 
     protected static final Logger log = LoggerFactory.getLogger(SkroutzRestClient.class);
@@ -49,11 +47,11 @@ public abstract class RestClientImpl {
      * @param <T> The class entity that extends {@link SkroutzEntity}
      * @return The next page if it exists
      */
-    protected <T extends SkroutzEntity> Page<T> nextPage(Class<T> tClass, Page<T> page) {
+    protected <T extends SkroutzEntity> Page<T> getNextPage(Class<T> tClass, Page<T> page) {
         if (page.hasNext()) {
             URI nextUri;
             // could be the last page
-            nextUri = page.getNext() != null ? page.getNext().getUri() : page.getLast().getUri();
+            nextUri = page.getNext() != null ? page.getNext() : page.getLast();
             Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
             Response response = sendUnconditionalGetRequest(nextUri);
             return getFirstPage(responseClass, response);
@@ -92,8 +90,8 @@ public abstract class RestClientImpl {
         return ClientBuilder.newClient(config).target(requestUri)
                 .property(ClientProperties.FOLLOW_REDIRECTS, true)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .header("Authorization", "Bearer " + token)
-                .header("If-None-Match", eTag)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .header(HttpHeaders.IF_NONE_MATCH, eTag)
                 .accept("application/vnd.skroutz+json; version=3")
                 .get();
     }
@@ -103,16 +101,19 @@ public abstract class RestClientImpl {
      * @param response The response to extract headers from.
      * @return A map of Link urls, empty if no {@link Link} is found.
      */
-    private Map<String, Link> getLinks(Response response) {
-        Map<String, Link> map = new HashMap<>();
-        if (response.hasLink("next")) {
-            map.put("next", response.getLink("next"));
-        }
-        if (response.hasLink("prev")) {
-            map.put("prev", response.getLink("prev"));
-        }
-        if (response.hasLink("last")) {
-            map.put("last", response.getLink("last"));
+    private Map<String, URI> getLinks(Response response) {
+        Map<String, URI> map = new HashMap<>();
+        // custom made parser to parse concatenated link headers cause Jersey can't do it
+        String linkString = response.getHeaderString(HttpHeaders.LINK);
+        if (linkString == null) {
+            return map;
+        } else {
+            String[] links = linkString.split(",");
+            for (String s : links) {
+                String url = StringUtils.substringBetween(s, "<", ">");
+                String tag = StringUtils.substringBetween(s, "\"");
+                map.put(tag, URI.create(url));
+            }
         }
         return map;
     }
@@ -144,7 +145,7 @@ public abstract class RestClientImpl {
             return null;
         } else {
             // parse useful headers
-            Map<String, Link> links = getLinks(response);
+            Map<String, URI> links = getLinks(response);
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {
@@ -152,9 +153,6 @@ public abstract class RestClientImpl {
                 page.setPrev(links.get("prev"));
                 page.setNext(links.get("next"));
                 page.setLast(links.get("last"));
-                for (T item : page.getItems()) {
-                    item.setInsertedAt(new Date());
-                }
                 return page;
             } else {
                 log.error("No entity in the response.");
@@ -271,8 +269,6 @@ public abstract class RestClientImpl {
             if (response.hasEntity()) {
                 RestResponse<T> wrapper = response.readEntity(responseClass);
                 wrapper.getItem().setEtag(eTag);
-                wrapper.getItem().setInsertedAt(new Date());
-                wrapper.getItem().setCheckedAt(new Date());
                 return wrapper.getItem();
             } else {
                 log.error("No entity in the response.");
@@ -322,7 +318,10 @@ public abstract class RestClientImpl {
         } else {
             return null;
         }
-        return builder.path(template).build(values);
+        if (template != null) {
+            builder.path(template);
+        }
+        return builder.build(values);
     }
 
     /**
@@ -330,4 +329,21 @@ public abstract class RestClientImpl {
      * deserialize wrapped objects from JSON.
      */
     protected abstract void initClientConfig();
+
+    /**
+     * Method to retrieve all results from a paginated response.
+     * @param tClass The type of the results.
+     * @param resultPage The first page of the results
+     * @param <T> The {@link SkroutzEntity} type.
+     * @return A list containing all the results that the web service returned.
+     */
+    protected  <T extends SkroutzEntity> List<T> getAllResults(Class<T> tClass, Page<T> resultPage) {
+        List<T> results = new LinkedList<>(resultPage.getItems());
+        while (resultPage.hasNext()) {
+            Page<T> nextPage = getNextPage(tClass, resultPage);
+            results.addAll(nextPage.getItems());
+            resultPage = nextPage;
+        }
+        return results;
+    }
 }

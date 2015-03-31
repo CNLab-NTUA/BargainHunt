@@ -30,7 +30,6 @@ public class Const {
     public static final String SEARCH = "/search";
 
 
-    public static final String SEARCH_PRODUCTS = "/shops/{shopId}/products/search";
     public static final String SKUS1 = "/categories/{categoryId}/skus";
     public static final String ALL_CATEGORIES = "/categories";
 

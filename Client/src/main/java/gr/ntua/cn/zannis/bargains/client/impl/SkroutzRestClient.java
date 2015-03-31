@@ -6,6 +6,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.client.dto.impl.TokenResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
+import gr.ntua.cn.zannis.bargains.client.persistence.dao.JpaDao;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop;
@@ -14,9 +15,11 @@ import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import javax.ejb.EJB;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
 
@@ -24,8 +27,10 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
  * Crawler implementation for Bargain hunting application.
  * @author zannis <zannis.kal@gmail.com>
  */
-@SuppressWarnings("unused")
 public final class SkroutzRestClient extends RestClientImpl {
+
+    @EJB
+    private JpaDao dao;
 
     public SkroutzRestClient(String token) {
         super(API_HOST, token);
@@ -52,15 +57,33 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                Product p = client.getProductById(18427940);
 //                Product p2 = client.checkProduct(p);
 //                Product p3 = client.getProductByShopUid(11, "2209985");
-                Page<Shop> plaisioPage = client.searchShopsByName("plaisi");
-                System.out.println(plaisioPage);
-                Category testCateg = client.getCategoryById(30);
-                System.out.println("test done");
+//                Page<Shop> plaisioPage = client.searchShopsByName("pla");
+//                Category testCateg = client.getCategoryById(30);
+//                Sku motoE = client.getSkuById(4977937);
+//                Page<Product> motoeProductsPage = client.getProductsFromSku(motoE);
+//                List<Product> products = client.getAllResults(Product.class, motoeProductsPage);
+//                System.out.println(products.size());
+
+                        client.getCategoryById(304);
+
+                List<Category> categories = client.getAllCategories();
+                System.out.println(categories.size());
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+    }
+
+    /**
+     * Method to get a page of {@link Product}s from a given {@link Sku}.
+     * @param sku The sku to retrieve products from.
+     * @return A {@link Page<Product>}.
+     */
+    private Page<Product> getProductsFromSku(Sku sku) {
+        URI uri = UriBuilder.fromPath(API_HOST).path(SKUS).path(ID).path(PRODUCTS).build(sku.getSkroutzId());
+        return getPageByCustomUri(Product.class, uri);
     }
 
     @Override
@@ -88,8 +111,7 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
     public Product checkProduct(Product product) {
-//        return getByEntity(product);
-        return null;
+        return getByEntity(product);
     }
 
     /**
@@ -101,12 +123,12 @@ public final class SkroutzRestClient extends RestClientImpl {
      * or null if there was an error.
      */
     public Product getProductByShopUid(long shopId, String shopUid) {
-        URI uri = UriBuilder.fromPath(API_HOST).path(SEARCH_PRODUCTS)
+        URI uri = UriBuilder.fromPath(API_HOST).path(SHOPS).path(ID).path(PRODUCTS).path(SEARCH)
                 .queryParam("shop_uid", shopUid).build(shopId);
         // we use this because the response is wrapped in an array.
         Page<Product> page = getPageByCustomUri(Product.class, uri);
         if (page != null) {
-            return page.getItems().get(0);
+            return page.getFirstItem();
         } else {
             return null;
         }
@@ -183,8 +205,12 @@ public final class SkroutzRestClient extends RestClientImpl {
         return getPageByCustomUri(Category.class, uri);
     }
 
-    public Page<Category> getAllCategories() {
-        return getAll(Category.class);
+    public Sku getSkuById(Integer skuId) {
+        return getById(Sku.class, skuId);
+    }
+
+    public List<Category> getAllCategories() {
+        return getAllResults(Category.class, getAll(Category.class));
     }
 
     public int getRemainingRequests() {

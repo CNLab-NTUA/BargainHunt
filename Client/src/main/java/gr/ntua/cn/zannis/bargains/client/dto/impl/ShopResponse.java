@@ -14,9 +14,9 @@ public class ShopResponse extends RestResponseImpl<Shop> {
 
     public ShopResponse(@JsonProperty("shop") Shop shop,
                         @JsonProperty("shops") List<Shop> shops,
-                        @JsonProperty("reviews") List<Shop.Review> reviews,
-                        @JsonProperty("locations") List<Shop.Location> locations,
-                        @JsonProperty("location") Shop.Location location,
+//                        @JsonProperty("reviews") List<Shop.Review> reviews,
+//                        @JsonProperty("locations") List<Shop.Location> locations,
+//                        @JsonProperty("location") Shop.Location location,
                         @JsonProperty("meta") Meta meta) {
         this.item = shop;
         this.items = shops;

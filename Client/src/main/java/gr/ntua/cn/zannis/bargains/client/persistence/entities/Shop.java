@@ -5,11 +5,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
+import javax.persistence.*;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * The shop persistent entity containing JSON fields as well as custom database fields.
  * @author zannis <zannis.kal@gmail.com>
  */
 @JsonRootName("shop")
+@Entity
+@Table(name = "shops", schema = "public")
+@NamedQuery(name = "findAll", query = "select s from Shop s")
 public class Shop extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
@@ -23,7 +30,7 @@ public class Shop extends SkroutzEntity {
     private int reviewCount;
     private int reviewScore;
     private PaymentMethods paymentMethods;
-    private int bargainsFound;
+    private List<Product> products;
 
     @JsonCreator
     public Shop(@JsonProperty("id") long skroutzId,
@@ -47,6 +54,13 @@ public class Shop extends SkroutzEntity {
         this.paymentMethods = paymentMethods;
     }
 
+    public Shop() {
+    }
+
+    @Id
+    @GeneratedValue(generator = "ShopSequence")
+    @SequenceGenerator(name = "ShopSequence", sequenceName = "shop_seq", allocationSize = 1)
+    @Column(name = "id", nullable = false, insertable = false, updatable = false)
     public long getId() {
         return id;
     }
@@ -55,6 +69,7 @@ public class Shop extends SkroutzEntity {
         this.id = id;
     }
 
+    @Column(name = "name", nullable = false, insertable = false, updatable = false, length = 100)
     public String getName() {
         return name;
     }
@@ -63,6 +78,7 @@ public class Shop extends SkroutzEntity {
         this.name = name;
     }
 
+    @Column(name = "link", nullable = false, insertable = false, updatable = false, length = 100)
     public String getLink() {
         return link;
     }
@@ -71,6 +87,7 @@ public class Shop extends SkroutzEntity {
         this.link = link;
     }
 
+    @Column(name = "phone", nullable = true, insertable = false, updatable = false, precision = 0)
     public String getPhone() {
         return phone;
     }
@@ -79,6 +96,7 @@ public class Shop extends SkroutzEntity {
         this.phone = phone;
     }
 
+    @Column(name = "image_url", nullable = true, insertable = false, updatable = false, length = 100)
     public String getImageUrl() {
         return imageUrl;
     }
@@ -87,6 +105,7 @@ public class Shop extends SkroutzEntity {
         this.imageUrl = imageUrl;
     }
 
+    @Column(name = "thumbshot_url", nullable = true, insertable = false, updatable = false, length = 100)
     public String getThumbshotUrl() {
         return thumbshotUrl;
     }
@@ -95,6 +114,7 @@ public class Shop extends SkroutzEntity {
         this.thumbshotUrl = thumbshotUrl;
     }
 
+    @Transient
     public int getReviewCount() {
         return reviewCount;
     }
@@ -103,6 +123,7 @@ public class Shop extends SkroutzEntity {
         this.reviewCount = reviewCount;
     }
 
+    @Transient
     public int getReviewScore() {
         return reviewScore;
     }
@@ -111,6 +132,7 @@ public class Shop extends SkroutzEntity {
         this.reviewScore = reviewScore;
     }
 
+    @Transient
     public PaymentMethods getPaymentMethods() {
         return paymentMethods;
     }
@@ -119,12 +141,13 @@ public class Shop extends SkroutzEntity {
         this.paymentMethods = paymentMethods;
     }
 
-    public int getBargainsFound() {
-        return bargainsFound;
+    @OneToMany(mappedBy = "shop")
+    public List<Product> getProducts() {
+        return products;
     }
 
-    public void setBargainsFound(int bargainsFound) {
-        this.bargainsFound = bargainsFound;
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
     public static class PaymentMethods {
@@ -188,9 +211,24 @@ public class Shop extends SkroutzEntity {
         }
     }
 
-    public static class Review {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Shop shop = (Shop) o;
+        return Objects.equals(id, shop.id) &&
+                Objects.equals(reviewCount, shop.reviewCount) &&
+                Objects.equals(reviewScore, shop.reviewScore) &&
+                Objects.equals(name, shop.name) &&
+                Objects.equals(link, shop.link) &&
+                Objects.equals(phone, shop.phone) &&
+                Objects.equals(imageUrl, shop.imageUrl) &&
+                Objects.equals(thumbshotUrl, shop.thumbshotUrl) &&
+                Objects.equals(paymentMethods, shop.paymentMethods);
     }
 
-    public static class Location {
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, link, phone, imageUrl, thumbshotUrl, reviewCount, reviewScore, paymentMethods);
     }
 }
