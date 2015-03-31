@@ -2,27 +2,51 @@ package gr.ntua.cn.zannis.bargains.client.persistence.dao;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import java.lang.reflect.ParameterizedType;
+import javax.persistence.TypedQuery;
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author zannis <zannis.kal@gmail.com>
  */
-public class JpaDao implements Dao {
+public class GenericDaoHibernateImpl <T, PK extends Serializable>
+        implements GenericDao<T, PK>, FinderExecutor {
+
+
+    public PK create(T o) {
+        return (PK) getSession().save(o);
+    }
+
+    public T read(PK id) {
+        return (T) getSession().get(type, id);
+    }
+
+    public void update(T o) {
+        getSession().update(o);
+    }
+
+    public void delete(T o) {
+        getSession().delete(o);
+    }
+
+
+public class JpaDao<T, PK extends Serializable> implements GenericDao<T, PK> {
+
+}
     protected Class entityClass;
 
     @PersistenceContext
     EntityManager em;
 
-    public JpaDao() {
-        ParameterizedType genericSuperclass = (ParameterizedType) getClass().getGenericSuperclass();
-        this.entityClass = (Class) genericSuperclass.getActualTypeArguments()[1];
+    public JpaDao(Class<T> type) {
+        this.entityClass = type;
     }
 
     @Override
-    public void persist(E entity) {
-        em.persist(entity);
+    public PK persist(T entity) {
+        try {
+            em.persist(entity);
+        }
     }
 
     @Override
@@ -31,13 +55,15 @@ public class JpaDao implements Dao {
     }
 
     @Override
-    public E findById(K id) {
-        em.find(entityClass, id);
+    @SuppressWarnings("unchecked")
+    public E findById(int id) {
+        return (E) em.find(entityClass, id);
     }
 
     @Override
-    public List findAll() {
-        Query query = em.createNamedQuery("findAll");
+    @SuppressWarnings("unchecked")
+    public List<E> findAll() {
+        TypedQuery<E> query = em.createNamedQuery("findAll", entityClass);
         return query.getResultList();
     }
 }

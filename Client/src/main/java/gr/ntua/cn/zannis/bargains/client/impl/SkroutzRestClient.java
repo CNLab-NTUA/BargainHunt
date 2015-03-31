@@ -6,6 +6,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.client.dto.impl.TokenResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
+import gr.ntua.cn.zannis.bargains.client.persistence.dao.JpaDao;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop;
@@ -14,6 +15,7 @@ import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import javax.ejb.EJB;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
@@ -26,6 +28,9 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
  * @author zannis <zannis.kal@gmail.com>
  */
 public final class SkroutzRestClient extends RestClientImpl {
+
+    @EJB
+    private JpaDao dao;
 
     public SkroutzRestClient(String token) {
         super(API_HOST, token);
@@ -58,6 +63,9 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                Page<Product> motoeProductsPage = client.getProductsFromSku(motoE);
 //                List<Product> products = client.getAllResults(Product.class, motoeProductsPage);
 //                System.out.println(products.size());
+
+                        client.getCategoryById(304);
+
                 List<Category> categories = client.getAllCategories();
                 System.out.println(categories.size());
             }
