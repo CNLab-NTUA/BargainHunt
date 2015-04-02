@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * Persistent class for the Manufacturer entity.
@@ -13,7 +15,7 @@ import javax.persistence.*;
 @JsonRootName("manufacturer")
 @Entity
 @Table(name = "manufacturers", schema = "public")
-@NamedQuery(name = "findAll", query = "select m from Manufacturer m")
+@NamedQuery(name = "Manufacturer.findAll", query = "select m from Manufacturer m")
 public class Manufacturer extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
@@ -37,7 +39,7 @@ public class Manufacturer extends SkroutzEntity {
     @Id
     @GeneratedValue(generator = "ManufacturerSequence")
     @SequenceGenerator(name = "ManufacturerSequence", sequenceName = "manufacturer_seq", allocationSize = 1)
-    @Column(name = "id", nullable = false, insertable = false, updatable = false)
+    @Column(name = "id")
     public long getId() {
         return id;
     }
@@ -46,7 +48,9 @@ public class Manufacturer extends SkroutzEntity {
         this.id = id;
     }
 
-    @Column(name = "name", nullable = false, insertable = false, updatable = false, length = 100)
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -55,7 +59,9 @@ public class Manufacturer extends SkroutzEntity {
         this.name = name;
     }
 
-    @Column(name = "image_url", nullable = false, insertable = false, updatable = false, length = 100)
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(name = "image_url")
     public String getImageUrl() {
         return imageUrl;
     }

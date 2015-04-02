@@ -7,6 +7,8 @@ import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -21,9 +23,9 @@ import java.util.Objects;
 @Entity
 @Table(name = "products", schema = "public")
 @NamedQueries({
-        @NamedQuery(name = "findAll", query = "select p from Product p"),
-        @NamedQuery(name = "findAllByShop", query = "select p from Product p where p.shop = :shop"),
-        @NamedQuery(name = "findAllBySku", query = "select p from Product p where p.sku = :sku")
+        @NamedQuery(name = "Product.findAll", query = "select p from Product p"),
+        @NamedQuery(name = "Product.findAllByShop", query = "select p from Product p where p.shop = :shop"),
+        @NamedQuery(name = "Product.findAllBySku", query = "select p from Product p where p.sku = :sku")
 })
 public class Product extends SkroutzEntity {
 
@@ -74,7 +76,7 @@ public class Product extends SkroutzEntity {
     @Id
     @GeneratedValue(generator = "ProductSequence")
     @SequenceGenerator(name = "ProductSequence", sequenceName = "prod_seq", allocationSize = 1)
-    @Column(name = "id", nullable = false, insertable = false, updatable = false)
+    @Column(name = "id")
     public long getId() {
         return id;
     }
@@ -83,7 +85,9 @@ public class Product extends SkroutzEntity {
         this.id = id;
     }
 
-    @Column(name = "name", nullable = false, insertable = false, updatable = false, length = 100)
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -119,7 +123,8 @@ public class Product extends SkroutzEntity {
         this.categoryId = categoryId;
     }
 
-    @Column(name = "availability", nullable = true, insertable = false, updatable = false, length = 50)
+    @Size(max = 50)
+    @Column(name = "availability")
     public String getAvailability() {
         return availability;
     }
@@ -128,7 +133,8 @@ public class Product extends SkroutzEntity {
         this.availability = availability;
     }
 
-    @Column(name = "click_url", nullable = true, insertable = false, updatable = false, length = 200)
+    @Size(max = 200)
+    @Column(name = "click_url")
     public String getClickUrl() {
         return clickUrl;
     }
@@ -137,7 +143,9 @@ public class Product extends SkroutzEntity {
         this.clickUrl = clickUrl;
     }
 
-    @Column(name = "shop_uid", nullable = false, insertable = false, updatable = false, length = 30)
+    @NotNull
+    @Size(max = 30)
+    @Column(name = "shop_uid")
     public String getShopUid() {
         return shopUid;
     }
@@ -146,7 +154,7 @@ public class Product extends SkroutzEntity {
         this.shopUid = shopUid;
     }
 
-    @Column(name = "price", nullable = true, insertable = false, updatable = false, precision = 2)
+    @Column(name = "price", precision = 2)
     public float getPrice() {
         return price;
     }
@@ -155,7 +163,8 @@ public class Product extends SkroutzEntity {
         this.price = price;
     }
 
-    @Column(name = "price_changes", nullable = false, insertable = false, updatable = false)
+    @NotNull
+    @Column(name = "price_changes")
     public int getPriceChanges() {
         return priceChanges;
     }
@@ -164,7 +173,8 @@ public class Product extends SkroutzEntity {
         this.priceChanges = priceChanges;
     }
 
-    @Column(name = "average_past_price", nullable = false, insertable = false, updatable = false, precision = 2)
+    @NotNull
+    @Column(name = "average_past_price", precision = 2)
     public float getAveragePastPrice() {
         return averagePastPrice;
     }
@@ -173,7 +183,8 @@ public class Product extends SkroutzEntity {
         this.averagePastPrice = averagePastPrice;
     }
 
-    @Column(name = "is_bargain", nullable = false, insertable = false, updatable = false)
+    @NotNull
+    @Column(name = "is_bargain")
     public boolean isBargain() {
         return bargain;
     }
@@ -224,7 +235,8 @@ public class Product extends SkroutzEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name = "sku_id", referencedColumnName = "skroutz_id", nullable = false, insertable = false, updatable = false)
+    @NotNull
+    @JoinColumn(name = "sku_id", referencedColumnName = "skroutz_id")
     public Sku getSku() {
         return sku;
     }
@@ -234,7 +246,8 @@ public class Product extends SkroutzEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name = "shop_id", referencedColumnName = "skroutz_id", nullable = false, insertable = false, updatable = false)
+    @NotNull
+    @JoinColumn(name = "shop_id", referencedColumnName = "skroutz_id")
     public Shop getShop() {
         return shop;
     }
@@ -244,7 +257,8 @@ public class Product extends SkroutzEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id", nullable = false, insertable = false, updatable = false)
+    @NotNull
+    @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id")
     public Category getCategory() {
         return category;
     }

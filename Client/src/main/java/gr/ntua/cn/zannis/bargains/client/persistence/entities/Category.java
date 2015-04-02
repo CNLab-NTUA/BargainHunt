@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,7 +18,7 @@ import java.util.Objects;
 @Entity
 @JsonRootName("category")
 @Table(name = "categories", schema = "public")
-@NamedQuery(name = "findAll", query = "select c from Category c")
+@NamedQuery(name = "Category.findAll", query = "select c from Category c")
 public class Category extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
@@ -62,7 +64,7 @@ public class Category extends SkroutzEntity {
     @Id
     @GeneratedValue(generator = "CategorySequence")
     @SequenceGenerator(name = "CategorySequence", sequenceName = "category_seq", allocationSize = 1)
-    @Column(name = "id", nullable = false, insertable = false, updatable = false)
+    @Column(name = "id")
     public long getId() {
         return id;
     }
@@ -71,7 +73,9 @@ public class Category extends SkroutzEntity {
         this.id = id;
     }
 
-    @Column(name = "name", nullable = false, insertable = false, updatable = false, length = 100)
+    @Size(min = 1, max = 100)
+    @NotNull
+    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -89,7 +93,8 @@ public class Category extends SkroutzEntity {
         this.childrenCount = childrenCount;
     }
 
-    @Column(name = "image_url", nullable = true, insertable = false, updatable = false, length = 100)
+    @Size(max = 100)
+    @Column(name = "image_url")
     public String getImageUrl() {
         return imageUrl;
     }
@@ -144,7 +149,7 @@ public class Category extends SkroutzEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name = "skroutz_id", referencedColumnName = "parent_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "parent_id", referencedColumnName = "skroutz_id")
     public Category getParent() {
         return parent;
     }

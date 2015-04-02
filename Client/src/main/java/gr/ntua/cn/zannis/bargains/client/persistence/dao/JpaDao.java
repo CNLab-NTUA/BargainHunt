@@ -1,69 +1,83 @@
 package gr.ntua.cn.zannis.bargains.client.persistence.dao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import java.io.Serializable;
 import java.util.List;
 
+import static gr.ntua.cn.zannis.bargains.client.misc.Const.PERSISTENCE_UNIT;
+
 /**
  * @author zannis <zannis.kal@gmail.com>
  */
-public class GenericDaoHibernateImpl <T, PK extends Serializable>
-        implements GenericDao<T, PK>, FinderExecutor {
-
-
-    public PK create(T o) {
-        return (PK) getSession().save(o);
-    }
-
-    public T read(PK id) {
-        return (T) getSession().get(type, id);
-    }
-
-    public void update(T o) {
-        getSession().update(o);
-    }
-
-    public void delete(T o) {
-        getSession().delete(o);
-    }
-
-
 public class JpaDao<T, PK extends Serializable> implements GenericDao<T, PK> {
 
-}
+    static EntityManagerFactory emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
+    static EntityManager em = emf.createEntityManager();
     protected Class entityClass;
-
-    @PersistenceContext
-    EntityManager em;
+    Logger log = LoggerFactory.getLogger(getClass().getCanonicalName());
 
     public JpaDao(Class<T> type) {
         this.entityClass = type;
     }
 
     @Override
-    public PK persist(T entity) {
+    public T persist(T entity) {
+        log.info("Persisting entity " + entity);
         try {
+            em.getTransaction().begin();
             em.persist(entity);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            log.error("Exception while persisting entity " + entity, e);
+            em.getTransaction().rollback();
+        }
+        return entity;
+    }
+
+    @Override
+    public void remove(T entity) {
+        log.info("Removing entity " + entity);
+        try {
+            em.getTransaction().begin();
+            em.remove(entity);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            log.error("Exception while removing entity " + entity, e);
+            em.getTransaction().rollback();
         }
     }
 
     @Override
-    public void remove(E entity) {
-        em.remove(entity);
+    @SuppressWarnings("unchecked")
+    public T find(PK id) {
+        return (T) em.find(entityClass, id);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public E findById(int id) {
-        return (E) em.find(entityClass, id);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<E> findAll() {
-        TypedQuery<E> query = em.createNamedQuery("findAll", entityClass);
+    public List<T> findAll() {
+        TypedQuery<T> query = em.createNamedQuery(entityClass.getSimpleName() + ".findAll", entityClass);
         return query.getResultList();
+    }
+
+    @Override
+    public T update(T transientObject) {
+        log.info("Updating object " + transientObject);
+        T persistentObject = null;
+        try {
+            em.getTransaction().begin();
+            persistentObject = em.merge(transientObject);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            log.error("Exception while updating " + transientObject);
+            em.getTransaction().rollback();
+        }
+        return persistentObject;
     }
 }

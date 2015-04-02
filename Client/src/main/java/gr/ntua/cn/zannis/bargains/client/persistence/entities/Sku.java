@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -15,7 +17,7 @@ import java.util.List;
 @JsonRootName("sku")
 @Entity
 @Table(name = "skus", schema = "public")
-@NamedQuery(name = "findAll", query = "select s from Sku s")
+@NamedQuery(name = "Sku.findAll", query = "select s from Sku s")
 public class Sku extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
@@ -113,7 +115,9 @@ public class Sku extends SkroutzEntity {
         this.pn = pn;
     }
 
-    @Column(name = "name", nullable = false, length = 100)
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -122,7 +126,9 @@ public class Sku extends SkroutzEntity {
         this.name = name;
     }
 
-    @Column(name = "display_name", nullable = false, length = 100)
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(name = "display_name")
     public String getDisplayName() {
         return displayName;
     }
@@ -149,7 +155,9 @@ public class Sku extends SkroutzEntity {
         this.firstProductShopInfo = firstProductShopInfo;
     }
 
-    @Column(name = "click_url", nullable = false, length = 100)
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(name = "click_url")
     public String getClickUrl() {
         return clickUrl;
     }
@@ -158,7 +166,8 @@ public class Sku extends SkroutzEntity {
         this.clickUrl = clickUrl;
     }
 
-    @Column(name = "price_max", nullable = false, precision = 2)
+    @NotNull
+    @Column(name = "price_max", precision = 2)
     public float getPriceMax() {
         return priceMax;
     }
@@ -167,7 +176,8 @@ public class Sku extends SkroutzEntity {
         this.priceMax = priceMax;
     }
 
-    @Column(name = "price_min", nullable = false, precision = 2)
+    @NotNull
+    @Column(name = "price_min", precision = 2)
     public float getPriceMin() {
         return priceMin;
     }
@@ -258,7 +268,8 @@ public class Sku extends SkroutzEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id", nullable = false, insertable = false, updatable = false)
+    @NotNull
+    @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id")
     public Category getCategory() {
         return category;
     }

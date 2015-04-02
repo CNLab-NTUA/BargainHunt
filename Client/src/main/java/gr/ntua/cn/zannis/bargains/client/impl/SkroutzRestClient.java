@@ -15,7 +15,6 @@ import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import javax.ejb.EJB;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
@@ -25,12 +24,10 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
 
 /**
  * Crawler implementation for Bargain hunting application.
+ *
  * @author zannis <zannis.kal@gmail.com>
  */
 public final class SkroutzRestClient extends RestClientImpl {
-
-    @EJB
-    private JpaDao dao;
 
     public SkroutzRestClient(String token) {
         super(API_HOST, token);
@@ -64,10 +61,12 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                List<Product> products = client.getAllResults(Product.class, motoeProductsPage);
 //                System.out.println(products.size());
 
-                        client.getCategoryById(304);
+                JpaDao<Category, Integer> dao = new JpaDao<>(Category.class);
+                Category c = client.getCategoryById(76);
+                dao.persist(c);
 
-                List<Category> categories = client.getAllCategories();
-                System.out.println(categories.size());
+//                List<Category> categories = client.getAllCategories();
+//                System.out.println(categories.size());
             }
 
         } catch (IOException e) {
@@ -78,6 +77,7 @@ public final class SkroutzRestClient extends RestClientImpl {
 
     /**
      * Method to get a page of {@link Product}s from a given {@link Sku}.
+     *
      * @param sku The sku to retrieve products from.
      * @return A {@link Page<Product>}.
      */
@@ -102,6 +102,7 @@ public final class SkroutzRestClient extends RestClientImpl {
     /**
      * Create a request for a specific product using its id. This is supposed to
      * be used when we don't have a persistent instance of the product.
+     *
      * @param productId The product id.
      * @return The {@link gr.ntua.cn.zannis.bargains.client.persistence.entities.Product} entity
      * or null if there was an error.
@@ -117,7 +118,8 @@ public final class SkroutzRestClient extends RestClientImpl {
     /**
      * Create a request for a specific product in a specific shop when we know its shop_uid.
      * This is supposed to be used when we don't have a persistent instance of the product.
-     * @param shopId The shop id.
+     *
+     * @param shopId  The shop id.
      * @param shopUid The product's shop_uid.
      * @return The {@link Product} entity
      * or null if there was an error.
@@ -137,6 +139,7 @@ public final class SkroutzRestClient extends RestClientImpl {
     /**
      * Create a request for a specific shop using its id. This is supposed to
      * be used when we don't have a persistent instance of the shop.
+     *
      * @param shopId The shop id.
      * @return The {@link gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop} entity
      * or null if there was an error.
@@ -149,6 +152,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * Create a request for a specific {@link Shop} using a String query. This is supposed to
      * be used when we don't have a persistent instance of the {@link Shop} and we don't know
      * its' id. Can return multiple results.
+     *
      * @param shopName The {@link Shop} name we search for.
      * @return A {@link Page} containing
      * the returned shops.
@@ -163,6 +167,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * Create a request for a specific {@link Sku} using a String query. This is supposed to
      * be used when we don't have a persistent instance of the {@link Sku} and we don't know
      * its' id. Can return multiple results.
+     *
      * @param skuName The {@link Sku} name we search for.
      * @return A {@link Page} containing
      * the returned SKUs.
@@ -177,6 +182,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * Create a request for a specific {@link Product} using a String query. This is supposed to
      * be used when we don't have a persistent instance of the {@link Product} and we don't know
      * its' id. Can return multiple results.
+     *
      * @param productName The {@link Product} name we search for.
      * @return A {@link Page} containing
      * the returned products.
@@ -195,6 +201,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * Create a request for a specific {@link Category} using a String query. This is supposed to
      * be used when we don't have a persistent instance of the {@link Category} and we don't know
      * its' id. Can return multiple results.
+     *
      * @param categoryName The {@link Category} name we search for.
      * @return A {@link Page} containing
      * the returned categories.

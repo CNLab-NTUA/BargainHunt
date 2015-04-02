@@ -263,7 +263,7 @@ public abstract class RestClientImpl {
             return null;
         } else {
             // parse useful headers
-            String eTag = response.getHeaderString("ETag");
+            String eTag = StringUtils.substringBetween(response.getHeaderString("ETag"), "\"");
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             // parse entity
             if (response.hasEntity()) {

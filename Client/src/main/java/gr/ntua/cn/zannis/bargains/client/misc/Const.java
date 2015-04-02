@@ -33,4 +33,7 @@ public class Const {
     public static final String SKUS1 = "/categories/{categoryId}/skus";
     public static final String ALL_CATEGORIES = "/categories";
 
+    // Persistence
+    public static final String PERSISTENCE_UNIT = "BargainHunt";
+
 }

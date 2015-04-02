@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS public.categories
   skroutz_id  INT UNIQUE            NOT NULL, -- the sku id we get from a request to the Skroutz API
   name        VARCHAR(100)          NOT NULL, -- the category name
   image_url   VARCHAR(100), -- the category's image url
-  parent_id   INT                   NOT NULL REFERENCES categories (skroutz_id), -- the parent id
+  parent_id INT REFERENCES categories (skroutz_id), -- the parent id
   etag        VARCHAR(32), -- a tag used for conditional http requests
   inserted_at TIMESTAMP             NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   modified_at TIMESTAMP, -- the timestamp when the item was last modified

@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
 
-    <persistence-unit name="BargainHunt" transaction-type="JTA">
+    <persistence-unit name="BargainHunt" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
-            <property name="eclipselink.jdbc.url" value=""/>
-            <property name="eclipselink.jdbc.driver" value=""/>
-            <property name="eclipselink.jdbc.user" value=""/>
-            <property name="eclipselink.jdbc.password" value=""/>
+            <property name="javax.persistence.jdbc.url"
+                      value="jdbc:postgresql://ec2-54-225-168-181.compute-1.amazonaws.com:5432/db6q641n0i5d9g?ssl=true&amp;sslfactory=org.postgresql.ssl.NonValidatingFactory"/>
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            <property name="javax.persistence.jdbc.user" value="piygytaxeeabsz"/>
+            <property name="javax.persistence.jdbc.password" value="V7X3z1SY3pKCF0uAa6bBIVnGq5"/>
+            <property name="eclipselink.logging.level" value="FINE"/>
+            <property name="eclipselink.target-database" value="PostgreSQL"/>
         </properties>
     </persistence-unit>
 </persistence>

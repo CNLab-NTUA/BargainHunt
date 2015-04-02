@@ -1,6 +1,7 @@
 package gr.ntua.cn.zannis.bargains.client.persistence.entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
@@ -11,8 +12,8 @@ import java.util.Objects;
 @Entity
 @Table(name = "prices", schema = "public")
 @NamedQueries({
-        @NamedQuery(name = "findAll", query = "select p from Price p"),
-        @NamedQuery(name = "findAllByProduct", query = "select p from Price p where p.product = :product")
+        @NamedQuery(name = "Price.findAll", query = "select p from Price p"),
+        @NamedQuery(name = "Price.findAllByProduct", query = "select p from Price p where p.product = :product")
 })
 public class Price {
     private Integer id;
@@ -23,7 +24,7 @@ public class Price {
     @Id
     @GeneratedValue(generator = "PriceSequence")
     @SequenceGenerator(name = "PriceSequence", sequenceName = "price_seq", allocationSize = 1)
-    @Column(name = "id", nullable = false, insertable = false, updatable = false)
+    @Column(name = "id")
     public Integer getId() {
         return id;
     }
@@ -32,7 +33,8 @@ public class Price {
         this.id = id;
     }
 
-    @Column(name = "price", nullable = false, insertable = false, updatable = false, precision = 2)
+    @NotNull
+    @Column(name = "price", precision = 2)
     public BigDecimal getPrice() {
         return price;
     }
@@ -41,7 +43,8 @@ public class Price {
         this.price = price;
     }
 
-    @Column(name = "checked_at", nullable = false, insertable = false, updatable = false)
+    @NotNull
+    @Column(name = "checked_at")
     public Date getCheckedAt() {
         return checkedAt;
     }
@@ -51,7 +54,8 @@ public class Price {
     }
 
     @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
+    @NotNull
+    @JoinColumn(name = "product_id", referencedColumnName = "skroutz_id")
     public Product getProduct() {
         return product;
     }

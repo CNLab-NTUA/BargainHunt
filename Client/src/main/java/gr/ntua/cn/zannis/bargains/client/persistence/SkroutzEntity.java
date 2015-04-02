@@ -4,6 +4,8 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -29,7 +31,8 @@ public class SkroutzEntity implements Serializable {
         this.insertedAt = now;
     }
 
-    @Column(name = "skroutz_id", nullable = false, insertable = false, updatable = false)
+    @NotNull
+    @Column(name = "skroutz_id")
     public long getSkroutzId() {
         return skroutzId;
     }
@@ -38,7 +41,8 @@ public class SkroutzEntity implements Serializable {
         this.skroutzId = skroutzId;
     }
 
-    @Column(name = "etag", nullable = true, insertable = false, updatable = false, length = 32)
+    @Size(max = 32)
+    @Column(name = "etag")
     public String getEtag() {
         return etag;
     }
@@ -47,8 +51,9 @@ public class SkroutzEntity implements Serializable {
         this.etag = etag;
     }
 
+    @NotNull
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "inserted_at", nullable = false, insertable = false, updatable = false)
+    @Column(name = "inserted_at")
     public Date getInsertedAt() {
         return insertedAt;
     }
@@ -68,7 +73,7 @@ public class SkroutzEntity implements Serializable {
     }
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_at", nullable = true, insertable = false, updatable = false)
+    @Column(name = "modified_at")
     public Date getModifiedAt() {
         return modifiedAt;
     }
