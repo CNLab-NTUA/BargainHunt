@@ -24,7 +24,7 @@ import java.util.List;
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
 
 /**
- * Crawler implementation for Bargain hunting application.
+ * The Skroutz REST API Client, implemented as a singleton.
  *
  * @author zannis <zannis.kal@gmail.com>
  */
@@ -70,7 +70,7 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                Category testCateg = client.getCategoryById(30);
 //                Sku motoE = client.getSkuById(4977937);
 //                Page<Product> motoeProductsPage = client.getProductsFromSku(motoE);
-//                List<Product> products = client.getAllResults(Product.class, motoeProductsPage);
+//                List<Product> products = client.getRemainingResults(Product.class, motoeProductsPage);
 //                System.out.println(products.size());
 
                 CategoryData dao = new CategoryData();
@@ -78,9 +78,14 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                Category c = dao.find(12);
 //                System.out.println(c);
 //                dao.persist(c);
-                Category c = SkroutzRestClient.get().getCategoryById((long) 5);
-                System.out.println(c);
-                dao.persist(c);
+                Page<Category> categoryPage = SkroutzRestClient.get().getAll(Category.class);
+                Page<Category> categoryPage = SkroutzRestClient.get().getAllCategories();
+                while (categoryPage.hasNext() || categoryPage.isLastPage()) {
+                    for (Category c : categoryPage.getItems()) {
+                        dao.persist(c);
+                    }
+                    categoryPage = SkroutzRestClient.get().getNextPage(Category.class, categoryPage);
+                }
 
 //                List<Category> categories = client.getAllCategories();
 //                System.out.println(categories.size());
@@ -234,7 +239,7 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
     public List<Category> getAllCategories() {
-        return getAllResults(Category.class, getAll(Category.class));
+        return getRemainingResults(Category.class, getAll(Category.class));
     }
 
     public int getRemainingRequests() {

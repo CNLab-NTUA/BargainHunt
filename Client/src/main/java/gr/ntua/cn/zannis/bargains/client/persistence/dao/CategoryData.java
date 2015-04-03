@@ -28,11 +28,12 @@ public class CategoryData extends GenericDaoImpl<Category> {
     @Override
     public Category persist(Category category) {
         Category parentCategory = null;
-        // we parse its parentPath first
+        Category currentCategory = null;
+        // we parse its parents first
         String[] path = category.getParentPath().split(",");
         String[] parents = ArrayUtils.subarray(path, 0, path.length - 1);
         for (String parentId : parents) {
-            Category currentCategory = findBySkroutzId(Long.parseLong(parentId));
+            currentCategory = findBySkroutzId(Long.parseLong(parentId));
             if (currentCategory == null) {
                 currentCategory = SkroutzRestClient.get().getCategoryById(Long.parseLong(parentId));
                 currentCategory.setParent(parentCategory);
@@ -42,11 +43,17 @@ public class CategoryData extends GenericDaoImpl<Category> {
             }
             parentCategory = currentCategory;
         }
-        category.setParent(parentCategory);
-        em.getTransaction().begin();
-        em.persist(category);
-        em.getTransaction().commit();
-        return category;
+        // add the category if it doesn't already exist
+        currentCategory = findBySkroutzId(category.getSkroutzId());
+        if (currentCategory == null) {
+            category.setParent(parentCategory);
+            em.getTransaction().begin();
+            em.persist(category);
+            em.getTransaction().commit();
+            return category;
+        } else {
+            return currentCategory;
+        }
     }
 
     @Override

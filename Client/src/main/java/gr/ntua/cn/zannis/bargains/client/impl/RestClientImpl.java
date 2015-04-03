@@ -337,9 +337,9 @@ public abstract class RestClientImpl {
      * @param <T> The {@link SkroutzEntity} type.
      * @return A list containing all the results that the web service returned.
      */
-    protected  <T extends SkroutzEntity> List<T> getAllResults(Class<T> tClass, Page<T> resultPage) {
+    protected  <T extends SkroutzEntity> List<T> getRemainingResults(Class<T> tClass, Page<T> resultPage) {
         List<T> results = new LinkedList<>(resultPage.getItems());
-        while (resultPage.hasNext()) {
+        while (resultPage.hasNext() || resultPage.isLastPage()) {
             Page<T> nextPage = getNextPage(tClass, resultPage);
             results.addAll(nextPage.getItems());
             resultPage = nextPage;

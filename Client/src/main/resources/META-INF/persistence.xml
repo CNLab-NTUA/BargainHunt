@@ -6,10 +6,10 @@
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.jdbc.url"
-                      value="jdbc:postgresql://ec2-54-225-168-181.compute-1.amazonaws.com:5432/db6q641n0i5d9g?ssl=true&amp;sslfactory=org.postgresql.ssl.NonValidatingFactory"/>
+                      value="jdbc:postgresql://localhost:5432/bargainhunt"/>
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-            <property name="javax.persistence.jdbc.user" value="piygytaxeeabsz"/>
-            <property name="javax.persistence.jdbc.password" value="V7X3z1SY3pKCF0uAa6bBIVnGq5"/>
+            <property name="javax.persistence.jdbc.user" value="bargainhunt"/>
+            <property name="javax.persistence.jdbc.password" value="bargainhunt"/>
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.target-database" value="PostgreSQL"/>
         </properties>

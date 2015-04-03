@@ -201,7 +201,7 @@ public class Category extends SkroutzEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, imageUrl, parentId, parent, children, skus);
+        return Objects.hash(id, name, imageUrl, parentId, etag);
     }
 
     @Override
@@ -210,7 +210,7 @@ public class Category extends SkroutzEntity {
                 .append("id", id)
                 .append("skroutzId", skroutzId)
                 .append("name", name)
-                .append("parent", parent)
+                .append("parentId", parentId)
                 .toString();
     }
 }
