@@ -2,7 +2,6 @@ package gr.ntua.cn.zannis.bargains.client.persistence.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 
@@ -16,8 +15,8 @@ import java.util.Objects;
         @NamedQuery(name = "Price.findAllByProduct", query = "select p from Price p where p.product = :product")
 })
 public class Price {
-    private Integer id;
-    private BigDecimal price;
+    private long id;
+    private float price;
     private Date checkedAt;
     private Product product;
 
@@ -25,21 +24,21 @@ public class Price {
     @GeneratedValue(generator = "PriceSequence")
     @SequenceGenerator(name = "PriceSequence", sequenceName = "price_seq", allocationSize = 1)
     @Column(name = "id")
-    public Integer getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(long id) {
         this.id = id;
     }
 
     @NotNull
     @Column(name = "price", precision = 2)
-    public BigDecimal getPrice() {
+    public float getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 

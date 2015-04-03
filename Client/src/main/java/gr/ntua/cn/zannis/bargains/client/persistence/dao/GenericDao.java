@@ -1,21 +1,21 @@
 package gr.ntua.cn.zannis.bargains.client.persistence.dao;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Generic Data Access Object interface
  * @author zannis <zannis.kal@gmail.com>
  */
-public interface GenericDao <T, PK extends Serializable> {
+public interface GenericDao <T> {
 
-    /** Persist the newInstance object into database */
-    T persist(T newInstance);
+    /** Persist a transient entity object into database */
+    T persist(T transientEntity);
 
-    /** Retrieve an object that was previously persisted to the database using
-     *   the indicated id as primary key
-     */
-    T find(PK id);
+    /** Retrieve a persistent object from the database using its id */
+    T find(long id);
+
+    /** Retrieve a persistent object from the database using its skroutzId */
+    T findBySkroutzId(long id);
 
     /**
      * Retrieve all the objects from the given type.
@@ -24,8 +24,8 @@ public interface GenericDao <T, PK extends Serializable> {
     List<T> findAll();
 
     /** Save changes made to a persistent object.  */
-    T update(T transientObject);
+    T update(T transientEntity);
 
     /** Remove an object from persistent storage in the database */
-    void remove(T persistentObject);
+    void remove(T persistentEntity);
 }

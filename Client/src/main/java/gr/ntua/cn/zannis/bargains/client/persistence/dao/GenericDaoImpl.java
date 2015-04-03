@@ -3,11 +3,7 @@ package gr.ntua.cn.zannis.bargains.client.persistence.dao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.TypedQuery;
-import java.io.Serializable;
+import javax.persistence.*;
 import java.util.List;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.PERSISTENCE_UNIT;
@@ -15,14 +11,14 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.PERSISTENCE_UNIT;
 /**
  * @author zannis <zannis.kal@gmail.com>
  */
-public class JpaDao<T, PK extends Serializable> implements GenericDao<T, PK> {
+public class GenericDaoImpl<T> implements GenericDao<T> {
 
     static EntityManagerFactory emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
     static EntityManager em = emf.createEntityManager();
-    protected Class entityClass;
+    protected Class<T> entityClass;
     Logger log = LoggerFactory.getLogger(getClass().getCanonicalName());
 
-    public JpaDao(Class<T> type) {
+    public GenericDaoImpl(Class<T> type) {
         this.entityClass = type;
     }
 
@@ -55,8 +51,26 @@ public class JpaDao<T, PK extends Serializable> implements GenericDao<T, PK> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public T find(PK id) {
-        return (T) em.find(entityClass, id);
+    public T find(long id) {
+        return em.find(entityClass, id);
+    }
+
+    @Override
+    public T findBySkroutzId(long id) {
+        T entity = null;
+        try {
+            em.getTransaction().begin();
+            TypedQuery<T> q = em.createNamedQuery(entityClass.getSimpleName() + ".findBySkroutzId", entityClass);
+            q.setParameter("skroutzId", id);
+            entity = q.getSingleResult();
+        } catch (NoResultException e) {
+            //swallow and return null
+        } finally {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+        }
+        return entity;
     }
 
     @Override

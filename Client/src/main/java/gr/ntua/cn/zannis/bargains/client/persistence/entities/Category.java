@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -18,7 +19,10 @@ import java.util.Objects;
 @Entity
 @JsonRootName("category")
 @Table(name = "categories", schema = "public")
-@NamedQuery(name = "Category.findAll", query = "select c from Category c")
+@NamedQueries({
+        @NamedQuery(name = "Category.findAll", query = "select c from Category c"),
+        @NamedQuery(name = "Category.findBySkroutzId", query = "select c from Category c where c.skroutzId = :skroutzId")
+})
 public class Category extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
@@ -197,6 +201,16 @@ public class Category extends SkroutzEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, childrenCount, imageUrl, parentId, fashion, parentPath, showSpecifications, manufacturerTitle, parent, children, skus);
+        return Objects.hash(id, name, imageUrl, parentId, parent, children, skus);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("skroutzId", skroutzId)
+                .append("name", name)
+                .append("parent", parent)
+                .toString();
     }
 }

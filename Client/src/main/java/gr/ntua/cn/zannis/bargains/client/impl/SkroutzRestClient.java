@@ -6,7 +6,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.client.dto.impl.TokenResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
-import gr.ntua.cn.zannis.bargains.client.persistence.dao.JpaDao;
+import gr.ntua.cn.zannis.bargains.client.persistence.dao.CategoryData;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop;
@@ -15,6 +15,7 @@ import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import javax.naming.AuthenticationException;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
@@ -29,6 +30,8 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
  */
 public final class SkroutzRestClient extends RestClientImpl {
 
+    private static volatile SkroutzRestClient instance;
+
     public SkroutzRestClient(String token) {
         super(API_HOST, token);
         log.debug("SkroutzClient started.");
@@ -36,20 +39,29 @@ public final class SkroutzRestClient extends RestClientImpl {
         log.debug("Client configuration done.");
     }
 
-    public static void main(String[] args) {
-        try {
-            SkroutzRestClient client = null;
-            Utils.initPropertiesFiles();
+    public static synchronized SkroutzRestClient get() {
+        if (instance == null) {
             String token = Utils.getAccessToken();
             if (token == null) {
-                TokenResponse response = Utils.requestAccessToken();
-                if (response != null) {
-                    client = new SkroutzRestClient(response.getAccessToken());
+                TokenResponse response;
+                try {
+                    response = Utils.requestAccessToken();
+                    token = response.getAccessToken();
+                    instance = new SkroutzRestClient(token);
+                } catch (AuthenticationException e) {
+                    log.error("Authentication error", e);
                 }
             } else {
-                client = new SkroutzRestClient(token);
+                instance = new SkroutzRestClient(token);
             }
-            if (client != null) {
+        }
+        return instance;
+    }
+
+    public static void main(String[] args) {
+        try {
+            Utils.initPropertiesFiles();
+            if (SkroutzRestClient.get() != null) {
                 // run queries here!
 //                Product p = client.getProductById(18427940);
 //                Product p2 = client.checkProduct(p);
@@ -61,8 +73,13 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                List<Product> products = client.getAllResults(Product.class, motoeProductsPage);
 //                System.out.println(products.size());
 
-                JpaDao<Category, Integer> dao = new JpaDao<>(Category.class);
-                Category c = client.getCategoryById(76);
+                CategoryData dao = new CategoryData();
+
+//                Category c = dao.find(12);
+//                System.out.println(c);
+//                dao.persist(c);
+                Category c = SkroutzRestClient.get().getCategoryById((long) 5);
+                System.out.println(c);
                 dao.persist(c);
 
 //                List<Category> categories = client.getAllCategories();
@@ -107,7 +124,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * @return The {@link gr.ntua.cn.zannis.bargains.client.persistence.entities.Product} entity
      * or null if there was an error.
      */
-    public Product getProductById(Integer productId) {
+    public Product getProductById(Long productId) {
         return getById(Product.class, productId);
     }
 
@@ -144,7 +161,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * @return The {@link gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop} entity
      * or null if there was an error.
      */
-    public Shop getShopById(Integer shopId) {
+    public Shop getShopById(Long shopId) {
         return getById(Shop.class, shopId);
     }
 
@@ -193,7 +210,7 @@ public final class SkroutzRestClient extends RestClientImpl {
         return getPageByCustomUri(Product.class, uri);
     }
 
-    public Category getCategoryById(Integer categoryId) {
+    public Category getCategoryById(Long categoryId) {
         return getById(Category.class, categoryId);
     }
 
@@ -212,7 +229,7 @@ public final class SkroutzRestClient extends RestClientImpl {
         return getPageByCustomUri(Category.class, uri);
     }
 
-    public Sku getSkuById(Integer skuId) {
+    public Sku getSkuById(Long skuId) {
         return getById(Sku.class, skuId);
     }
 

@@ -7,6 +7,7 @@ import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Objects;
 
 /**
  * Persistent class for the Manufacturer entity.
@@ -68,5 +69,25 @@ public class Manufacturer extends SkroutzEntity {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Manufacturer that = (Manufacturer) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(imageUrl, that.imageUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, imageUrl);
+    }
+
+    @Override
+    public String toString() {
+        return "Manufacturer{" + "id=" + id + ", name='" + name + '\'' + ", imageUrl='" + imageUrl + '\'' + '}';
     }
 }

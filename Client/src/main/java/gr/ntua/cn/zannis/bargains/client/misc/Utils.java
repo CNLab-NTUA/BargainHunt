@@ -4,6 +4,7 @@ import gr.ntua.cn.zannis.bargains.client.dto.impl.TokenResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.AuthenticationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -130,14 +131,13 @@ public class Utils {
      * Attempts to get a new OAuth 2.0 access token and writes it to the config file.
      * @return True on success, false on fail.
      */
-    public static TokenResponse requestAccessToken() {
+    public static TokenResponse requestAccessToken() throws AuthenticationException {
         log.debug("Requesting access token...");
 
         Properties config = Utils.getPropertiesFromFile(Const.CONFIG_FILENAME);
 
         if (config == null) {
-            log.debug("Config file empty, please get a proper client_id and client_secret.");
-            return null;
+            throw new AuthenticationException("Config file empty, please get a proper client_id and client_secret.");
         } else {
             Client client = ClientBuilder.newClient();
             UriBuilder builder = UriBuilder.fromUri("https://www.skroutz.gr").path("oauth2/token")

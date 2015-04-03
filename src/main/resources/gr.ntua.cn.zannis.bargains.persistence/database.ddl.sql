@@ -41,10 +41,10 @@ CREATE TABLE IF NOT EXISTS public.shops
   id            INT PRIMARY KEY  NOT NULL DEFAULT nextval('shop_seq'),
   skroutz_id    INT UNIQUE       NOT NULL, -- the shop id we get from a request to the Skroutz API
   name          VARCHAR(100)     NOT NULL, -- the shop name
-  link          VARCHAR(100)     NOT NULL, -- the shop url
+  link          VARCHAR(300)     NOT NULL, -- the shop url
   phone         VARCHAR(20), -- the shop's phone, a 10 digit number
-  image_url     VARCHAR(100), -- the shop's image url
-  thumbshot_url VARCHAR(100), -- the shop's thumbnail url
+  image_url     VARCHAR(300), -- the shop's image url
+  thumbshot_url VARCHAR(300), -- the shop's thumbnail url
   etag          VARCHAR(32), -- a tag used for conditional http requests
   inserted_at   TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   modified_at   TIMESTAMP, -- the timestamp when the item was last modified
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS public.categories
   id          INT PRIMARY KEY       NOT NULL DEFAULT nextval('category_seq'),
   skroutz_id  INT UNIQUE            NOT NULL, -- the sku id we get from a request to the Skroutz API
   name        VARCHAR(100)          NOT NULL, -- the category name
-  image_url   VARCHAR(100), -- the category's image url
+  image_url   VARCHAR(300), -- the category's image url
   parent_id INT REFERENCES categories (skroutz_id), -- the parent id
   etag        VARCHAR(32), -- a tag used for conditional http requests
   inserted_at TIMESTAMP             NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS public.skus
 --   pn           VARCHAR(100)       NOT NULL, -- part number UNNEEDED
   display_name VARCHAR(100)    NOT NULL, -- the sku display name
   category_id  INT             NOT NULL REFERENCES categories (skroutz_id), -- the category id
-  click_url    VARCHAR(100)    NOT NULL, -- the sku's url
+  click_url    VARCHAR(300)    NOT NULL, -- the sku's url
   price_max    NUMERIC(5, 2)   NOT NULL, -- the max price the sku had at the last check
   price_min    NUMERIC(5, 2)   NOT NULL, -- the min price the sku had at the last check
   -- todo maybe keep a record of the max min and avg price
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS public.manufacturers
   id          INT PRIMARY KEY  NOT NULL DEFAULT nextval('manufacturer_seq'),
   skroutz_id  INT UNIQUE       NOT NULL, -- the manufacturer id we get from a request to the Skroutz API
   name        VARCHAR(100)     NOT NULL, -- the manufacturer's name
-  image_url   VARCHAR(100)     NOT NULL, -- the manufacturer's image url
+  image_url   VARCHAR(300)     NOT NULL, -- the manufacturer's image url
   etag        VARCHAR(32), -- a tag used for conditional http requests
   inserted_at TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   modified_at TIMESTAMP, -- the timestamp when the item was last modified

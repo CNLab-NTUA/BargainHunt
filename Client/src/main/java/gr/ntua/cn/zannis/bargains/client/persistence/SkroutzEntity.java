@@ -63,7 +63,7 @@ public class SkroutzEntity implements Serializable {
     }
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "checked_at", nullable = true, insertable = false, updatable = false)
+    @Column(name = "checked_at")
     public Date getCheckedAt() {
         return checkedAt;
     }

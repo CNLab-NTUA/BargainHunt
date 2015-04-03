@@ -168,7 +168,7 @@ public abstract class RestClientImpl {
      * @param <T> A class type that extends {@link SkroutzEntity}
      * @return A {@link T} object or null if it wasn't found.
      */
-    protected <T extends SkroutzEntity> T getById(Class<T> tClass, Integer id) {
+    protected <T extends SkroutzEntity> T getById(Class<T> tClass, Long id) {
         URI uri = getMatchingUri(tClass, ID, id);
         Class<? extends RestResponse<T>> responseClass = getMatchingResponse(tClass);
         if (uri != null && responseClass != null) {
