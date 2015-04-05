@@ -36,7 +36,11 @@ public final class SkroutzRestClient extends RestClientImpl {
         log.debug("Client configuration done.");
     }
 
-    public static synchronized SkroutzRestClient get() {
+    /**
+     * Static method to retrieve singleton instance.
+     * @return The singleton instance of {@link SkroutzRestClient}
+     */
+     public static synchronized SkroutzRestClient get() {
         if (instance == null) {
             String token = Utils.getAccessToken();
             if (token == null) {
@@ -70,7 +74,7 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                List<Product> products = client.getRemainingResults(Product.class, motoeProductsPage);
 //                System.out.println(products.size());
 
-                GenericDaoImpl<Manufacturer> dao = new GenericDaoImpl<>(Manufacturer.class);
+                GenericDaoImpl<Sku> dao = new GenericDaoImpl<>(Sku.class);
 
 //                Category c = dao.find(12);
 //                System.out.println(c);
