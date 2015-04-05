@@ -28,7 +28,7 @@ public class CategoryData extends GenericDaoImpl<Category> {
     @Override
     public Category persist(Category category) {
         Category parentCategory = null;
-        Category currentCategory = null;
+        Category currentCategory;
         // we parse its parents first
         String[] path = category.getParentPath().split(",");
         String[] parents = ArrayUtils.subarray(path, 0, path.length - 1);

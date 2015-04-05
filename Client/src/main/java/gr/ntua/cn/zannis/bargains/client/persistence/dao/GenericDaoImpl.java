@@ -81,6 +81,12 @@ public class GenericDaoImpl<T> implements GenericDao<T> {
     }
 
     @Override
+    public List<Long> findAllSkroutzIds() {
+        TypedQuery<Long> query = em.createNamedQuery(entityClass.getSimpleName() + "findAllSkroutzIds", Long.class);
+        return query.getResultList();
+    }
+
+    @Override
     public T update(T transientObject) {
         log.info("Updating object " + transientObject);
         T persistentObject = null;

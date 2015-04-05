@@ -23,6 +23,14 @@ public interface GenericDao <T> {
      */
     List<T> findAll();
 
+    /**
+     * Retrieve all the skroutzIds from a given entity to quickly check
+     * if they exist in the database.
+     *
+     * @return A list containing all the skroutzIds for the given entity.
+     */
+    List<Long> findAllSkroutzIds();
+
     /** Save changes made to a persistent object.  */
     T update(T transientEntity);
 

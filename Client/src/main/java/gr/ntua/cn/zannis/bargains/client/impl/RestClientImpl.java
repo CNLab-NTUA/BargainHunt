@@ -333,7 +333,8 @@ public abstract class RestClientImpl {
     /**
      * Method to retrieve all results from a paginated response.
      * @param tClass The type of the results.
-     * @param resultPage The first page of the results
+     * @param resultPage The
+     *                   first page of the results
      * @param <T> The {@link SkroutzEntity} type.
      * @return A list containing all the results that the web service returned.
      */

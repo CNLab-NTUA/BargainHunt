@@ -8,6 +8,9 @@ import gr.ntua.cn.zannis.bargains.client.persistence.entities.Manufacturer;
 import java.util.List;
 
 /**
+ *
+ * The wrapper class for {@link Manufacturer} related
+ * requests.
  * @author zannis <zannis.kal@gmail.com
  */
 public class ManufacturerResponse extends RestResponseImpl<Manufacturer> {

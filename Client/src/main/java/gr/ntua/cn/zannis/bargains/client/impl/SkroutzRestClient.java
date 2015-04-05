@@ -6,11 +6,8 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.client.dto.impl.TokenResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
-import gr.ntua.cn.zannis.bargains.client.persistence.dao.CategoryData;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.Product;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku;
+import gr.ntua.cn.zannis.bargains.client.persistence.dao.GenericDaoImpl;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
 import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -73,19 +70,17 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                List<Product> products = client.getRemainingResults(Product.class, motoeProductsPage);
 //                System.out.println(products.size());
 
-                CategoryData dao = new CategoryData();
+                GenericDaoImpl<Manufacturer> dao = new GenericDaoImpl<>(Manufacturer.class);
 
 //                Category c = dao.find(12);
 //                System.out.println(c);
 //                dao.persist(c);
-                Page<Category> categoryPage = SkroutzRestClient.get().getAll(Category.class);
-                Page<Category> categoryPage = SkroutzRestClient.get().getAllCategories();
-                while (categoryPage.hasNext() || categoryPage.isLastPage()) {
-                    for (Category c : categoryPage.getItems()) {
-                        dao.persist(c);
-                    }
-                    categoryPage = SkroutzRestClient.get().getNextPage(Category.class, categoryPage);
+                Page<Manufacturer> manufacturerPage = SkroutzRestClient.get().getAll(Manufacturer.class);
+                while (manufacturerPage.hasNext() || manufacturerPage.isLastPage()) {
+                    manufacturerPage.getItems().forEach(dao::persist);
+                    manufacturerPage = SkroutzRestClient.get().getNextPage(Manufacturer.class, manufacturerPage);
                 }
+                System.out.println("done and done");
 
 //                List<Category> categories = client.getAllCategories();
 //                System.out.println(categories.size());

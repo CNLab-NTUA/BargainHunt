@@ -7,7 +7,7 @@ import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 import java.util.List;
 
 /**
- * The wrapper class for {@link gr.ntua.cn.zannis.bargains.client.persistence.entities.Category} related
+ * The wrapper class for {@link Category} related
  * requests.
  * @author zannis <zannis.kal@gmail.com
  */
