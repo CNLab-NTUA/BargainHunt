@@ -31,7 +31,9 @@ public class GenericDaoImpl<T> implements GenericDao<T> {
             em.getTransaction().commit();
         } catch (Exception e) {
             log.error("Exception while persisting entity " + entity, e);
-            em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
         }
         return entity;
     }
@@ -45,7 +47,9 @@ public class GenericDaoImpl<T> implements GenericDao<T> {
             em.getTransaction().commit();
         } catch (Exception e) {
             log.error("Exception while removing entity " + entity, e);
-            em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
         }
     }
 

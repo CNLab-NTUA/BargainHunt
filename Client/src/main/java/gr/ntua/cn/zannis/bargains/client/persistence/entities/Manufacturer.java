@@ -50,7 +50,7 @@ public class Manufacturer extends SkroutzEntity {
     }
 
     @NotNull
-    @Size(min = 1, max = 100)
+    @Size(max = 100)
     @Column(name = "name")
     public String getName() {
         return name;
@@ -60,8 +60,7 @@ public class Manufacturer extends SkroutzEntity {
         this.name = name;
     }
 
-    @NotNull
-    @Size(min = 1, max = 100)
+    @Size(max = 300)
     @Column(name = "image_url")
     public String getImageUrl() {
         return imageUrl;

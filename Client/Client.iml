@@ -6,7 +6,7 @@
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="EclipseLink" />
         <datasource-mapping>
-          <factory-entry name="BargainHunt" value="48dcee24-fa55-4274-bde6-b2f35f50d11c" />
+          <factory-entry name="BargainHunt" value="00ee6b56-57e3-4b51-a141-33f86db4b729" />
           <factory-entry name="NewPersistenceUnit" value="677701e0-c8fc-4f9c-a108-8ec182611cf1" />
         </datasource-mapping>
         <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/src/main/resources/META-INF/persistence.xml" />

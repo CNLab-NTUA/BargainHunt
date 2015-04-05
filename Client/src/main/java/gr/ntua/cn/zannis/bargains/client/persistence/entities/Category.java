@@ -97,7 +97,7 @@ public class Category extends SkroutzEntity {
         this.childrenCount = childrenCount;
     }
 
-    @Size(max = 100)
+    @Size(max = 300)
     @Column(name = "image_url")
     public String getImageUrl() {
         return imageUrl;

@@ -116,7 +116,7 @@ public class Sku extends SkroutzEntity {
     }
 
     @NotNull
-    @Size(min = 1, max = 100)
+    @Size(max = 100)
     @Column(name = "name")
     public String getName() {
         return name;
@@ -127,7 +127,7 @@ public class Sku extends SkroutzEntity {
     }
 
     @NotNull
-    @Size(min = 1, max = 100)
+    @Size(max = 100)
     @Column(name = "display_name")
     public String getDisplayName() {
         return displayName;
@@ -155,8 +155,7 @@ public class Sku extends SkroutzEntity {
         this.firstProductShopInfo = firstProductShopInfo;
     }
 
-    @NotNull
-    @Size(min = 1, max = 100)
+    @Size(max = 300)
     @Column(name = "click_url")
     public String getClickUrl() {
         return clickUrl;

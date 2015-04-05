@@ -14,28 +14,28 @@ CREATE SEQUENCE public.manufacturer_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
 /* categories table */
 CREATE TABLE IF NOT EXISTS public.categories
 (
-id          INT PRIMARY KEY       NOT NULL DEFAULT nextval('category_seq'),
-skroutz_id  INT UNIQUE            NOT NULL, -- the sku id we get from a request to the Skroutz API
-name        VARCHAR(100)          NOT NULL, -- the category name
-image_url   VARCHAR(300), -- the category's image url
-parent_id INT REFERENCES categories (skroutz_id), -- the parent id
-etag        VARCHAR(32), -- a tag used for conditional http requests
-inserted_at TIMESTAMP             NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
-modified_at TIMESTAMP, -- the timestamp when the item was last modified
-checked_at  TIMESTAMP    -- the timestamp when we last queried the given item
+  id          INT PRIMARY KEY       NOT NULL DEFAULT nextval('category_seq'),
+  skroutz_id  INT UNIQUE            NOT NULL, -- the sku id we get from a request to the Skroutz API
+  name        VARCHAR(100)          NOT NULL, -- the category name
+  image_url   VARCHAR(300), -- the category's image url
+  parent_id   INT REFERENCES categories (skroutz_id), -- the parent id
+  etag        VARCHAR(32), -- a tag used for conditional http requests
+  inserted_at TIMESTAMP             NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
+  modified_at TIMESTAMP, -- the timestamp when the item was last modified
+  checked_at  TIMESTAMP             NOT NULL  -- the timestamp when we last queried the given item
 );
 
 /* manufacturers table */
 CREATE TABLE IF NOT EXISTS public.manufacturers
 (
-id          INT PRIMARY KEY  NOT NULL DEFAULT nextval('manufacturer_seq'),
-skroutz_id  INT UNIQUE       NOT NULL, -- the manufacturer id we get from a request to the Skroutz API
-name        VARCHAR(100)     NOT NULL, -- the manufacturer's name
-image_url   VARCHAR(300)     NOT NULL, -- the manufacturer's image url
-etag        VARCHAR(32), -- a tag used for conditional http requests
-inserted_at TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
-modified_at TIMESTAMP, -- the timestamp when the item was last modified
-checked_at  TIMESTAMP          -- the timestamp when we last queried the given item
+  id          INT PRIMARY KEY  NOT NULL DEFAULT nextval('manufacturer_seq'),
+  skroutz_id  INT UNIQUE       NOT NULL, -- the manufacturer id we get from a request to the Skroutz API
+  name        VARCHAR(100)     NOT NULL, -- the manufacturer's name
+  image_url   VARCHAR(300), -- the manufacturer's image url
+  etag        VARCHAR(32), -- a tag used for conditional http requests
+  inserted_at TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
+  modified_at TIMESTAMP, -- the timestamp when the item was last modified
+  checked_at  TIMESTAMP           -- the timestamp when we last queried the given item
 );
 
 /* shops table, some of the Skroutz fields were omitted because they were
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS public.shops
   etag          VARCHAR(32), -- a tag used for conditional http requests
   inserted_at   TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   modified_at   TIMESTAMP, -- the timestamp when the item was last modified
-  checked_at    TIMESTAMP          -- the timestamp when we last queried the given item
+  checked_at    TIMESTAMP            -- the timestamp when we last queried the given item
 );
 
 /* skus table */
@@ -66,13 +66,13 @@ CREATE TABLE IF NOT EXISTS public.skus
 --   pn           VARCHAR(100)       NOT NULL, -- part number UNNEEDED
   display_name VARCHAR(100)    NOT NULL, -- the sku display name
   category_id  INT             NOT NULL REFERENCES categories (skroutz_id), -- the category id
-  click_url    VARCHAR(300)    NOT NULL, -- the sku's url
+  click_url    VARCHAR(300), -- the sku's url
   price_max    NUMERIC(5, 2)   NOT NULL, -- the max price the sku had at the last check
   price_min    NUMERIC(5, 2)   NOT NULL, -- the min price the sku had at the last check
   etag         VARCHAR(32), -- a tag used for conditional http requests
   inserted_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   modified_at  TIMESTAMP, -- the timestamp when the item was last modified
-  checked_at   TIMESTAMP          -- the timestamp when we last queried the given item
+  checked_at   TIMESTAMP    -- the timestamp when we last queried the given item
 );
 
 /* products table */
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS public.products
   name               VARCHAR(100)    NOT NULL, -- the product name
   sku_id             INT             NOT NULL REFERENCES skus (skroutz_id), -- the product code given to match this product in other shops
   shop_id            INT             NOT NULL REFERENCES shops (skroutz_id),
-  shop_uid           VARCHAR(30)     NOT NULL, -- the unique uid given from the shop
+  shop_uid           VARCHAR(30), -- the unique uid given from the shop
   category_id        INT             NOT NULL REFERENCES categories (skroutz_id),
   etag               VARCHAR(32), -- a tag used for conditional http requests
   availability       VARCHAR(50), -- the current availability
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS public.products
   is_bargain         BOOL, -- true if the product is a bargain
   inserted_at        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   modified_at        TIMESTAMP, -- the timestamp when the item was last modified
-  checked_at         TIMESTAMP          -- the timestamp when we last queried the given product
+  checked_at         TIMESTAMP      -- the timestamp when we last queried the given product
 );
 
 /* price history table */

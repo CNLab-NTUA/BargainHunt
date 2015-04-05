@@ -143,7 +143,6 @@ public class Product extends SkroutzEntity {
         this.clickUrl = clickUrl;
     }
 
-    @NotNull
     @Size(max = 30)
     @Column(name = "shop_uid")
     public String getShopUid() {
@@ -183,7 +182,6 @@ public class Product extends SkroutzEntity {
         this.averagePastPrice = averagePastPrice;
     }
 
-    @NotNull
     @Column(name = "is_bargain")
     public boolean isBargain() {
         return bargain;

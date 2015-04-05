@@ -83,7 +83,7 @@ public class Shop extends SkroutzEntity {
     }
 
     @NotNull
-    @Size(min = 1, max = 100)
+    @Size(max = 300)
     @Column(name = "link")
     public String getLink() {
         return link;
@@ -102,7 +102,7 @@ public class Shop extends SkroutzEntity {
         this.phone = phone;
     }
 
-    @Size(max = 100)
+    @Size(max = 300)
     @Column(name = "image_url")
     public String getImageUrl() {
         return imageUrl;
@@ -112,7 +112,7 @@ public class Shop extends SkroutzEntity {
         this.imageUrl = imageUrl;
     }
 
-    @Size(max = 100)
+    @Size(max = 300)
     @Column(name = "thumbshot_url")
     public String getThumbshotUrl() {
         return thumbshotUrl;
