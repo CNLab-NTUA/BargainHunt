@@ -36,6 +36,7 @@ public class Category extends SkroutzEntity {
     private String parentPath;
     private boolean showSpecifications;
     private String manufacturerTitle;
+    private int matchCount;
     private Category parent;
     private List<Category> children;
     private List<Sku> skus;
@@ -49,7 +50,8 @@ public class Category extends SkroutzEntity {
                     @JsonProperty("fashion") boolean fashion,
                     @JsonProperty("path") String parentPath,
                     @JsonProperty("show_specifications") boolean showSpecifications,
-                    @JsonProperty("manufacturer_title") String manufacturerTitle) {
+                    @JsonProperty("manufacturer_title") String manufacturerTitle,
+                    @JsonProperty("match_count") int matchCount) {
         super();
         this.skroutzId = skroutzId;
         this.name = name;
@@ -60,6 +62,7 @@ public class Category extends SkroutzEntity {
         this.parentPath = parentPath;
         this.showSpecifications = showSpecifications;
         this.manufacturerTitle = manufacturerTitle;
+        this.matchCount = matchCount;
     }
 
     public Category() {
@@ -150,6 +153,15 @@ public class Category extends SkroutzEntity {
 
     public void setManufacturerTitle(String manufacturerTitle) {
         this.manufacturerTitle = manufacturerTitle;
+    }
+
+    @Transient
+    public int getMatchCount() {
+        return matchCount;
+    }
+
+    public void setMatchCount(int matchCount) {
+        this.matchCount = matchCount;
     }
 
     @ManyToOne

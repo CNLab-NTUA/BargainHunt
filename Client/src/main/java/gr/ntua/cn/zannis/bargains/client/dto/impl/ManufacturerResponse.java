@@ -23,5 +23,4 @@ public class ManufacturerResponse extends RestResponseImpl<Manufacturer> {
         this.items = manufacturers;
         this.meta = meta;
     }
-
 }

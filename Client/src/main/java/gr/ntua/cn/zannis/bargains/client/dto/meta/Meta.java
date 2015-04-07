@@ -3,7 +3,10 @@ package gr.ntua.cn.zannis.bargains.client.dto.meta;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.Manufacturer;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku;
 
 import java.util.List;
 
@@ -21,7 +24,7 @@ public class Meta {
     @JsonCreator
     public Meta(@JsonProperty("q") String query,
                 @JsonProperty("alternatives") List<Alternative> alternatives,
-                @JsonProperty("strongMatches") StrongMatches strongMatches,
+                @JsonProperty("strong_matches") StrongMatches strongMatches,
                 @JsonProperty("pagination") Pagination pagination) {
         this.query = query;
         this.alternatives = alternatives;
@@ -61,7 +64,7 @@ public class Meta {
         this.strongMatches = strongMatches;
     }
 
-    private static class Alternative {
+    public static class Alternative {
         private String term;
         private boolean important;
 
@@ -82,31 +85,20 @@ public class Meta {
         }
     }
 
-    private static class StrongMatches {
-        private Product product;
+    public static class StrongMatches {
         private Category category;
         private Sku sku;
         private Shop shop;
         private Manufacturer manufacturer;
 
-        public StrongMatches(@JsonProperty("product") Product product,
-                             @JsonProperty("category") Category category,
+        public StrongMatches(@JsonProperty("category") Category category,
                              @JsonProperty("sku") Sku sku,
                              @JsonProperty("shop") Shop shop,
                              @JsonProperty("manufacturer") Manufacturer manufacturer) {
-            this.product = product;
             this.category = category;
             this.sku = sku;
             this.shop = shop;
             this.manufacturer = manufacturer;
-        }
-
-        public Product getProduct() {
-            return product;
-        }
-
-        public void setProduct(Product product) {
-            this.product = product;
         }
 
         public Category getCategory() {

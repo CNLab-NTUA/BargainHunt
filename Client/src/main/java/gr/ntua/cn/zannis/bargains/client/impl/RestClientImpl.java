@@ -347,4 +347,17 @@ public abstract class RestClientImpl {
         }
         return results;
     }
+
+    /**
+     * Method to parse a response from a search request.
+     * @param uri The {@link URI} containing the search query.
+     * @return A {@link SearchResults} object.
+     */
+    protected SearchResults getSearchResults(URI uri) {
+        Response response = sendUnconditionalGetRequest(uri);
+        Map<String, URI> links = getLinks(response);
+        SearchResults results = response.readEntity(SearchResults.class);
+        results.setLinks(links);
+        return results;
+    }
 }

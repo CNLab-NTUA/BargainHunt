@@ -1,6 +1,7 @@
+package gr.ntua.cn.zannis.bargains.algorithm;
+
 import org.apache.commons.math3.stat.StatUtils;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -21,27 +22,21 @@ public class OutlierFinder {
         double min = StatUtils.min(this.observations);
     }
 
-    public static void main(String... args) {
-        List<Float> floats = new LinkedList<>();
-        floats.add(10.10f);
-        floats.add(10.20f);
-        floats.add(10.50f);
-        floats.add(11.50f);
-        floats.add(15.50f);
-        floats.add(30.50f);
-        floats.add(16.50f);
-        floats.add(17.50f);
-        floats.add(12.50f);
-        floats.add(14.50f);
-        floats.add(25.50f);
-        floats.add(20.50f);
-        floats.add(19.50f);
-        new OutlierFinder(floats, 10);
+    private double[] findLowOutliers() {
+        return new double[]{};
     }
-//
-//    private Integer findMinOutlier() {
-////        double q1 = StatUtils.percentile()
-//    }
+
+    private double[] getHighOutliers() {
+        return new double[]{};
+    }
+
+    private double[] getPricesInRange() {
+        return new double[]{};
+    }
+
+    private double getNormalizedAverage() {
+        return StatUtils.mean(getPricesInRange());
+    }
 
     private double[] floatListToDoubleArrayConverter(List<Float> list) {
         double[] doubles = new double[list.size()];

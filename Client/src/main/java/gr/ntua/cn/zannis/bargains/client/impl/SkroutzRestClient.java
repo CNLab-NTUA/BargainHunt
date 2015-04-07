@@ -3,11 +3,15 @@ package gr.ntua.cn.zannis.bargains.client.impl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import gr.ntua.cn.zannis.bargains.algorithm.OutlierFinder;
+import gr.ntua.cn.zannis.bargains.client.dto.impl.SearchResults;
 import gr.ntua.cn.zannis.bargains.client.dto.impl.TokenResponse;
 import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
-import gr.ntua.cn.zannis.bargains.client.persistence.dao.GenericDaoImpl;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.Product;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku;
 import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -17,6 +21,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
 
@@ -74,16 +79,24 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                List<Product> products = client.getRemainingResults(Product.class, motoeProductsPage);
 //                System.out.println(products.size());
 
-                GenericDaoImpl<Sku> dao = new GenericDaoImpl<>(Sku.class);
+//                GenericDaoImpl<Sku> dao = new GenericDaoImpl<>(Sku.class);
 
 //                Category c = dao.find(12);
 //                System.out.println(c);
 //                dao.persist(c);
-                Page<Manufacturer> manufacturerPage = SkroutzRestClient.get().getAll(Manufacturer.class);
-                while (manufacturerPage.hasNext() || manufacturerPage.isLastPage()) {
-                    manufacturerPage.getItems().forEach(dao::persist);
-                    manufacturerPage = SkroutzRestClient.get().getNextPage(Manufacturer.class, manufacturerPage);
-                }
+//                while (manufacturerPage.hasNext() || manufacturerPage.isLastPage()) {
+//                    manufacturerPage.getItems().forEach(dao::persist);
+//                    manufacturerPage = SkroutzRestClient.get().getNextPage(Manufacturer.class, manufacturerPage);
+//                }
+                SearchResults motoEResults = SkroutzRestClient.get().search("moto e");
+                // get first category and keep looking
+                Page<Sku> motoESku = SkroutzRestClient.get().searchSkusFromCategory(motoEResults.getCategories().get(0).getSkroutzId(), "moto e");
+                Sku motoE = motoESku.getFirstItem();
+                Page<Product> motoEProductsFirstPage = SkroutzRestClient.get().getProductsFromSku(motoE);
+                Page<Product> motoEProductsSecondPage = SkroutzRestClient.get().getNextPage(Product.class, motoEProductsFirstPage);
+                List<Float> prices = motoEProductsFirstPage.getItems().stream().map(Product::getPrice).collect(Collectors.toList());
+                prices.addAll(motoEProductsSecondPage.getItems().stream().map(Product::getPrice).collect(Collectors.toList()));
+                new OutlierFinder(prices, 10);
                 System.out.println("done and done");
 
 //                List<Category> categories = client.getAllCategories();
@@ -185,17 +198,16 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
     /**
-     * Create a request for a specific {@link Sku} using a String query. This is supposed to
-     * be used when we don't have a persistent instance of the {@link Sku} and we don't know
-     * its' id. Can return multiple results.
+     * Create a request for a specific {@link Sku} using a String query and it's category ID.
+     * This is supposed to be used when we don't have a persistent instance of the {@link Sku}
+     * and we don't know its' id. Can return multiple results.
      *
-     * @param skuName The {@link Sku} name we search for.
-     * @return A {@link Page} containing
-     * the returned SKUs.
+     * @param query The {@link Sku} name we search for.
+     * @return A {@link Page<Sku>} containing the returned SKUs.
      */
-    public Page<Sku> searchSkusByName(String skuName) {
-        URI uri = UriBuilder.fromPath(API_HOST).path(SKUS).path(SEARCH)
-                .queryParam("q", skuName).build();
+    public Page<Sku> searchSkusFromCategory(Long categoryId, String query) {
+        URI uri = UriBuilder.fromPath(API_HOST).path(CATEGORIES).path(ID).path(SKUS)
+                .queryParam("q", query).build(categoryId);
         return getPageByCustomUri(Sku.class, uri);
     }
 
@@ -219,18 +231,16 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
     /**
-     * Create a request for a specific {@link Category} using a String query. This is supposed to
-     * be used when we don't have a persistent instance of the {@link Category} and we don't know
-     * its' id. Can return multiple results.
-     *
-     * @param categoryName The {@link Category} name we search for.
-     * @return A {@link Page} containing
-     * the returned categories.
+     * Generic method used when searching for SKUs, Products or Categories. It follows the Skroutz API
+     * method of returning results, where a {@link SearchResults} is returned with the query's matched
+     * categories, and probably a {@link gr.ntua.cn.zannis.bargains.client.dto.meta.Meta.StrongMatches} object
+     * in the meta tag containing the information we actually need.
+     * @param query The string we want to search for.
+     * @return A {@link SearchResults} object containing the categories matching that query.
      */
-    public Page<Category> searchCategoriesByName(String categoryName) {
-        URI uri = UriBuilder.fromPath(API_HOST).path(CATEGORIES).path(SEARCH)
-                .queryParam("q", categoryName).build();
-        return getPageByCustomUri(Category.class, uri);
+    protected SearchResults search(String query) {
+        URI uri = UriBuilder.fromPath(target).path(SEARCH).queryParam("q", query).build();
+        return getSearchResults(uri);
     }
 
     public Sku getSkuById(Long skuId) {
