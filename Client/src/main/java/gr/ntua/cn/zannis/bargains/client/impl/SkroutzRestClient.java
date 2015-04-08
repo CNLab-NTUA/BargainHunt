@@ -21,6 +21,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
@@ -76,7 +77,7 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                Category testCateg = client.getCategoryById(30);
 //                Sku motoE = client.getSkuById(4977937);
 //                Page<Product> motoeProductsPage = client.getProductsFromSku(motoE);
-//                List<Product> products = client.getRemainingResults(Product.class, motoeProductsPage);
+//                List<Product> products = client.getAllResultsAsList(Product.class, motoeProductsPage);
 //                System.out.println(products.size());
 
 //                GenericDaoImpl<Sku> dao = new GenericDaoImpl<>(Sku.class);
@@ -88,17 +89,46 @@ public final class SkroutzRestClient extends RestClientImpl {
 //                    manufacturerPage.getItems().forEach(dao::persist);
 //                    manufacturerPage = SkroutzRestClient.get().getNextPage(Manufacturer.class, manufacturerPage);
 //                }
-                SearchResults motoEResults = SkroutzRestClient.get().search("moto e");
-                // get first category and keep looking
-                Page<Sku> motoESku = SkroutzRestClient.get().searchSkusFromCategory(motoEResults.getCategories().get(0).getSkroutzId(), "moto e");
-                Sku motoE = motoESku.getFirstItem();
-                Page<Product> motoEProductsFirstPage = SkroutzRestClient.get().getProductsFromSku(motoE);
-                Page<Product> motoEProductsSecondPage = SkroutzRestClient.get().getNextPage(Product.class, motoEProductsFirstPage);
-                List<Float> prices = motoEProductsFirstPage.getItems().stream().map(Product::getPrice).collect(Collectors.toList());
-                prices.addAll(motoEProductsSecondPage.getItems().stream().map(Product::getPrice).collect(Collectors.toList()));
-                new OutlierFinder(prices, 10);
-                System.out.println("done and done");
-
+                boolean exit = false;
+                Scanner sc = new Scanner(System.in);
+                sc.useDelimiter("\n");
+                while (!exit) {
+                    System.out.print("Εισάγετε προϊόν για αναζήτηση : ");
+                    String query = sc.next();
+                    SearchResults results = SkroutzRestClient.get().search(query);
+                    // get first category and keep looking
+                    System.out.println("Βρέθηκαν προϊόντα σαν αυτό που ζητήσατε στις παρακάτω κατηγορίες, επιλέξτε μία για να συνεχίσετε : ");
+                    int i = 1;
+                    for (Category c : results.getCategories()) {
+                        System.out.println(i++ + " : " + c.getName());
+                    }
+                    int categoryId = sc.nextInt() - 1;
+                    assert categoryId > 0;
+                    Page<Sku> skuPage = SkroutzRestClient.get().searchSkusFromCategory(results.getCategories().get(categoryId).getSkroutzId(), query);
+                    List<Sku> skuList = SkroutzRestClient.get().getAllResultsAsList(Sku.class, skuPage);
+                    System.out.println("Βρέθηκαν τα εξής προϊόντα, παρακαλώ επιλέξτε αυτό που επιθυμείτε : ");
+                    i = 1;
+                    for (Sku s : skuList) {
+                        System.out.println(i++ + " : " + s.getName());
+                    }
+                    int skuId = sc.nextInt() - 1;
+                    assert skuId > 0 && skuId <= skuList.size();
+                    Page<Product> productsPage = SkroutzRestClient.get().getProductsFromSku(skuList.get(skuId));
+                    List<Product> productList = SkroutzRestClient.get().getAllResultsAsList(Product.class, productsPage);
+                    List<Float> prices = productList.stream().map(Product::getPrice).collect(Collectors.toList());
+                    OutlierFinder finder = new OutlierFinder(prices, 10);
+                    if (finder.getLowOutliers().isEmpty()) {
+                        System.out.println("Δυστυχώς το προϊόν δεν βρίσκεται σε προσφορά. Δοκιμάστε ξανά στο μέλλον!");
+                    } else {
+                        System.out.println("Είστε τυχεροί! Το προϊόν υπάρχει σε προσφορά στα " + finder.getLowOutliers().get(0) + " ευρώ! Είναι "
+                                + finder.getBargainPercentage() + "% πιο φθηνό από τη μέση τιμή, η οποία είναι στα "
+                                + finder.getNormalizedMean() + " ευρώ.");
+                    }
+                    System.out.println("Γράψτε exit για έξοδο, διαφορετικά πατήστε Enter");
+                    if (sc.next().equals("exit")) {
+                        exit = true;
+                    }
+                }
 //                List<Category> categories = client.getAllCategories();
 //                System.out.println(categories.size());
             }
@@ -248,7 +278,7 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
     public List<Category> getAllCategories() {
-        return getRemainingResults(Category.class, getAll(Category.class));
+        return getAllResultsAsList(Category.class, getAll(Category.class));
     }
 
     public int getRemainingRequests() {

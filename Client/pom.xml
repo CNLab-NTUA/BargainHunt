@@ -12,6 +12,12 @@
     <artifactId>Client</artifactId>
 
     <dependencies>
+        <!--todo remove this-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.4.1</version>
+        </dependency>
 
         <!--Postgres JDBC driver-->
         <dependency>
