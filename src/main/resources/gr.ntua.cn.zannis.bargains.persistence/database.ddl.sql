@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS public.products
   etag               VARCHAR(32), -- a tag used for conditional http requests
   availability       VARCHAR(50), -- the current availability
   click_url          VARCHAR(300), -- the url given from Skroutz API
-  price              NUMERIC(5, 2), -- the current price
+  price              NUMERIC(5, 2)   NOT NULL, -- the current price
   price_changes      INT             NOT NULL DEFAULT 0, -- how many times the product's price has changed
   average_past_price NUMERIC(5, 2)   NOT NULL, -- the average price we have calculated for the product in the past
   is_bargain         BOOL, -- true if the product is a bargain

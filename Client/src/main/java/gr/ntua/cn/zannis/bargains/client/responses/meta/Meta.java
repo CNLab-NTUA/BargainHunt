@@ -1,4 +1,4 @@
-package gr.ntua.cn.zannis.bargains.client.dto.meta;
+package gr.ntua.cn.zannis.bargains.client.responses.meta;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

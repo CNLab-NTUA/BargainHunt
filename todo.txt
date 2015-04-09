@@ -5,5 +5,24 @@
 * Paginated results - done
 * Generic client - done
 * Δημιουργία tables - done
-* Implement OutlierFinder - in progress
-* Images table?? - or maybe transient
+* Implement OutlierFinder - done
+* Implement command line demo app - done
+
+-- version 0.5 --
+
+single item query logic to implement
+
+1. send single item query
+2. check db for entity
+3. if entity exists and has etag
+    |- send conditional request with etag
+    |- if 304 is returned
+        |- return database result
+    |- else update entity in database
+        |- return rest entity
+4. else send unconditional request
+    |- persist entity in database
+    |- return rest entity
+
+* Implement filtering - future
+* Add table to database with : unique request - etag to perform conditional requests

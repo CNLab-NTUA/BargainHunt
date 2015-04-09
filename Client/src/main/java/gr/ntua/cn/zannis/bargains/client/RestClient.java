@@ -1,7 +1,12 @@
 package gr.ntua.cn.zannis.bargains.client;
 
-import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
+import gr.ntua.cn.zannis.bargains.client.requests.filters.Filter;
+import gr.ntua.cn.zannis.bargains.client.responses.impl.SearchResults;
+import gr.ntua.cn.zannis.bargains.client.responses.meta.Page;
+
+import java.util.List;
 
 /**
  * The RESTful Client interface that targets an API that can provide
@@ -10,14 +15,110 @@ import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
  */
 public interface RestClient {
 
-    <T extends SkroutzEntity> Page<T> nextPage(Page<T> page);
+    /**
+     * Generic method to retrieve a single result from the given category.
+     * @param tClass A {@link SkroutzEntity} class type.
+     * @param skroutzId The <code>skroutzId</code> of the item we are looking for.
+     * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @return An object of type T.
+     */
+    <T extends SkroutzEntity> T get(Class<T> tClass, Long skroutzId);
 
-    <T extends SkroutzEntity> Page<T> getAll(Class<T> tClass);
+    /**
+     * Generic method to retrieve all results from the given type.
+     * @param tClass A {@link SkroutzEntity} class type.
+     * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @return The first page of the results.
+     */
+    <T extends SkroutzEntity> Page<T> get(Class<T> tClass);
 
-    <T extends SkroutzEntity> Page<T> searchByName(Class<T> tClass, String query);
+    /**
+     * TODO
+     * Generic method to retrieve all results from the given type using the specified filters.
+     * @param tClass A {@link SkroutzEntity} class type.
+     * @param filters A list of filters to apply to the query.
+     * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @return The first page of the results.
+     */
+    <T extends SkroutzEntity> Page<T> get(Class<T> tClass, Filter... filters);
 
-    <T extends SkroutzEntity> T getById(Class<T> tClass, Integer id);
+    /**
+     * Generic method to retrieve nested results from the given type {@link U} which belongs to the type {@link T}.
+     * @param childClass A {@link SkroutzEntity} class type.
+     * @param parentEntity A different {@link SkroutzEntity} object which owns <code>childClass</code>.
+     * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @param <U> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @return The first page of the results.
+     */
+    <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(Class<T> childClass, U parentEntity);
 
-    <T extends SkroutzEntity> T getByEntity(Class<T> tClass, T entity);
+    /**
+     * Generic method to retrieve nested results from the given type {@link U} which belongs to the type {@link T} filtered
+     * by the specified filters.
+     * @param childClass A {@link SkroutzEntity} class type.
+     * @param parentEntity A different {@link SkroutzEntity} object which owns <code>childClass</code>.
+     * @param filters A list of filters to apply to the query.
+     * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @param <U> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @return The first page of the results.
+     */
+    <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(Class<T> childClass, U parentEntity, Filter... filters);
+
+    /**
+     * Method to retrieve all results from the given type in a list. It internally bypasses pagination, as it requests
+     * all the pages one by one and returns the result.
+     * @param tClass A {@link SkroutzEntity} class type.
+     * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @return A {@link List<T>} containing all the result set.
+     */
+    <T extends SkroutzEntity> List<T> getAsList(Class<T> tClass);
+
+    /**
+     * TODO
+     * Method to retrieve all results from the given type in a list filtered by an array of filters.
+     * It internally bypasses pagination, as it requests all the pages one by one and returns the result.
+     * @param tClass A {@link SkroutzEntity} class type.
+     * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @return A {@link List<T>} containing all the result set or an empty list if nothing was found.
+     */
+    <T extends SkroutzEntity> List<T> getAsList(Class<T> tClass, Filter... filters);
+
+    /**
+     * Method to execute a nested get query and return all the results (bypassing pagination) as a list.
+     * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @param <U> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @param childClass A {@link SkroutzEntity} class type.
+     * @param parentEntity A different {@link SkroutzEntity} object which owns <code>childClass</code>.
+     * @return A list containing the results.
+     */
+    <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(Class<T> childClass, U parentEntity);
+
+    /**
+     * Method to execute a nested get query using the specified filters and return all the results (bypassing pagination) as a list.
+     * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @param <U> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @param childClass A {@link SkroutzEntity} class type.
+     * @param parentEntity A different {@link SkroutzEntity} class type which owns <code>childEntity</code>.
+     * @param filters A list of filters to apply to the query.
+     * @return A list containing the results.
+     */
+    <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(Class<T> childClass, U parentEntity, Filter... filters);
+
+    /**
+     * Method to retrieve the next page from a paginated result.
+     * @param page The previous {@link Page<T>}
+     * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @return The next {@link Page<T>}
+     */
+    <T extends SkroutzEntity> Page<T> getNextPage(Page<T> page);
+
+    /**
+     * Search request using a string query. It typically returns a list of categories that contain
+     * SKUs with the given string and maybe  a list of {@link gr.ntua.cn.zannis.bargains.client.responses.meta.Meta.Alternative}
+     * or {@link gr.ntua.cn.zannis.bargains.client.responses.meta.Meta.StrongMatches}.
+     * @param query The string we are looking for.
+     * @return A {@link SearchResults} object. Practically a {@link Page<Category>} with some extra features.
+     */
+    SearchResults search(String query);
 
 }

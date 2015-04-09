@@ -1,9 +1,9 @@
-package gr.ntua.cn.zannis.bargains.client.dto.impl;
+package gr.ntua.cn.zannis.bargains.client.responses.impl;
 
-import gr.ntua.cn.zannis.bargains.client.dto.RestResponse;
-import gr.ntua.cn.zannis.bargains.client.dto.meta.Meta;
-import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
+import gr.ntua.cn.zannis.bargains.client.responses.RestResponse;
+import gr.ntua.cn.zannis.bargains.client.responses.meta.Meta;
+import gr.ntua.cn.zannis.bargains.client.responses.meta.Page;
 
 import java.net.URI;
 import java.util.List;

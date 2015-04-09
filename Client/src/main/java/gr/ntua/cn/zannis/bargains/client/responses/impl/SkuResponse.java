@@ -1,9 +1,9 @@
-package gr.ntua.cn.zannis.bargains.client.dto.impl;
+package gr.ntua.cn.zannis.bargains.client.responses.impl;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import gr.ntua.cn.zannis.bargains.client.dto.meta.Meta;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku;
+import gr.ntua.cn.zannis.bargains.client.responses.meta.Meta;
 
 import java.util.List;
 

@@ -8,6 +8,7 @@ import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
@@ -179,7 +180,7 @@ public class Shop extends SkroutzEntity {
         return Objects.hash(id, name, link, phone, imageUrl, thumbshotUrl, reviewCount, reviewScore, paymentMethods);
     }
 
-    public static class PaymentMethods {
+    public static class PaymentMethods implements Serializable {
         private boolean creditCard;
         private boolean paypal;
         private boolean bank;

@@ -1,8 +1,8 @@
 package gr.ntua.cn.zannis.bargains.client.persistence.dao;
 
-import gr.ntua.cn.zannis.bargains.client.dto.impl.CategoryResponse;
 import gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
+import gr.ntua.cn.zannis.bargains.client.responses.impl.CategoryResponse;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.persistence.NoResultException;

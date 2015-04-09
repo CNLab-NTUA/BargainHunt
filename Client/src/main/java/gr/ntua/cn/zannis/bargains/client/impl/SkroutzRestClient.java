@@ -3,26 +3,21 @@ package gr.ntua.cn.zannis.bargains.client.impl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import gr.ntua.cn.zannis.bargains.algorithm.OutlierFinder;
-import gr.ntua.cn.zannis.bargains.client.dto.impl.SearchResults;
-import gr.ntua.cn.zannis.bargains.client.dto.impl.TokenResponse;
-import gr.ntua.cn.zannis.bargains.client.dto.meta.Page;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku;
+import gr.ntua.cn.zannis.bargains.client.responses.impl.TokenResponse;
+import gr.ntua.cn.zannis.bargains.client.responses.meta.Page;
 import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.naming.AuthenticationException;
 import javax.ws.rs.core.UriBuilder;
-import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
 
@@ -48,7 +43,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      */
      public static synchronized SkroutzRestClient get() {
         if (instance == null) {
-            String token = Utils.getAccessToken();
+            String token = Utils.getLocalAccessToken();
             if (token == null) {
                 TokenResponse response;
                 try {
@@ -63,80 +58,6 @@ public final class SkroutzRestClient extends RestClientImpl {
             }
         }
         return instance;
-    }
-
-    public static void main(String[] args) {
-        try {
-            Utils.initPropertiesFiles();
-            if (SkroutzRestClient.get() != null) {
-                // run queries here!
-//                Product p = client.getProductById(18427940);
-//                Product p2 = client.checkProduct(p);
-//                Product p3 = client.getProductByShopUid(11, "2209985");
-//                Page<Shop> plaisioPage = client.searchShopsByName("pla");
-//                Category testCateg = client.getCategoryById(30);
-//                Sku motoE = client.getSkuById(4977937);
-//                Page<Product> motoeProductsPage = client.getProductsFromSku(motoE);
-//                List<Product> products = client.getAllResultsAsList(Product.class, motoeProductsPage);
-//                System.out.println(products.size());
-
-//                GenericDaoImpl<Sku> dao = new GenericDaoImpl<>(Sku.class);
-
-//                Category c = dao.find(12);
-//                System.out.println(c);
-//                dao.persist(c);
-//                while (manufacturerPage.hasNext() || manufacturerPage.isLastPage()) {
-//                    manufacturerPage.getItems().forEach(dao::persist);
-//                    manufacturerPage = SkroutzRestClient.get().getNextPage(Manufacturer.class, manufacturerPage);
-//                }
-                boolean exit = false;
-                Scanner sc = new Scanner(System.in);
-                sc.useDelimiter("\n");
-                while (!exit) {
-                    System.out.print("Εισάγετε προϊόν για αναζήτηση : ");
-                    String query = sc.next();
-                    SearchResults results = SkroutzRestClient.get().search(query);
-                    // get first category and keep looking
-                    System.out.println("Βρέθηκαν προϊόντα σαν αυτό που ζητήσατε στις παρακάτω κατηγορίες, επιλέξτε μία για να συνεχίσετε : ");
-                    int i = 1;
-                    for (Category c : results.getCategories()) {
-                        System.out.println(i++ + " : " + c.getName());
-                    }
-                    int categoryId = sc.nextInt() - 1;
-                    assert categoryId > 0;
-                    Page<Sku> skuPage = SkroutzRestClient.get().searchSkusFromCategory(results.getCategories().get(categoryId).getSkroutzId(), query);
-                    List<Sku> skuList = SkroutzRestClient.get().getAllResultsAsList(Sku.class, skuPage);
-                    System.out.println("Βρέθηκαν τα εξής προϊόντα, παρακαλώ επιλέξτε αυτό που επιθυμείτε : ");
-                    i = 1;
-                    for (Sku s : skuList) {
-                        System.out.println(i++ + " : " + s.getName());
-                    }
-                    int skuId = sc.nextInt() - 1;
-                    assert skuId > 0 && skuId <= skuList.size();
-                    Page<Product> productsPage = SkroutzRestClient.get().getProductsFromSku(skuList.get(skuId));
-                    List<Product> productList = SkroutzRestClient.get().getAllResultsAsList(Product.class, productsPage);
-                    List<Float> prices = productList.stream().map(Product::getPrice).collect(Collectors.toList());
-                    OutlierFinder finder = new OutlierFinder(prices, 10);
-                    if (finder.getLowOutliers().isEmpty()) {
-                        System.out.println("Δυστυχώς το προϊόν δεν βρίσκεται σε προσφορά. Δοκιμάστε ξανά στο μέλλον!");
-                    } else {
-                        System.out.println("Είστε τυχεροί! Το προϊόν υπάρχει σε προσφορά στα " + finder.getLowOutliers().get(0) + " ευρώ! Είναι "
-                                + finder.getBargainPercentage() + "% πιο φθηνό από τη μέση τιμή, η οποία είναι στα "
-                                + finder.getNormalizedMean() + " ευρώ.");
-                    }
-                    System.out.println("Γράψτε exit για έξοδο, διαφορετικά πατήστε Enter");
-                    if (sc.next().equals("exit")) {
-                        exit = true;
-                    }
-                }
-//                List<Category> categories = client.getAllCategories();
-//                System.out.println(categories.size());
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
     /**
@@ -172,7 +93,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * or null if there was an error.
      */
     public Product getProductById(Long productId) {
-        return getById(Product.class, productId);
+        return get(Product.class, productId);
     }
 
     public Product checkProduct(Product product) {
@@ -209,7 +130,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * or null if there was an error.
      */
     public Shop getShopById(Long shopId) {
-        return getById(Shop.class, shopId);
+        return get(Shop.class, shopId);
     }
 
     /**
@@ -257,28 +178,15 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
     public Category getCategoryById(Long categoryId) {
-        return getById(Category.class, categoryId);
-    }
-
-    /**
-     * Generic method used when searching for SKUs, Products or Categories. It follows the Skroutz API
-     * method of returning results, where a {@link SearchResults} is returned with the query's matched
-     * categories, and probably a {@link gr.ntua.cn.zannis.bargains.client.dto.meta.Meta.StrongMatches} object
-     * in the meta tag containing the information we actually need.
-     * @param query The string we want to search for.
-     * @return A {@link SearchResults} object containing the categories matching that query.
-     */
-    protected SearchResults search(String query) {
-        URI uri = UriBuilder.fromPath(target).path(SEARCH).queryParam("q", query).build();
-        return getSearchResults(uri);
+        return get(Category.class, categoryId);
     }
 
     public Sku getSkuById(Long skuId) {
-        return getById(Sku.class, skuId);
+        return get(Sku.class, skuId);
     }
 
     public List<Category> getAllCategories() {
-        return getAllResultsAsList(Category.class, getAll(Category.class));
+        return getAsList(Category.class);
     }
 
     public int getRemainingRequests() {

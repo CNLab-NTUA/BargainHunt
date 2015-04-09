@@ -29,11 +29,7 @@ public class Const {
     public static final String ID = "/{id}";
     public static final String SEARCH = "/search";
 
-
-    public static final String SKUS1 = "/categories/{categoryId}/skus";
-    public static final String ALL_CATEGORIES = "/categories";
-
-    // Persistence
+    // persistence
     public static final String PERSISTENCE_UNIT = "BargainHunt";
 
 }

@@ -7,6 +7,7 @@ import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -277,7 +278,7 @@ public class Sku extends SkroutzEntity {
         this.category = category;
     }
 
-    public static class Images {
+    public static class Images implements Serializable {
         String main;
         List<String> alternatives;
 

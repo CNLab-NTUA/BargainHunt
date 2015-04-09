@@ -1,4 +1,4 @@
-package gr.ntua.cn.zannis.bargains.client.dto.meta;
+package gr.ntua.cn.zannis.bargains.client.responses.meta;
 
 import java.net.URI;
 import java.util.List;
@@ -8,12 +8,15 @@ import java.util.List;
  * @author zannis <zannis.kal@gmail.com>
  */
 public class Page<T> extends Pagination {
+    private Class<T> entityType;
     private List<T> items;
     private URI prev;
     private URI next;
     private URI last;
 
+    @SuppressWarnings("unchecked")
     public Page(List<T> items, Pagination pagination, URI prev, URI next, URI last) {
+        this.entityType = (Class<T>) items.getClass().getComponentType();
         this.items = items;
         this.prev = prev;
         this.next = next;
@@ -58,5 +61,13 @@ public class Page<T> extends Pagination {
 
     public void setLast(URI last) {
         this.last = last;
+    }
+
+    public Class<T> getEntityType() {
+        return entityType;
+    }
+
+    public void setEntityType(Class<T> entityType) {
+        this.entityType = entityType;
     }
 }

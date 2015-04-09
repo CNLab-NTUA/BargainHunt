@@ -1,17 +1,22 @@
 package gr.ntua.cn.zannis.bargains.client.misc;
 
-import gr.ntua.cn.zannis.bargains.client.dto.impl.TokenResponse;
+import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
+import gr.ntua.cn.zannis.bargains.client.responses.RestResponse;
+import gr.ntua.cn.zannis.bargains.client.responses.impl.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.AuthenticationException;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.*;
 import java.io.*;
+import java.net.URI;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -88,7 +93,7 @@ public class Utils {
      * Attempts to find the access token in the TOKEN_FILENAME variable.
      * @return The access token or null if an error occured.
      */
-    public static String getAccessToken() {
+    public static String getLocalAccessToken() {
         log.debug("Getting access token...");
         String property = null;
         Properties tokenProperties = getPropertiesFromFile(Const.TOKEN_FILENAME);
@@ -139,7 +144,6 @@ public class Utils {
         if (config == null) {
             throw new AuthenticationException("Config file empty, please get a proper client_id and client_secret.");
         } else {
-            Client client = ClientBuilder.newClient();
             UriBuilder builder = UriBuilder.fromUri("https://www.skroutz.gr").path("oauth2/token")
                     .queryParam("client_id", config.getProperty("client_id"))
                     .queryParam("client_secret", config.getProperty("client_secret"))
@@ -147,8 +151,70 @@ public class Utils {
                     .queryParam("redirect_uri", config.getProperty("redirect_uri"))
                     .queryParam("scope", "public");
 
-            return client.target(builder).request()
+            return ClientBuilder.newClient().target(builder).request()
                     .post(Entity.entity(new TokenResponse(), MediaType.APPLICATION_JSON_TYPE), TokenResponse.class);
         }
+    }
+
+    // client
+    /**
+     * Method that matches a {@link SkroutzEntity} to its corresponding {@link RestResponseImpl}
+     * @param tClass The {@link SkroutzEntity} class type.
+     * @param <T>    The actual {@link SkroutzEntity}.
+     * @return The matching {@link RestResponseImpl}.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends SkroutzEntity> Class<? extends RestResponse<T>> getMatchingResponse(Class<T> tClass) {
+        if (tClass.isAssignableFrom(Product.class)) {
+            return (Class<? extends RestResponse<T>>) ProductResponse.class;
+        } else if (tClass.isAssignableFrom(Shop.class)) {
+            return (Class<? extends RestResponse<T>>) ShopResponse.class;
+        } else if (tClass.isAssignableFrom(Category.class)) {
+            return (Class<? extends RestResponse<T>>) CategoryResponse.class;
+        } else if (tClass.isAssignableFrom(Sku.class)) {
+            return (Class<? extends RestResponse<T>>) SkuResponse.class;
+        } else if (tClass.isAssignableFrom(Manufacturer.class)) {
+            return (Class<? extends RestResponse<T>>) ManufacturerResponse.class;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Method that matches a {@link SkroutzEntity} object to its corresponding {@link RestResponseImpl}
+     * @param entity The {@link SkroutzEntity} object.
+     * @param <T>    The actual {@link SkroutzEntity}.
+     * @return The matching {@link RestResponseImpl}.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends SkroutzEntity> Class<? extends RestResponse<T>> getMatchingResponse(T entity) {
+        return getMatchingResponse((Class<T>) entity.getClass());
+    }
+
+    /**
+     * Helper function to extract Link headers from a HTTP response.
+     * @param response The response to extract headers from.
+     * @return A map of Link urls, empty if no {@link Link} is found.
+     */
+    public static Map<String, URI> getLinks(Response response) {
+        Map<String, URI> map = new HashMap<>();
+        // custom made parser to parse concatenated link headers cause Jersey can't do it
+        String linkString = response.getHeaderString(HttpHeaders.LINK);
+        if (linkString == null) {
+            return map;
+        } else {
+            String[] links = linkString.split(",");
+            for (String s : links) {
+                String url = StringUtils.substringBetween(s, "<", ">");
+                String tag = StringUtils.substringBetween(s, "\"");
+                map.put(tag, URI.create(url));
+            }
+        }
+        return map;
+    }
+
+    public static HashMap<Class, String> initPathMap() {
+        HashMap<Class, String> map = new HashMap<>();
+        map.put(Product.class, Const.PRODUCTS);
     }
 }

@@ -153,6 +153,7 @@ public class Product extends SkroutzEntity {
         this.shopUid = shopUid;
     }
 
+    @NotNull
     @Column(name = "price", precision = 2)
     public float getPrice() {
         return price;
