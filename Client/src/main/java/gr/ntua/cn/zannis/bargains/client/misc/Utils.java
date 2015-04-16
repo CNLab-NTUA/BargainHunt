@@ -2,6 +2,7 @@ package gr.ntua.cn.zannis.bargains.client.misc;
 
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
+import gr.ntua.cn.zannis.bargains.client.requests.filters.Filter;
 import gr.ntua.cn.zannis.bargains.client.responses.RestResponse;
 import gr.ntua.cn.zannis.bargains.client.responses.impl.*;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.*;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -29,6 +31,17 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
 public class Utils {
 
     private final static Logger log = LoggerFactory.getLogger(Utils.class);
+    private final static Map<Class, String> PATH_MAP;
+
+    static {
+        HashMap<Class, String> map = new HashMap<>();
+        map.put(Product.class, PRODUCTS);
+        map.put(Shop.class, SHOPS);
+        map.put(Category.class, CATEGORIES);
+        map.put(Sku.class, SKUS);
+        map.put(Manufacturer.class, MANUFACTURERS);
+        PATH_MAP = Collections.unmodifiableMap(map);
+    }
 
     /**
      * Gets key-value pairs from given properties file.
@@ -216,19 +229,68 @@ public class Utils {
         return map;
     }
 
-    /**
-     * Initializes a {@link HashMap<Class, String>} that maps classes to paths
-     * in the REST API server.
-     *
-     * @return The HashMap containing the results.
-     */
-    public static HashMap<Class, String> initPathMap() {
-        HashMap<Class, String> map = new HashMap<>();
-        map.put(Product.class, PRODUCTS);
-        map.put(Shop.class, SHOPS);
-        map.put(Category.class, CATEGORIES);
-        map.put(Sku.class, SKUS);
-        map.put(Manufacturer.class, MANUFACTURERS);
-        return map;
+    //todo javadoc
+    public static <T extends SkroutzEntity> URI getMatchingUri(Class<T> tClass) {
+        UriBuilder builder = UriBuilder.fromPath(API_HOST)
+                .path(PATH_MAP.get(tClass));
+        return builder.build();
+    }
+
+    //todo javadoc
+    public static <T extends SkroutzEntity> URI getMatchingUri(Class<T> tClass, Filter... filters) {
+        UriBuilder builder = UriBuilder.fromPath(API_HOST)
+                .path(PATH_MAP.get(tClass));
+        for (Filter f : filters) {
+            builder.queryParam(f.getName(), f.getValue());
+        }
+        return builder.build();
+    }
+
+    //todo javadoc
+    public static <T extends SkroutzEntity> URI getMatchingUri(Class<T> tClass, Long id) {
+        UriBuilder builder = UriBuilder.fromPath(API_HOST)
+                .path(PATH_MAP.get(tClass))
+                .path(ID);
+        return builder.build(id);
+    }
+
+    //todo javadoc
+    public static <T extends SkroutzEntity> URI getMatchingUri(Class<T> tClass, Long id, Filter... filters) {
+        UriBuilder builder = UriBuilder.fromPath(API_HOST)
+                .path(PATH_MAP.get(tClass))
+                .path(ID);
+        for (Filter f : filters) {
+            builder.queryParam(f.getName(), f.getValue());
+        }
+        return builder.build(id);
+    }
+
+    //todo javadoc
+    public static <T extends SkroutzEntity, U extends SkroutzEntity> URI getMatchingUri(U parent, Class<T> childClass) {
+        UriBuilder builder = UriBuilder.fromPath(API_HOST)
+                .path(PATH_MAP.get(parent.getClass()))
+                .path(ID)
+                .path(PATH_MAP.get(childClass));
+        return builder.build(parent.getSkroutzId());
+    }
+
+    //todo javadoc
+    public static <T extends SkroutzEntity, U extends SkroutzEntity> URI getMatchingUri(U parent, Class<T> childClass, Filter... filters) {
+        UriBuilder builder = UriBuilder.fromPath(API_HOST)
+                .path(PATH_MAP.get(parent.getClass()))
+                .path(ID)
+                .path(PATH_MAP.get(childClass));
+        for (Filter f : filters) {
+            builder.queryParam(f.getName(), f.getValue());
+        }
+        return builder.build(parent.getSkroutzId());
+    }
+
+    //todo javadoc
+    public static <T extends SkroutzEntity> URI getMatchingUri(T entity) {
+        UriBuilder builder = UriBuilder.fromPath(API_HOST)
+                .path(PATH_MAP.get(entity.getClass()))
+                .path(ID);
+        return builder.build(entity.getSkroutzId());
     }
 }

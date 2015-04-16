@@ -8,31 +8,48 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * The class that finds the outliers in a given float list using the interquantile range method.
+ * The <code>k</code> in the formula is based on the {@link FilterStrength} parameter.
+ *
+ * @see <a href="http://en.wikipedia.org/wiki/Outlier">Wikipedia: Outlier</a>
  * @author zannis <zannis.kal@gmail.com>
  */
 public class OutlierFinder {
 
-    private final static int DEFAULT_FILTER_STRENGTH = 10;
+    private final static FilterStrength DEFAULT_FILTER_STRENGTH = FilterStrength.NORMAL;
 
-    private double[] observations;
-    private int filterPercentage;
+    private double[] values;
+    private float kappa;
     private double q1;
     private double q3;
-    private double median;
     private double IQR;
 
-    public OutlierFinder(List<Float> prices, Integer filterPercentage) {
+
+    /**
+     * Main constructor that computes all the needed values to perform the calculations.
+     * @param floatValues The {@link List<Float>} with the values to calculate outliers.
+     * @param strength The strength of the filtering function, determines the <code>k</code> parameter
+     *                 in the calculation formula.
+     */
+    public OutlierFinder(List<Float> floatValues, FilterStrength strength) {
         // convert List<Float> to double[] to use with StatUtils
-        this.observations = floatListToDoubleArrayConverter(prices);
-        this.filterPercentage = filterPercentage;
-        // sort the array todo check if its needed to be sorted
-        Arrays.sort(observations);
+        this.values = floatListToDoubleArrayConverter(floatValues);
+        setFilterStrength(strength);
+        // sort the array to compute the quantiles
+        Arrays.sort(this.values);
         // compute the quantiles
-        this.q1 = StatUtils.percentile(this.observations, 25);
-        this.median = StatUtils.percentile(this.observations, 50);
-        this.q3 = StatUtils.percentile(this.observations, 75);
+        this.q1 = StatUtils.percentile(values, 25);
+        this.q3 = StatUtils.percentile(values, 75);
         // compute the interquantile range
         IQR = Math.abs(q3 - q1);
+    }
+
+    /**
+     * Constructor for the <code>OutlierFinder</code> using the default filter strength.
+     * @param floatValues The {@link List<Float>} to perform the calculations on.
+     */
+    public OutlierFinder(List<Float> floatValues) {
+        this(floatValues, DEFAULT_FILTER_STRENGTH);
     }
 
     /**
@@ -41,8 +58,8 @@ public class OutlierFinder {
      */
     public List<Float> getLowOutliers() {
         // return
-        return doubleArrayToFloatListConverter(observations).stream()
-                .filter(aFloat -> aFloat < q1 - 1.5 * Math.abs(q3 - q1)).collect(Collectors.toList());
+        return doubleArrayToFloatListConverter(values).stream()
+                .filter(aFloat -> aFloat < q1 - kappa * Math.abs(q3 - q1)).collect(Collectors.toList());
     }
 
     /**
@@ -50,8 +67,8 @@ public class OutlierFinder {
      * @return The {@link List<Float>} containing the results or empty list.
      */
     public List<Float> getHighOutliers() {
-        return doubleArrayToFloatListConverter(observations).stream()
-                .filter(aFloat -> aFloat > q3 + 1.5 * IQR).collect(Collectors.toList());
+        return doubleArrayToFloatListConverter(values).stream()
+                .filter(aFloat -> aFloat > q3 + kappa * IQR).collect(Collectors.toList());
     }
 
     /**
@@ -59,8 +76,9 @@ public class OutlierFinder {
      * @return The {@link List<Float>} containing the results or empty list.
      */
     private List<Float> getPricesInRange() {
-        return doubleArrayToFloatListConverter(observations).stream()
-                .filter(aFloat -> (aFloat >= q1 - 1.5 * IQR && aFloat <= q3 + 1.5 * IQR)).collect(Collectors.toList());
+        return doubleArrayToFloatListConverter(values).stream()
+                .filter(aFloat -> (aFloat >= q1 - kappa * IQR && aFloat <= q3 + kappa * IQR))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -102,60 +120,33 @@ public class OutlierFinder {
         }
         return doubles;
     }
-
-    public double[] getObservations() {
-        return observations;
-    }
-
-    public void setObservations(double[] observations) {
-        this.observations = observations;
-    }
-
-    public Integer getFilterPercentage() {
-        return filterPercentage;
-    }
-
-    public void setFilterPercentage(Integer filterPercentage) {
-        this.filterPercentage = filterPercentage;
-    }
-
-    public double getQ1() {
-        return q1;
-    }
-
-    public void setQ1(double q1) {
-        this.q1 = q1;
-    }
-
-    public double getQ3() {
-        return q3;
-    }
-
-    public void setQ3(double q3) {
-        this.q3 = q3;
-    }
-
-    public double getMedian() {
-        return median;
-    }
-
-    public void setMedian(double median) {
-        this.median = median;
-    }
-
-    public double getIQR() {
-        return IQR;
-    }
-
-    public void setIQR(double IQR) {
-        this.IQR = IQR;
-    }
 // todo initialize values and check them before calculating them
     public Float getBargainPercentage() {
         if (!getLowOutliers().isEmpty()) {
             return (getNormalizedMean() - getLowOutliers().get(0))/getNormalizedMean()*100;
         } else {
             return Float.NaN;
+        }
+    }
+
+    /**
+     * Method to set the kappa paramether based on the {@link FilterStrength} parameter.
+     * @param strength The {@link FilterStrength} parameter to use.
+     */
+    public void setFilterStrength(FilterStrength strength) {
+        switch (strength) {
+            case NORMAL:
+                this.kappa = 1.5f;
+                break;
+            case RELAXED:
+                this.kappa = 1.2f;
+                break;
+            case STRONG:
+                this.kappa = 1.8f;
+                break;
+            case DEFAULT:
+                this.kappa = 1.5f;
+                break;
         }
     }
 }

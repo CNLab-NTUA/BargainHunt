@@ -33,7 +33,6 @@ public interface RestClient {
     <T extends SkroutzEntity> Page<T> get(Class<T> tClass);
 
     /**
-     * TODO
      * Generic method to retrieve all results from the given type using the specified filters.
      * @param tClass A {@link SkroutzEntity} class type.
      * @param filters A list of filters to apply to the query.
@@ -43,26 +42,34 @@ public interface RestClient {
     <T extends SkroutzEntity> Page<T> get(Class<T> tClass, Filter... filters);
 
     /**
+     * Generic method to retrieve the given entity from the category <code>T</code>.
+     * @param entity The entity to retrieve.
+     * @param <T> The entity's class type.
+     * @return The updated entity or the original one if there was no update.
+     */
+    <T extends SkroutzEntity> T get(T entity);
+
+    /**
      * Generic method to retrieve nested results from the given type {@link U} which belongs to the type {@link T}.
-     * @param childClass A {@link SkroutzEntity} class type.
-     * @param parentEntity A different {@link SkroutzEntity} object which owns <code>childClass</code>.
      * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
      * @param <U> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @param parentEntity A different {@link SkroutzEntity} object which owns <code>childClass</code>.
+     * @param childClass A {@link SkroutzEntity} class type.
      * @return The first page of the results.
      */
-    <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(Class<T> childClass, U parentEntity);
+    <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(U parentEntity, Class<T> childClass);
 
     /**
      * Generic method to retrieve nested results from the given type {@link U} which belongs to the type {@link T} filtered
      * by the specified filters.
-     * @param childClass A {@link SkroutzEntity} class type.
-     * @param parentEntity A different {@link SkroutzEntity} object which owns <code>childClass</code>.
-     * @param filters A list of filters to apply to the query.
      * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
      * @param <U> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
+     * @param parentEntity A different {@link SkroutzEntity} object which owns <code>childClass</code>.
+     * @param childClass A {@link SkroutzEntity} class type.
+     * @param filters A list of filters to apply to the query.
      * @return The first page of the results.
      */
-    <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(Class<T> childClass, U parentEntity, Filter... filters);
+    <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(U parentEntity, Class<T> childClass, Filter... filters);
 
     /**
      * Method to retrieve all results from the given type in a list. It internally bypasses pagination, as it requests
@@ -74,7 +81,6 @@ public interface RestClient {
     <T extends SkroutzEntity> List<T> getAsList(Class<T> tClass);
 
     /**
-     * TODO
      * Method to retrieve all results from the given type in a list filtered by an array of filters.
      * It internally bypasses pagination, as it requests all the pages one by one and returns the result.
      * @param tClass A {@link SkroutzEntity} class type.
@@ -87,22 +93,22 @@ public interface RestClient {
      * Method to execute a nested get query and return all the results (bypassing pagination) as a list.
      * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
      * @param <U> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
-     * @param childClass A {@link SkroutzEntity} class type.
      * @param parentEntity A different {@link SkroutzEntity} object which owns <code>childClass</code>.
+     * @param childClass A {@link SkroutzEntity} class type.
      * @return A list containing the results.
      */
-    <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(Class<T> childClass, U parentEntity);
+    <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(U parentEntity, Class<T> childClass);
 
     /**
      * Method to execute a nested get query using the specified filters and return all the results (bypassing pagination) as a list.
      * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
      * @param <U> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
-     * @param childClass A {@link SkroutzEntity} class type.
      * @param parentEntity A different {@link SkroutzEntity} class type which owns <code>childEntity</code>.
+     * @param childClass A {@link SkroutzEntity} class type.
      * @param filters A list of filters to apply to the query.
      * @return A list containing the results.
      */
-    <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(Class<T> childClass, U parentEntity, Filter... filters);
+    <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(U parentEntity, Class<T> childClass, Filter... filters);
 
     /**
      * Method to retrieve the next page from a paginated result.

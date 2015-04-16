@@ -8,6 +8,8 @@ import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku;
+import gr.ntua.cn.zannis.bargains.client.requests.filters.Filter;
+import gr.ntua.cn.zannis.bargains.client.requests.filters.QueryFilter;
 import gr.ntua.cn.zannis.bargains.client.responses.impl.TokenResponse;
 import gr.ntua.cn.zannis.bargains.client.responses.meta.Page;
 import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
@@ -15,11 +17,9 @@ import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.naming.AuthenticationException;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 import java.util.List;
 
-import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
+import static gr.ntua.cn.zannis.bargains.client.misc.Const.API_HOST;
 
 /**
  * The Skroutz REST API Client, implemented as a singleton.
@@ -67,8 +67,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * @return A {@link Page<Product>}.
      */
     public Page<Product> getProductsFromSku(Sku sku) {
-        URI uri = UriBuilder.fromPath(API_HOST).path(SKUS).path(ID).path(PRODUCTS).build(sku.getSkroutzId());
-        return getPageByCustomUri(Product.class, uri);
+        return getNested(sku, Product.class);
     }
 
     @Override
@@ -77,6 +76,7 @@ public final class SkroutzRestClient extends RestClientImpl {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
         JacksonJaxbJsonProvider jacksonProvider = new JacksonJaxbJsonProvider();
+        // custom Jackson mapper to handle escaped characters
         jacksonProvider.setMapper(new ObjectMapper()
                 .configure(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true));
         config.register(new LoggingFilter(java.util.logging.Logger.getLogger(getClass().getCanonicalName()), true))
@@ -97,28 +97,7 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
     public Product checkProduct(Product product) {
-        return getByEntity(product);
-    }
-
-    /**
-     * Create a request for a specific product in a specific shop when we know its shop_uid.
-     * This is supposed to be used when we don't have a persistent instance of the product.
-     *
-     * @param shopId  The shop id.
-     * @param shopUid The product's shop_uid.
-     * @return The {@link Product} entity
-     * or null if there was an error.
-     */
-    public Product getProductByShopUid(long shopId, String shopUid) {
-        URI uri = UriBuilder.fromPath(API_HOST).path(SHOPS).path(ID).path(PRODUCTS).path(SEARCH)
-                .queryParam("shop_uid", shopUid).build(shopId);
-        // we use this because the response is wrapped in an array.
-        Page<Product> page = getPageByCustomUri(Product.class, uri);
-        if (page != null) {
-            return page.getFirstItem();
-        } else {
-            return null;
-        }
+        return get(product);
     }
 
     /**
@@ -143,9 +122,8 @@ public final class SkroutzRestClient extends RestClientImpl {
      * the returned shops.
      */
     public Page<Shop> searchShopsByName(String shopName) {
-        URI uri = UriBuilder.fromPath(API_HOST).path(SHOPS).path(SEARCH)
-                .queryParam("q", shopName).build();
-        return getPageByCustomUri(Shop.class, uri);
+        Filter queryFilter = new QueryFilter(shopName);
+        return get(Shop.class, queryFilter);
     }
 
     /**
@@ -153,13 +131,12 @@ public final class SkroutzRestClient extends RestClientImpl {
      * This is supposed to be used when we don't have a persistent instance of the {@link Sku}
      * and we don't know its' id. Can return multiple results.
      *
-     * @param query The {@link Sku} name we search for.
+     * @param skuName The {@link Sku} name we search for.
      * @return A {@link Page<Sku>} containing the returned SKUs.
      */
-    public Page<Sku> searchSkusFromCategory(Long categoryId, String query) {
-        URI uri = UriBuilder.fromPath(API_HOST).path(CATEGORIES).path(ID).path(SKUS)
-                .queryParam("q", query).build(categoryId);
-        return getPageByCustomUri(Sku.class, uri);
+    public Page<Sku> searchSkusFromCategory(Category category, String skuName) {
+        Filter query = new QueryFilter(skuName);
+        return getNested(category, Sku.class, query);
     }
 
     /**
@@ -172,9 +149,8 @@ public final class SkroutzRestClient extends RestClientImpl {
      * the returned products.
      */
     public Page<Product> searchProductsByName(String productName) {
-        URI uri = UriBuilder.fromPath(API_HOST).path(PRODUCTS).path(SEARCH)
-                .queryParam("q", productName).build();
-        return getPageByCustomUri(Product.class, uri);
+        Filter query = new QueryFilter(productName);
+        return get(Product.class, query);
     }
 
     public Category getCategoryById(Long categoryId) {

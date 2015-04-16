@@ -1,23 +1,19 @@
 package gr.ntua.cn.zannis.bargains.client.requests.filters;
 
 /**
- * Order By filter implementation.
  * @author zannis <zannis.kal@gmail.com>
  */
-public enum OrderBy implements Filter {
-    NAME("name"),
-    PRICE("price"),
-    POPULARITY("popularity");
+public class QueryFilter implements Filter {
 
     private String value;
 
-    OrderBy(final String value) {
+    public QueryFilter(String value) {
         this.value = value;
     }
 
     @Override
     public String getName() {
-        return "order_by";
+        return "q";
     }
 
     @Override
@@ -27,11 +23,6 @@ public enum OrderBy implements Filter {
 
     @Override
     public String getDefaultValue() {
-        return POPULARITY.getValue();
-    }
-
-    @Override
-    public String toString() {
-        return this.getValue();
+        return "";
     }
 }
