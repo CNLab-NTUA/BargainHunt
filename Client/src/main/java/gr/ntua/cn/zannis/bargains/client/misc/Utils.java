@@ -32,15 +32,24 @@ public class Utils {
 
     private final static Logger log = LoggerFactory.getLogger(Utils.class);
     private final static Map<Class, String> PATH_MAP;
+    private final static Map<Class, Class> RESPONSE_MAP;
 
     static {
-        HashMap<Class, String> map = new HashMap<>();
-        map.put(Product.class, PRODUCTS);
-        map.put(Shop.class, SHOPS);
-        map.put(Category.class, CATEGORIES);
-        map.put(Sku.class, SKUS);
-        map.put(Manufacturer.class, MANUFACTURERS);
-        PATH_MAP = Collections.unmodifiableMap(map);
+        HashMap<Class, String> pathMap = new HashMap<>();
+        pathMap.put(Product.class, PRODUCTS);
+        pathMap.put(Shop.class, SHOPS);
+        pathMap.put(Category.class, CATEGORIES);
+        pathMap.put(Sku.class, SKUS);
+        pathMap.put(Manufacturer.class, MANUFACTURERS);
+        PATH_MAP = Collections.unmodifiableMap(pathMap);
+
+        HashMap<Class, Class> responseMap = new HashMap<>();
+        responseMap.put(Product.class, ProductResponse.class);
+        responseMap.put(Shop.class, ShopResponse.class);
+        responseMap.put(Category.class, CategoryResponse.class);
+        responseMap.put(Sku.class, SkuResponse.class);
+        responseMap.put(Manufacturer.class, ManufacturerResponse.class);
+        RESPONSE_MAP = Collections.unmodifiableMap(responseMap);
     }
 
     /**
@@ -181,19 +190,7 @@ public class Utils {
      */
     @SuppressWarnings("unchecked")
     public static <T extends SkroutzEntity> Class<? extends RestResponse<T>> getMatchingResponse(Class<T> tClass) {
-        if (tClass.equals(Product.class)) {
-            return (Class<? extends RestResponse<T>>) ProductResponse.class;
-        } else if (tClass.equals(Shop.class)) {
-            return (Class<? extends RestResponse<T>>) ShopResponse.class;
-        } else if (tClass.equals(Category.class)) {
-            return (Class<? extends RestResponse<T>>) CategoryResponse.class;
-        } else if (tClass.equals(Sku.class)) {
-            return (Class<? extends RestResponse<T>>) SkuResponse.class;
-        } else if (tClass.equals(Manufacturer.class)) {
-            return (Class<? extends RestResponse<T>>) ManufacturerResponse.class;
-        } else {
-            return null;
-        }
+        return RESPONSE_MAP.get(tClass);
     }
 
     /**
