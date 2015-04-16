@@ -52,76 +52,6 @@ public abstract class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T extends SkroutzEntity> Page<T> getNextPage(Page<T> page) {
-        Page<T> result = null;
-        URI nextUri = null;
-        try {
-            if (page.hasNext()) {
-                // check if it's the last page
-                nextUri = page.getNext() != null ? page.getNext() : page.getLast();
-                Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(page.getEntityType());
-                Response response = sendUnconditionalGetRequest(nextUri);
-                result = extractPage(response, responseClass);
-            }
-        } catch (ProcessingException e) {
-            log.error("Υπήρξε πρόβλημα κατά την αποστολή του GET request : " + nextUri, e);
-        }
-        return result;
-    }
-
-    /**
-     * Creates an unconditional GET HTTP request to the Skroutz API. All unconditional
-     * public GET methods should use this since its preconfigured using our custom
-     * configuration. This method follows redirects, accepts JSON entities and contains
-     * the required authorization headers.
-     *
-     * @param requestUri The target URI.
-     * @return A {@link javax.ws.rs.core.Response} containing one or more entities or null.
-     */
-    private Response sendUnconditionalGetRequest(URI requestUri) throws ProcessingException {
-        Response response;
-        try {
-            response = ClientBuilder.newClient(config).target(requestUri)
-                    .property(ClientProperties.FOLLOW_REDIRECTS, true)
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("Authorization", "Bearer " + token)
-                    .accept("application/vnd.skroutz+json; version=3")
-                    .get();
-        } catch (ProcessingException e) {
-            log.error("Υπήρξε πρόβλημα κατά την αποστολή του GET request : " + requestUri, e);
-            throw e;
-        }
-        return response;
-    }
-
-    /**
-     * Creates a conditional GET HTTP request to the Skroutz API. All conditional
-     * public GET methods should use this since its preconfigured using our custom
-     * configuration. This method follows redirects, accepts JSON entities and contains
-     * the required authorization headers. It uses an If-None-Match condition
-     * with the provided Etag argument.
-     *
-     * @param requestUri The target URI.
-     * @return A {@link javax.ws.rs.core.Response} containing one or more entities.
-     */
-    private Response sendConditionalGetRequest(URI requestUri, String eTag) throws ProcessingException {
-        Response response;
-        try {
-            response = ClientBuilder.newClient(config).target(requestUri)
-                    .property(ClientProperties.FOLLOW_REDIRECTS, true)
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                    .header(HttpHeaders.IF_NONE_MATCH, eTag)
-                    .accept("application/vnd.skroutz+json; version=3")
-                    .get();
-        } catch (ProcessingException e) {
-            log.error("Υπήρξε πρόβλημα κατά την αποστολή του GET request : " + requestUri, e);
-            throw e;
-        }
-        return response;
-    }
-
-    @Override
     public <T extends SkroutzEntity> T get(Class<T> tClass, Long skroutzId) {
         T entity = null;
         URI uri = null;
@@ -131,7 +61,7 @@ public abstract class RestClientImpl implements RestClient {
             Response response = sendUnconditionalGetRequest(uri);
             entity = getEntity(responseClass, response);
         } catch (ProcessingException e) {
-            log.error("Υπήρξε πρόβλημα κατά την αποστολή του GET request : " + uri, e);
+            log.error("Ξ¥Ο€Ξ®ΟΞΎΞµ Ο€ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ ΞµΞΊΟ„Ξ­Ξ»ΞµΟƒΞ· Ο„ΞΏΟ… GET request : " + uri, e);
         }
         return entity;
     }
@@ -146,7 +76,7 @@ public abstract class RestClientImpl implements RestClient {
             Response response = sendUnconditionalGetRequest(uri);
             result = extractPage(response, responseClass);
         } catch (ProcessingException e) {
-            log.error("Υπήρξε πρόβλημα κατά την αποστολή του GET request : " + uri, e);
+            log.error("Ξ¥Ο€Ξ®ΟΞΎΞµ Ο€ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ ΞµΞΊΟ„Ξ­Ξ»ΞµΟƒΞ· Ο„ΞΏΟ… GET request : " + uri, e);
         }
         return result;
     }
@@ -157,34 +87,22 @@ public abstract class RestClientImpl implements RestClient {
         return null;
     }
 
-    /**
-     * Helper method to wrap a result as a {@link Page}
-     * @param <T>           A class type that extends {@link SkroutzEntity}
-     * @param response      The response we got from the server.
-     * @param responseClass The {@link RestResponseImpl<T>} class used to deserialize the response.
-     * @return The first {@link Page<T>} from the result list.
-     */
-    private <T extends SkroutzEntity> Page<T> extractPage(Response response, Class<? extends RestResponse<T>> responseClass) {
-        // check response status first
-        if (response.getStatus() != 200) {
-            log.error(response.getStatusInfo().getReasonPhrase());
-            return null;
-        } else {
-            // parse useful headers
-            Map<String, URI> links = Utils.getLinks(response);
-            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
-            // parse entity
-            if (response.hasEntity()) {
-                Page<T> page = response.readEntity(responseClass).getPage();
-                page.setPrev(links.get("prev"));
-                page.setNext(links.get("next"));
-                page.setLast(links.get("last"));
-                return page;
-            } else {
-                log.error("No entity in the response.");
-                return null;
+    @Override
+    public <T extends SkroutzEntity> Page<T> getNextPage(Page<T> page) {
+        Page<T> result = null;
+        URI nextUri = null;
+        try {
+            if (page.hasNext()) {
+                // check if it's the last page
+                nextUri = page.getNext() != null ? page.getNext() : page.getLast();
+                Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(page.getEntityType());
+                Response response = sendUnconditionalGetRequest(nextUri);
+                result = extractPage(response, responseClass);
             }
+        } catch (ProcessingException e) {
+            log.error("οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½ GET request : " + nextUri, e);
         }
+        return result;
     }
 
     /**
@@ -266,6 +184,112 @@ public abstract class RestClientImpl implements RestClient {
         }
     }
 
+    @Override
+    public <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(Class<T> childClass, U parentEntity) {
+        Page<T> result = null;
+        URI uri = null;
+        try {
+            uri = matchNestedUri(parentEntity.getClass(), parentEntity.getSkroutzId(), childClass, null); //todo
+            Response response = sendUnconditionalGetRequest(uri);
+            Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(childClass);
+            result = extractPage(response, responseClass);
+        } catch (ProcessingException e) {
+            log.error("Ξ¥Ο€Ξ®ΟΞΎΞµ Ο€ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ ΞµΞΊΟ„Ξ­Ξ»ΞµΟƒΞ· Ο„ΞΏΟ… GET request : " + uri, e);
+        }
+        return result;
+    }
+
+    @Override
+    public <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(Class<T> childClass, U parentEntity, Filter... filters) {
+        return null;
+    }
+
+    @Override
+    public <T extends SkroutzEntity> List<T> getAsList(Class<T> tClass) {
+        return getAllResultsAsList(get(tClass));
+    }
+
+    @Override
+    public <T extends SkroutzEntity> List<T> getAsList(Class<T> tClass, Filter... filters) {
+        return null; //todo
+    }
+
+    @Override
+    public <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(Class<T> childClass, U parentEntity) {
+        Page<T> firstPage = getNested(childClass, parentEntity);
+        return getAllResultsAsList(firstPage);
+    }
+
+    @Override
+    public <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(Class<T> childClass, U parentEntity, Filter... filters) {
+        return null; //todo
+    }
+
+    @Override
+    public SearchResults search(String query) {
+        URI uri = null;
+        SearchResults results = null;
+        try {
+            uri = UriBuilder.fromPath(target).path(SEARCH).queryParam("q", query).build();
+            Response response = sendUnconditionalGetRequest(uri);
+            Map<String, URI> links = Utils.getLinks(response);
+            results = response.readEntity(SearchResults.class);
+            results.setLinks(links);
+        } catch (ProcessingException e) {
+            log.error("Ξ¥Ο€Ξ®ΟΞΎΞµ Ο€ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ ΞµΞΊΟ„Ξ­Ξ»ΞµΟƒΞ· Ο„ΞΏΟ… GET request : " + uri, e);
+        }
+        return results;
+    }
+
+    /**
+     * Method that initializes our custom client configuration to
+     * deserialize wrapped objects from JSON.
+     */
+    protected abstract void initClientConfig();
+
+    /**
+     * Helper method to wrap a result as a {@link Page}
+     *
+     * @param <T>           A class type that extends {@link SkroutzEntity}
+     * @param response      The response we got from the server.
+     * @param responseClass The {@link RestResponseImpl<T>} class used to deserialize the response.
+     * @return The first {@link Page<T>} from the result list.
+     */
+    private <T extends SkroutzEntity> Page<T> extractPage(Response response, Class<? extends RestResponse<T>> responseClass) {
+        // check response status first
+        if (response.getStatus() != 200) {
+            log.error(response.getStatusInfo().getReasonPhrase());
+            return null;
+        } else {
+            // parse useful headers
+            Map<String, URI> links = Utils.getLinks(response);
+            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            // parse entity
+            if (response.hasEntity()) {
+                Page<T> page = response.readEntity(responseClass).getPage();
+                page.setPrev(links.get("prev"));
+                page.setNext(links.get("next"));
+                page.setLast(links.get("last"));
+                return page;
+            } else {
+                log.error("No entity in the response.");
+                return null;
+            }
+        }
+    }
+
+    private <T extends SkroutzEntity> URI matchNestedUri(Class<? extends SkroutzEntity> parentClass, Long skroutzId, Class<T> childClass, Map<String, String> filters) {
+        UriBuilder builder = UriBuilder.fromPath(API_HOST);
+        if (parentClass != null && skroutzId != null) {
+            builder.path(pathMap.get(parentClass)).path(ID);
+        }
+        builder.path(pathMap.get(childClass));
+        for (Map.Entry<String, String> filter : filters.entrySet()) {
+            builder.queryParam(filter.getKey(), filter.getValue());
+        }
+        return builder.build(skroutzId);
+    }
+
     /**
      * Method that generates a {@link URI} for a specific request.
      *
@@ -298,12 +322,6 @@ public abstract class RestClientImpl implements RestClient {
     }
 
     /**
-     * Method that initializes our custom client configuration to
-     * deserialize wrapped objects from JSON.
-     */
-    protected abstract void initClientConfig();
-
-    /**
      * Method to retrieve all results from a paginated response.
      *
      * @param resultPage The
@@ -311,7 +329,7 @@ public abstract class RestClientImpl implements RestClient {
      * @param <T>        The {@link SkroutzEntity} type.
      * @return A list containing all the results that the web service returned.
      */
-    private <T extends SkroutzEntity> List<T> getAllResultsAsList(Page<T> resultPage) {
+    public <T extends SkroutzEntity> List<T> getAllResultsAsList(Page<T> resultPage) {
         List<T> results = new LinkedList<>(resultPage.getItems());
         if (resultPage.hasNext()) {
             do {
@@ -323,68 +341,55 @@ public abstract class RestClientImpl implements RestClient {
         return results;
     }
 
-    @Override
-    public <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(Class<T> childClass, U parentEntity) {
-        Page<T> result = null;
-        URI uri = null;
+    /**
+     * Creates an unconditional GET HTTP request to the Skroutz API. All unconditional
+     * public GET methods should use this since its preconfigured using our custom
+     * configuration. This method follows redirects, accepts JSON entities and contains
+     * the required authorization headers.
+     *
+     * @param requestUri The target URI.
+     * @return A {@link javax.ws.rs.core.Response} containing one or more entities or null.
+     */
+    private Response sendUnconditionalGetRequest(URI requestUri) throws ProcessingException {
+        Response response;
         try {
-            uri = matchNestedUri(parentEntity.getClass(), parentEntity.getSkroutzId(), childClass, null); //todo
-            Response response = sendUnconditionalGetRequest(uri);
-            Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(childClass);
-            result = extractPage(response, responseClass);
+            response = ClientBuilder.newClient(config).target(requestUri)
+                    .property(ClientProperties.FOLLOW_REDIRECTS, true)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .header("Authorization", "Bearer " + token)
+                    .accept("application/vnd.skroutz+json; version=3")
+                    .get();
         } catch (ProcessingException e) {
-            log.error("Υπήρξε πρόβλημα κατά την αποστολή του GET request : " + uri, e);
+            log.error("Ξ¥Ο€Ξ®ΟΞΎΞµ Ο€ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ ΞµΞΊΟ„Ξ­Ξ»ΞµΟƒΞ· Ο„ΞΏΟ… GET request : " + requestUri, e);
+            throw e;
         }
-        return result;
+        return response;
     }
 
-    @Override
-    public <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(Class<T> childClass, U parentEntity, Filter... filters) {
-        return null;
-    }
-
-    @Override
-    public <T extends SkroutzEntity> List<T> getAsList(Class<T> tClass) {
-        return getAllResultsAsList(get(tClass));
-    }
-
-    @Override
-    public <T extends SkroutzEntity> List<T> getAsList(Class<T> tClass, Filter... filters) {
-        return null; //todo
-    }
-
-    private <T extends SkroutzEntity> URI matchNestedUri(Class<? extends SkroutzEntity> parentClass, long skroutzId, Class<T> childClass, Map<String, String> filters) {
-        UriBuilder builder = UriBuilder.fromPath(API_HOST).path(pathMap.get(parentClass)).path(ID).path(pathMap.get(childClass));
-        for (Map.Entry<String, String> filter : filters.entrySet()) {
-            builder.queryParam(filter.getKey(), filter.getValue());
-        }
-        return builder.build(skroutzId);
-    }
-
-    @Override
-    public <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(Class<T> childClass, U parentEntity) {
-        Page<T> firstPage = getNested(childClass, parentEntity);
-        return getAllResultsAsList(firstPage);
-    }
-
-    @Override
-    public <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(Class<T> childClass, U parentEntity, Filter... filters) {
-        return null; //todo
-    }
-
-    @Override
-    public SearchResults search(String query) {
-        URI uri = null;
-        SearchResults results = null;
+    /**
+     * Creates a conditional GET HTTP request to the Skroutz API. All conditional
+     * public GET methods should use this since its preconfigured using our custom
+     * configuration. This method follows redirects, accepts JSON entities and contains
+     * the required authorization headers. It uses an If-None-Match condition
+     * with the provided Etag argument.
+     *
+     * @param requestUri The target URI.
+     * @return A {@link javax.ws.rs.core.Response} containing one or more entities.
+     */
+    private Response sendConditionalGetRequest(URI requestUri, String eTag) throws ProcessingException {
+        Response response;
         try {
-            uri = UriBuilder.fromPath(target).path(SEARCH).queryParam("q", query).build();
-            Response response = sendUnconditionalGetRequest(uri);
-            Map<String, URI> links = Utils.getLinks(response);
-            results = response.readEntity(SearchResults.class);
-            results.setLinks(links);
+            response = ClientBuilder.newClient(config).target(requestUri)
+                    .property(ClientProperties.FOLLOW_REDIRECTS, true)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                    .header(HttpHeaders.IF_NONE_MATCH, eTag)
+                    .accept("application/vnd.skroutz+json; version=3")
+                    .get();
         } catch (ProcessingException e) {
-            log.error("Υπήρξε πρόβλημα κατά την αποστολή του GET request : " + uri, e);
+            log.error("Ξ¥Ο€Ξ®ΟΞΎΞµ Ο€ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ ΞµΞΊΟ„Ξ­Ξ»ΞµΟƒΞ· Ο„ΞΏΟ… GET request : " + requestUri, e);
+            throw e;
         }
-        return results;
+        return response;
     }
 }

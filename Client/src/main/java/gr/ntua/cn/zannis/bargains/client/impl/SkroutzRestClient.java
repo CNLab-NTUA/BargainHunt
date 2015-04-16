@@ -66,7 +66,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * @param sku The sku to retrieve products from.
      * @return A {@link Page<Product>}.
      */
-    private Page<Product> getProductsFromSku(Sku sku) {
+    public Page<Product> getProductsFromSku(Sku sku) {
         URI uri = UriBuilder.fromPath(API_HOST).path(SKUS).path(ID).path(PRODUCTS).build(sku.getSkroutzId());
         return getPageByCustomUri(Product.class, uri);
     }

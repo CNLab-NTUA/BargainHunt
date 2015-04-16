@@ -45,7 +45,7 @@ public class Main {
                     int categoryId = sc.nextInt() - 1;
                     assert categoryId > 0;
                     Page<Sku> skuPage = SkroutzRestClient.get().searchSkusFromCategory(results.getCategories().get(categoryId).getSkroutzId(), query);
-                    List<Sku> skuList = SkroutzRestClient.get().getAllResultsAsList(Sku.class, skuPage);
+                    List<Sku> skuList = SkroutzRestClient.get().getAllResultsAsList(skuPage);
                     System.out.println("Βρέθηκαν τα εξής προϊόντα, παρακαλώ επιλέξτε αυτό που επιθυμείτε : ");
                     i = 1;
                     for (Sku s : skuList) {
@@ -54,11 +54,13 @@ public class Main {
                     int skuId = sc.nextInt() - 1;
                     assert skuId > 0 && skuId <= skuList.size();
                     Page<Product> productsPage = SkroutzRestClient.get().getProductsFromSku(skuList.get(skuId));
-                    List<Product> productList = SkroutzRestClient.get().getAllResultsAsList(Product.class, productsPage);
+                    List<Product> productList = SkroutzRestClient.get().getAllResultsAsList(productsPage);
                     List<Float> prices = productList.stream().map(Product::getPrice).collect(Collectors.toList());
                     OutlierFinder finder = new OutlierFinder(prices, 10);
                     if (finder.getLowOutliers().isEmpty()) {
                         System.out.println("Δυστυχώς το προϊόν δεν βρίσκεται σε προσφορά. Δοκιμάστε ξανά στο μέλλον!");
+                        System.out.println(finder.getNormalizedMean());
+                        System.out.println(finder.getHighOutliers());
                     } else {
                         System.out.println("Είστε τυχεροί! Το προϊόν υπάρχει σε προσφορά στα " + finder.getLowOutliers().get(0) + " ευρώ! Είναι "
                                 + finder.getBargainPercentage() + "% πιο φθηνό από τη μέση τιμή, η οποία είναι στα "
@@ -68,8 +70,8 @@ public class Main {
                     if (sc.next().equals("exit")) {
                         exit = true;
                     }
-                    sc.close();
                 }
+                sc.close();
 //                List<Category> categories = client.getAllCategories();
 //                System.out.println(categories.size());
             }

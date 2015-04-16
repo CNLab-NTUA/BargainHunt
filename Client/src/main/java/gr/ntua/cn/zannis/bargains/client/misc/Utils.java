@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
+
+
 /**
  * General utilities class for use in the entire project.
  * @author zannis <zannis.kal@gmail.com>
@@ -165,15 +168,15 @@ public class Utils {
      */
     @SuppressWarnings("unchecked")
     public static <T extends SkroutzEntity> Class<? extends RestResponse<T>> getMatchingResponse(Class<T> tClass) {
-        if (tClass.isAssignableFrom(Product.class)) {
+        if (tClass.equals(Product.class)) {
             return (Class<? extends RestResponse<T>>) ProductResponse.class;
-        } else if (tClass.isAssignableFrom(Shop.class)) {
+        } else if (tClass.equals(Shop.class)) {
             return (Class<? extends RestResponse<T>>) ShopResponse.class;
-        } else if (tClass.isAssignableFrom(Category.class)) {
+        } else if (tClass.equals(Category.class)) {
             return (Class<? extends RestResponse<T>>) CategoryResponse.class;
-        } else if (tClass.isAssignableFrom(Sku.class)) {
+        } else if (tClass.equals(Sku.class)) {
             return (Class<? extends RestResponse<T>>) SkuResponse.class;
-        } else if (tClass.isAssignableFrom(Manufacturer.class)) {
+        } else if (tClass.equals(Manufacturer.class)) {
             return (Class<? extends RestResponse<T>>) ManufacturerResponse.class;
         } else {
             return null;
@@ -213,8 +216,19 @@ public class Utils {
         return map;
     }
 
+    /**
+     * Initializes a {@link HashMap<Class, String>} that maps classes to paths
+     * in the REST API server.
+     *
+     * @return The HashMap containing the results.
+     */
     public static HashMap<Class, String> initPathMap() {
         HashMap<Class, String> map = new HashMap<>();
-        map.put(Product.class, Const.PRODUCTS);
+        map.put(Product.class, PRODUCTS);
+        map.put(Shop.class, SHOPS);
+        map.put(Category.class, CATEGORIES);
+        map.put(Sku.class, SKUS);
+        map.put(Manufacturer.class, MANUFACTURERS);
+        return map;
     }
 }

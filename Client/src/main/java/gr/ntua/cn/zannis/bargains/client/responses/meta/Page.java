@@ -16,7 +16,7 @@ public class Page<T> extends Pagination {
 
     @SuppressWarnings("unchecked")
     public Page(List<T> items, Pagination pagination, URI prev, URI next, URI last) {
-        this.entityType = (Class<T>) items.getClass().getComponentType();
+        this.entityType = (Class<T>) items.get(0).getClass();
         this.items = items;
         this.prev = prev;
         this.next = next;
