@@ -9,7 +9,7 @@ public enum OrderBy implements Filter {
     PRICE("price"),
     POPULARITY("popularity");
 
-    private String value;
+    private final String value;
 
     OrderBy(final String value) {
         this.value = value;

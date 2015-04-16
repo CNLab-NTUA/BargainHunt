@@ -273,7 +273,7 @@ public abstract class RestClientImpl implements RestClient {
      * @param <T>        The {@link SkroutzEntity} type.
      * @return A list containing all the results that the web service returned or an empty list.
      */
-    private  <T extends SkroutzEntity> List<T> getAllResultsAsList(Page<T> resultPage) {
+    public <T extends SkroutzEntity> List<T> getAllResultsAsList(Page<T> resultPage) {
         if (!resultPage.getItems().isEmpty()) {
             List<T> results = new LinkedList<>(resultPage.getItems());
             if (resultPage.hasNext()) {

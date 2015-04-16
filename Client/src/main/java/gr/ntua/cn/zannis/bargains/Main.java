@@ -1,5 +1,6 @@
 package gr.ntua.cn.zannis.bargains;
 
+import gr.ntua.cn.zannis.bargains.algorithm.FilterStrength;
 import gr.ntua.cn.zannis.bargains.algorithm.OutlierFinder;
 import gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
@@ -44,7 +45,7 @@ public class Main {
                     }
                     int categoryId = sc.nextInt() - 1;
                     assert categoryId > 0;
-                    Page<Sku> skuPage = SkroutzRestClient.get().searchSkusFromCategory(results.getCategories().get(categoryId).getSkroutzId(), query);
+                    Page<Sku> skuPage = SkroutzRestClient.get().searchSkusFromCategory(results.getCategories().get(categoryId), query);
                     List<Sku> skuList = SkroutzRestClient.get().getAllResultsAsList(skuPage);
                     System.out.println("Βρέθηκαν τα εξής προϊόντα, παρακαλώ επιλέξτε αυτό που επιθυμείτε : ");
                     i = 1;
@@ -56,7 +57,7 @@ public class Main {
                     Page<Product> productsPage = SkroutzRestClient.get().getProductsFromSku(skuList.get(skuId));
                     List<Product> productList = SkroutzRestClient.get().getAllResultsAsList(productsPage);
                     List<Float> prices = productList.stream().map(Product::getPrice).collect(Collectors.toList());
-                    OutlierFinder finder = new OutlierFinder(prices, 10);
+                    OutlierFinder finder = new OutlierFinder(prices, FilterStrength.RELAXED);
                     if (finder.getLowOutliers().isEmpty()) {
                         System.out.println("Δυστυχώς το προϊόν δεν βρίσκεται σε προσφορά. Δοκιμάστε ξανά στο μέλλον!");
                         System.out.println(finder.getNormalizedMean());

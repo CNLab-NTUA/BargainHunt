@@ -56,11 +56,6 @@ public class CategoryData extends GenericDaoImpl<Category> {
         }
     }
 
-    @Override
-    public Category find(long id) {
-        return super.find(id);
-    }
-
     public Category findBySkroutzId(long id) {
         Category category = null;
         try {

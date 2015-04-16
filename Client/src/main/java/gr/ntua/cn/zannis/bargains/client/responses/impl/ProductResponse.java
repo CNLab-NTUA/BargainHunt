@@ -8,8 +8,7 @@ import gr.ntua.cn.zannis.bargains.client.responses.meta.Meta;
 import java.util.List;
 
 /**
- * The class that wraps the response given from a
- * {@link gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient#getProductByShopUid(long, String)} request.
+ * The class that wraps the response given from a {@link Product} request.
  * @author zannis <zannis.kal@gmail.com>
  */
 public class ProductResponse extends RestResponseImpl<Product> {

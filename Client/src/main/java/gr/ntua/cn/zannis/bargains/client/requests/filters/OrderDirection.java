@@ -8,7 +8,7 @@ public enum OrderDirection implements Filter {
     ASCENDING("asc"),
     DESCENDING("desc");
 
-    private String value;
+    private final String value;
 
     OrderDirection(final String value) {
         this.value = value;

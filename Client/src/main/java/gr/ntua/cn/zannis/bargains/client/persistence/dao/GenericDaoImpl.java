@@ -13,10 +13,10 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.PERSISTENCE_UNIT;
  */
 public class GenericDaoImpl<T> implements GenericDao<T> {
 
-    static EntityManagerFactory emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
-    static EntityManager em = emf.createEntityManager();
-    protected Class<T> entityClass;
-    Logger log = LoggerFactory.getLogger(getClass().getCanonicalName());
+    static final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
+    static final EntityManager em = emf.createEntityManager();
+    protected final Class<T> entityClass;
+    private static final Logger log = LoggerFactory.getLogger(GenericDaoImpl.class.getCanonicalName());
 
     public GenericDaoImpl(Class<T> type) {
         this.entityClass = type;
