@@ -10,6 +10,9 @@ CREATE SEQUENCE public.price_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
 CREATE SEQUENCE public.sku_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
 /* create manufacturers table sequence */
 CREATE SEQUENCE public.manufacturer_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
+/* create requests table sequence */
+CREATE SEQUENCE public.request_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
+
 
 /* categories table */
 CREATE TABLE IF NOT EXISTS public.categories
@@ -78,21 +81,21 @@ CREATE TABLE IF NOT EXISTS public.skus
 /* products table */
 CREATE TABLE IF NOT EXISTS public.products
 (
-  id                 INT PRIMARY KEY NOT NULL DEFAULT nextval('prod_seq'),
-  skroutz_id         INT             NOT NULL, -- the product id we get from a request to the Skroutz API
-  name               VARCHAR(100)    NOT NULL, -- the product name
-  sku_id             INT             NOT NULL REFERENCES skus (skroutz_id), -- the product code given to match this product in other shops
-  shop_id            INT             NOT NULL REFERENCES shops (skroutz_id),
+  id                 INT PRIMARY KEY      NOT NULL DEFAULT nextval('prod_seq'),
+  skroutz_id         INT UNIQUE           NOT NULL, -- the product id we get from a request to the Skroutz API
+  name               VARCHAR(100)         NOT NULL, -- the product name
+  sku_id             INT                  NOT NULL REFERENCES skus (skroutz_id), -- the product code given to match this product in other shops
+  shop_id            INT                  NOT NULL REFERENCES shops (skroutz_id),
   shop_uid           VARCHAR(30), -- the unique uid given from the shop
-  category_id        INT             NOT NULL REFERENCES categories (skroutz_id),
+  category_id        INT                  NOT NULL REFERENCES categories (skroutz_id),
   etag               VARCHAR(32), -- a tag used for conditional http requests
   availability       VARCHAR(50), -- the current availability
   click_url          VARCHAR(300), -- the url given from Skroutz API
-  price              NUMERIC(5, 2)   NOT NULL, -- the current price
-  price_changes      INT             NOT NULL DEFAULT 0, -- how many times the product's price has changed
-  average_past_price NUMERIC(5, 2)   NOT NULL, -- the average price we have calculated for the product in the past
+  price              NUMERIC(5, 2)        NOT NULL, -- the current price
+  price_changes      INT                  NOT NULL DEFAULT 0, -- how many times the product's price has changed
+  average_past_price NUMERIC(5, 2)        NOT NULL, -- the average price we have calculated for the product in the past
   is_bargain         BOOL, -- true if the product is a bargain
-  inserted_at        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
+  inserted_at        TIMESTAMP            NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   modified_at        TIMESTAMP, -- the timestamp when the item was last modified
   checked_at         TIMESTAMP      -- the timestamp when we last queried the given product
 );
@@ -106,6 +109,14 @@ CREATE TABLE IF NOT EXISTS public.prices
   checked_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP -- the moment we logged the change
 );
 
+CREATE TABLE IF NOT EXISTS public.requests
+(
+  id          INT PRIMARY KEY     NOT NULL DEFAULT nextval('request_seq'),
+  request_uri VARCHAR(200) UNIQUE NOT NULL, -- the request uri on the skroutz website
+  etag        VARCHAR(32), -- the etag we received on the last request
+  checked_at  TIMESTAMP     -- the timestamp when we last hit the selected request
+);
+
 -- match sequences to their tables
 ALTER SEQUENCE public.prod_seq OWNED BY products.id;
 ALTER SEQUENCE public.shop_seq OWNED BY shops.id;
@@ -113,5 +124,12 @@ ALTER SEQUENCE public.category_seq OWNED BY categories.id;
 ALTER SEQUENCE public.price_seq OWNED BY prices.id;
 ALTER SEQUENCE public.sku_seq OWNED BY skus.id;
 ALTER SEQUENCE public.manufacturer_seq OWNED BY manufacturers.id;
+ALTER SEQUENCE public.request_seq OWNED BY requests.id;
 
+-- create indexes on skroutz_id on all entity tables
+CREATE INDEX skroutz_index_category ON categories (skroutz_id);
+CREATE INDEX skroutz_index_manufacturer ON manufacturers (skroutz_id);
+CREATE INDEX skroutz_index_shop ON shops (skroutz_id);
+CREATE INDEX skroutz_index_sku ON skus (skroutz_id);
+CREATE INDEX skroutz_index_product ON products (skroutz_id);
 
