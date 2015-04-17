@@ -2,6 +2,7 @@ package gr.ntua.cn.zannis.bargains;
 
 import gr.ntua.cn.zannis.bargains.algorithm.FilterStrength;
 import gr.ntua.cn.zannis.bargains.algorithm.OutlierFinder;
+import gr.ntua.cn.zannis.bargains.client.exceptions.UnexpectedInputException;
 import gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
@@ -23,9 +24,10 @@ import java.util.stream.Collectors;
  * @author zannis <zannis.kal@gmail.com>
  */
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnexpectedInputException {
 
         Logger log = LoggerFactory.getLogger(Main.class.getCanonicalName());
+        FilterStrength strength;
 
         try {
             Utils.initPropertiesFiles();
@@ -34,6 +36,20 @@ public class Main {
                 Scanner sc = new Scanner(System.in);
                 sc.useDelimiter("\n");
                 while (!exit) {
+                    System.out.print("Πατήστε 1 για χαλαρό φίλτρο, 2 για το κανονικό και 3 για αυστηρό: ");
+                    switch (sc.nextInt()) {
+                        case 1:
+                            strength = FilterStrength.RELAXED;
+                            break;
+                        case 2:
+                            strength = FilterStrength.NORMAL;
+                            break;
+                        case 3:
+                            strength = FilterStrength.STRONG;
+                            break;
+                        default:
+                            throw new UnexpectedInputException();
+                    }
                     System.out.print("Εισάγετε προϊόν για αναζήτηση : ");
                     String query = sc.next();
                     SearchResults results = SkroutzRestClient.get().search(query);
@@ -44,7 +60,7 @@ public class Main {
                         System.out.println(i++ + " : " + c.getName());
                     }
                     int categoryId = sc.nextInt() - 1;
-                    assert categoryId > 0;
+                    assert categoryId > 0 ;
                     Page<Sku> skuPage = SkroutzRestClient.get().searchSkusFromCategory(results.getCategories().get(categoryId), query);
                     List<Sku> skuList = SkroutzRestClient.get().getAllResultsAsList(skuPage);
                     System.out.println("Βρέθηκαν τα εξής προϊόντα, παρακαλώ επιλέξτε αυτό που επιθυμείτε : ");
@@ -57,11 +73,11 @@ public class Main {
                     Page<Product> productsPage = SkroutzRestClient.get().getProductsFromSku(skuList.get(skuId));
                     List<Product> productList = SkroutzRestClient.get().getAllResultsAsList(productsPage);
                     List<Float> prices = productList.stream().map(Product::getPrice).collect(Collectors.toList());
-                    OutlierFinder finder = new OutlierFinder(prices, FilterStrength.RELAXED);
+                    OutlierFinder finder = new OutlierFinder(prices, strength);
                     if (finder.getLowOutliers().isEmpty()) {
                         System.out.println("Δυστυχώς το προϊόν δεν βρίσκεται σε προσφορά. Δοκιμάστε ξανά στο μέλλον!");
-                        System.out.println(finder.getNormalizedMean());
-                        System.out.println(finder.getHighOutliers());
+                        System.out.println("Κανονικοποιημένη μέση τιμή: " + finder.getNormalizedMean());
+                        System.out.println("Υπερβολικά υψηλές τιμές: " + finder.getHighOutliers());
                     } else {
                         System.out.println("Είστε τυχεροί! Το προϊόν υπάρχει σε προσφορά στα " + finder.getLowOutliers().get(0) + " ευρώ! Είναι "
                                 + finder.getBargainPercentage() + "% πιο φθηνό από τη μέση τιμή, η οποία είναι στα "
@@ -73,8 +89,6 @@ public class Main {
                     }
                 }
                 sc.close();
-//                List<Category> categories = client.getAllCategories();
-//                System.out.println(categories.size());
             }
 
         } catch (IOException e) {
