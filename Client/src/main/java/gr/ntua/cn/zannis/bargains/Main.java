@@ -33,11 +33,14 @@ public class Main {
             Utils.initPropertiesFiles();
             if (SkroutzRestClient.get() != null) {
                 boolean exit = false;
-                Scanner sc = new Scanner(System.in);
-                sc.useDelimiter("\n");
+                Scanner textScanner = new Scanner(System.in);
+//                textScanner.useDelimiter("\n");
+                Scanner intScanner = new Scanner(System.in);
+//                intScanner.useDelimiter("\n");
                 while (!exit) {
                     System.out.print("Πατήστε 1 για χαλαρό φίλτρο, 2 για το κανονικό και 3 για αυστηρό: ");
-                    switch (sc.nextInt()) {
+                    int input = intScanner.nextInt();
+                    switch (input) {
                         case 1:
                             strength = FilterStrength.RELAXED;
                             break;
@@ -51,7 +54,7 @@ public class Main {
                             throw new UnexpectedInputException();
                     }
                     System.out.print("Εισάγετε προϊόν για αναζήτηση : ");
-                    String query = sc.next();
+                    String query = textScanner.nextLine();
                     SearchResults results = SkroutzRestClient.get().search(query);
                     // get first category and keep looking
                     System.out.println("Βρέθηκαν προϊόντα σαν αυτό που ζητήσατε στις παρακάτω κατηγορίες, επιλέξτε μία για να συνεχίσετε : ");
@@ -59,7 +62,7 @@ public class Main {
                     for (Category c : results.getCategories()) {
                         System.out.println(i++ + " : " + c.getName());
                     }
-                    int categoryId = sc.nextInt() - 1;
+                    int categoryId = intScanner.nextInt() - 1;
                     assert categoryId > 0 ;
                     Page<Sku> skuPage = SkroutzRestClient.get().searchSkusFromCategory(results.getCategories().get(categoryId), query);
                     List<Sku> skuList = SkroutzRestClient.get().getAllResultsAsList(skuPage);
@@ -68,7 +71,7 @@ public class Main {
                     for (Sku s : skuList) {
                         System.out.println(i++ + " : " + s.getName());
                     }
-                    int skuId = sc.nextInt() - 1;
+                    int skuId = intScanner.nextInt() - 1;
                     assert skuId > 0 && skuId <= skuList.size();
                     Page<Product> productsPage = SkroutzRestClient.get().getProductsFromSku(skuList.get(skuId));
                     List<Product> productList = SkroutzRestClient.get().getAllResultsAsList(productsPage);
@@ -76,6 +79,8 @@ public class Main {
                     OutlierFinder finder = new OutlierFinder(prices, strength);
                     if (finder.getLowOutliers().isEmpty()) {
                         System.out.println("Δυστυχώς το προϊόν δεν βρίσκεται σε προσφορά. Δοκιμάστε ξανά στο μέλλον!");
+                        System.out.println("Βρέθηκαν " + prices.size() + " προϊόντα:");
+                        System.out.println("Χαμηλότερη τιμή: " + finder.getMin());
                         System.out.println("Κανονικοποιημένη μέση τιμή: " + finder.getNormalizedMean());
                         System.out.println("Υπερβολικά υψηλές τιμές: " + finder.getHighOutliers());
                     } else {
@@ -84,11 +89,12 @@ public class Main {
                                 + finder.getNormalizedMean() + " ευρώ.");
                     }
                     System.out.println("Γράψτε exit για έξοδο, διαφορετικά πατήστε Enter");
-                    if (sc.next().equals("exit")) {
+                    if (textScanner.nextLine().equals("exit")) {
                         exit = true;
                     }
                 }
-                sc.close();
+                textScanner.close();
+                intScanner.close();
             }
 
         } catch (IOException e) {

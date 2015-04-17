@@ -2,8 +2,7 @@ package gr.ntua.cn.zannis.bargains.algorithm;
 
 import org.apache.commons.math3.stat.StatUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,7 @@ public class OutlierFinder {
 
     private final static FilterStrength DEFAULT_FILTER_STRENGTH = FilterStrength.NORMAL;
 
-    private double[] values;
+    private List<Float> values;
     private float kappa;
     private double q1;
     private double q3;
@@ -32,14 +31,13 @@ public class OutlierFinder {
      *                 in the calculation formula.
      */
     public OutlierFinder(List<Float> floatValues, FilterStrength strength) {
-        // convert List<Float> to double[] to use with StatUtils
-        this.values = floatListToDoubleArrayConverter(floatValues);
         setFilterStrength(strength);
-        // sort the array to compute the quantiles
-        Arrays.sort(this.values);
+        this.values = floatValues;
+        // sort the list to compute the quantiles
+        Collections.sort(values);
         // compute the quantiles
-        this.q1 = StatUtils.percentile(values, 25);
-        this.q3 = StatUtils.percentile(values, 75);
+        this.q1 = StatUtils.percentile(floatListToDoubleArrayConverter(values), 25);
+        this.q3 = StatUtils.percentile(floatListToDoubleArrayConverter(values), 75);
         // compute the interquantile range
         IQR = Math.abs(q3 - q1);
     }
@@ -52,14 +50,17 @@ public class OutlierFinder {
         this(floatValues, DEFAULT_FILTER_STRENGTH);
     }
 
+    public Float getMin() {
+        return Collections.min(this.values);
+    }
+
     /**
      * Method to extract the outliers that are lower than the median value.
      * @return The {@link List<Float>} containing the results or empty list.
      */
     public List<Float> getLowOutliers() {
         // return
-        return doubleArrayToFloatListConverter(values).stream()
-                .filter(aFloat -> aFloat < q1 - kappa * Math.abs(q3 - q1)).collect(Collectors.toList());
+        return values.stream().filter(aFloat -> aFloat < q1 - kappa * Math.abs(q3 - q1)).collect(Collectors.toList());
     }
 
     /**
@@ -67,8 +68,7 @@ public class OutlierFinder {
      * @return The {@link List<Float>} containing the results or empty list.
      */
     public List<Float> getHighOutliers() {
-        return doubleArrayToFloatListConverter(values).stream()
-                .filter(aFloat -> aFloat > q3 + kappa * IQR).collect(Collectors.toList());
+        return values.stream().filter(aFloat -> aFloat > q3 + kappa * IQR).collect(Collectors.toList());
     }
 
     /**
@@ -76,8 +76,7 @@ public class OutlierFinder {
      * @return The {@link List<Float>} containing the results or empty list.
      */
     private List<Float> getPricesInRange() {
-        return doubleArrayToFloatListConverter(values).stream()
-                .filter(aFloat -> (aFloat >= q1 - kappa * IQR && aFloat <= q3 + kappa * IQR))
+        return values.stream().filter(aFloat -> (aFloat >= q1 - kappa * IQR && aFloat <= q3 + kappa * IQR))
                 .collect(Collectors.toList());
     }
 
@@ -92,19 +91,6 @@ public class OutlierFinder {
             sum += f;
         }
         return sum / floats.size();
-    }
-
-    /**
-     * A simple <code>double[]</code> to {@link List<Float>} converter.
-     * @param observations The array of doubles to convert.
-     * @return The {@link List<Float>} with the results.
-     */
-    private List<Float> doubleArrayToFloatListConverter(double[] observations) {
-        List<Float> floats = new ArrayList<>();
-        for (double d : observations) {
-            floats.add(new Float(d));
-        }
-        return floats;
     }
 
     /**

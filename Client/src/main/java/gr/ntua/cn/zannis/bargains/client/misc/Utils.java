@@ -126,9 +126,10 @@ public class Utils {
         if (tokenProperties == null) {
             log.error("Error accessing " + Const.TOKEN_FILENAME + ".");
         } else if (tokenProperties.containsKey("access_token")) {
-            property = tokenProperties.getProperty("access_token");
+            String tokenProperty = tokenProperties.getProperty("access_token");
+            property = !tokenProperty.isEmpty() ? tokenProperty : null;
             if (property == null) {
-                log.debug("Access token empty! Maybe request a new one?");
+                log.debug("Access token empty! :(");
             } else {
                 log.debug("Access token found!");
             }
