@@ -1,5 +1,5 @@
 * OAuth 2 token - done
-* PostgreSQL @ Heroku - done
+* PostgreSQL @ Heroku - done - ignored
 * Conditional requests sto api tou skroutz. - done
 * Implement product requests - done
 * Paginated results - done
@@ -7,10 +7,20 @@
 * Δημιουργία tables - done
 * Implement OutlierFinder - done
 * Implement command line demo app - done
+* Postgres @ Okeanos - done
 
 -- version 0.5 --
 
-single item query logic to implement
+* Implement filtering - done
+* Add table to database with : unique request - etag to perform conditional requests - done
+
+** we are here **
+
+todo Create DAOs for all entities
+
+todo single item query logic to implement
+
+todo save all requests to database if they are successful
 
 1. send single item query
 2. check db for entity
@@ -24,5 +34,4 @@ single item query logic to implement
     |- persist entity in database
     |- return rest entity
 
-* Implement filtering - future
-* Add table to database with : unique request - etag to perform conditional requests
+-- version 0.6 --

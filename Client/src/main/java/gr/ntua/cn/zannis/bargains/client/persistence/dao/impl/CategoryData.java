@@ -1,18 +1,15 @@
-package gr.ntua.cn.zannis.bargains.client.persistence.dao;
+package gr.ntua.cn.zannis.bargains.client.persistence.dao.impl;
 
 import gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.responses.impl.CategoryResponse;
 import org.apache.commons.lang3.ArrayUtils;
 
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
-
 /**
  * The custom {@link Category} data access object.
  * @author zannis <zannis.kal@gmail.com>
  */
-public class CategoryData extends GenericDaoImpl<Category> {
+public class CategoryData extends GenericSkroutzDaoImpl<Category> {
 
     public CategoryData() {
         super(Category.class);
@@ -54,22 +51,5 @@ public class CategoryData extends GenericDaoImpl<Category> {
         } else {
             return currentCategory;
         }
-    }
-
-    public Category findBySkroutzId(long id) {
-        Category category = null;
-        try {
-            em.getTransaction().begin();
-            TypedQuery<Category> q = em.createNamedQuery("Category.findBySkroutzId", Category.class);
-            q.setParameter("skroutzId", id);
-            category = q.getSingleResult();
-        } catch (NoResultException e) {
-            //swallow and return null
-        } finally {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-        }
-        return category;
     }
 }

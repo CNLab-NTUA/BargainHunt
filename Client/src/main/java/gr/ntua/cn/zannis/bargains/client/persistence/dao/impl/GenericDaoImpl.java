@@ -1,9 +1,13 @@
-package gr.ntua.cn.zannis.bargains.client.persistence.dao;
+package gr.ntua.cn.zannis.bargains.client.persistence.dao.impl;
 
+import gr.ntua.cn.zannis.bargains.client.persistence.dao.GenericDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.PERSISTENCE_UNIT;
@@ -13,13 +17,14 @@ import static gr.ntua.cn.zannis.bargains.client.misc.Const.PERSISTENCE_UNIT;
  */
 public class GenericDaoImpl<T> implements GenericDao<T> {
 
-    static final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
-    static final EntityManager em = emf.createEntityManager();
+    protected static final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
+    protected static final EntityManager em = emf.createEntityManager();
     protected final Class<T> entityClass;
-    private static final Logger log = LoggerFactory.getLogger(GenericDaoImpl.class.getCanonicalName());
+    protected static final Logger log = LoggerFactory.getLogger(GenericSkroutzDaoImpl.class.getCanonicalName());
 
-    public GenericDaoImpl(Class<T> type) {
-        this.entityClass = type;
+
+    public GenericDaoImpl(Class<T> entityClass) {
+        this.entityClass = entityClass;
     }
 
     @Override
@@ -60,33 +65,9 @@ public class GenericDaoImpl<T> implements GenericDao<T> {
     }
 
     @Override
-    public T findBySkroutzId(long id) {
-        T entity = null;
-        try {
-            em.getTransaction().begin();
-            TypedQuery<T> q = em.createNamedQuery(entityClass.getSimpleName() + ".findBySkroutzId", entityClass);
-            q.setParameter("skroutzId", id);
-            entity = q.getSingleResult();
-        } catch (NoResultException e) {
-            //swallow and return null
-        } finally {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-        }
-        return entity;
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     public List<T> findAll() {
         TypedQuery<T> query = em.createNamedQuery(entityClass.getSimpleName() + ".findAll", entityClass);
-        return query.getResultList();
-    }
-
-    @Override
-    public List<Long> findAllSkroutzIds() {
-        TypedQuery<Long> query = em.createNamedQuery(entityClass.getSimpleName() + "findAllSkroutzIds", Long.class);
         return query.getResultList();
     }
 

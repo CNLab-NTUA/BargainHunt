@@ -9,7 +9,7 @@ import java.util.Objects;
  * @author zannis <zannis.kal@gmail.com>
  */
 @Entity
-@Table(name = "prices", schema = "public")
+@Table(name = "prices", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
         @NamedQuery(name = "Price.findAll", query = "select p from Price p"),
         @NamedQuery(name = "Price.findAllByProduct", query = "select p from Price p where p.product = :product")

@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 @JsonRootName("manufacturer")
 @Entity
-@Table(name = "manufacturers", schema = "public")
+@Table(name = "manufacturers", schema = "public", catalog = "bargainhunt")
 @NamedQuery(name = "Manufacturer.findAll", query = "select m from Manufacturer m")
 public class Manufacturer extends SkroutzEntity {
 

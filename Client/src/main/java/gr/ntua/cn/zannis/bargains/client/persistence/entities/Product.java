@@ -21,7 +21,7 @@ import java.util.Objects;
  */
 @JsonRootName("product")
 @Entity
-@Table(name = "products", schema = "public")
+@Table(name = "products", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
         @NamedQuery(name = "Product.findAll", query = "select p from Product p"),
         @NamedQuery(name = "Product.findAllByShop", query = "select p from Product p where p.shop = :shop"),
