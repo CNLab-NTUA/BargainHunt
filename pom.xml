@@ -108,6 +108,8 @@
 
     <modules>
         <module>Client</module>
+        <module>WebApp</module>
+        <module>Vaadin</module>
     </modules>
 
 </project>
