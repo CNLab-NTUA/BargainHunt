@@ -17,6 +17,7 @@ public class RestResponseImpl<T extends SkroutzEntity> implements RestResponse<T
     protected List<T> items;
     protected T item;
     protected Meta meta;
+    protected String errorMessage;
 
     @Override
     public T getItem() {
@@ -55,11 +56,21 @@ public class RestResponseImpl<T extends SkroutzEntity> implements RestResponse<T
         this.meta = meta;
     }
 
+    @Override
     public Map<String, URI> getLinks() {
         return links;
     }
 
     public void setLinks(Map<String, URI> links) {
         this.links = links;
+    }
+
+    @Override
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 }

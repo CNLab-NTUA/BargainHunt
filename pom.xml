@@ -77,8 +77,8 @@
 
 
     <modules>
-        <module>client</module>
-        <module>webapp</module>
+        <module>Client</module>
+        <module>WebApp</module>
     </modules>
 
 </project>

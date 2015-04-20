@@ -15,9 +15,11 @@ public class SkuResponse extends RestResponseImpl<Sku> {
     @JsonCreator
     public SkuResponse(@JsonProperty("sku") Sku sku,
                        @JsonProperty("skus") List<Sku> skus,
-                       @JsonProperty("meta") Meta meta) {
+                       @JsonProperty("meta") Meta meta,
+                       @JsonProperty("error") String errorMessage) {
         this.item = sku;
         this.items = skus;
         this.meta = meta;
+        this.errorMessage = errorMessage;
     }
 }

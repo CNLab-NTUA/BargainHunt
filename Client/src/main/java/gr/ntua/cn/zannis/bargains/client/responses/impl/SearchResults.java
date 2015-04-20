@@ -14,8 +14,9 @@ public class SearchResults extends CategoryResponse {
 
     public SearchResults(@JsonProperty("category") Category category,
                          @JsonProperty("categories") List<Category> categories,
-                         @JsonProperty("meta") Meta meta) {
-        super(category, categories, meta);
+                         @JsonProperty("meta") Meta meta,
+                         @JsonProperty("error") String errorMessage) {
+        super(category, categories, meta, errorMessage);
 
     }
 
@@ -30,4 +31,9 @@ public class SearchResults extends CategoryResponse {
     public List<Meta.Alternative> getAlternatives() {
         return meta.getAlternatives();
     }
+
+    public boolean hasStrongMatches() {
+        return getStrongMatches() != null;
+    }
+
 }

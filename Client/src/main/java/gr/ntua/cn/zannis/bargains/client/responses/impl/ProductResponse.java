@@ -16,9 +16,11 @@ public class ProductResponse extends RestResponseImpl<Product> {
     @JsonCreator
     public ProductResponse(@JsonProperty("products") List<Product> products,
                            @JsonProperty("product") Product product,
-                           @JsonProperty("meta") Meta meta) {
+                           @JsonProperty("meta") Meta meta,
+                           @JsonProperty("error") String errorMessage) {
         this.items = products;
         this.item = product;
         this.meta = meta;
+        this.errorMessage = errorMessage;
     }
 }

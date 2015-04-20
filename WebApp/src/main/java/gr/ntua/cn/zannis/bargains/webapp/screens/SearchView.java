@@ -52,38 +52,38 @@ public class SearchView extends VerticalLayout implements View, LayoutEvents.Lay
         } else {
             searchResults = SkroutzRestClient.get().search(query);
 
-            renderStrongMatches(searchResults.getStrongMatches());
+            if (searchResults.hasStrongMatches()) {
+                renderStrongMatches(searchResults.getStrongMatches());
+            }
 
             renderCategoryLayout(SkroutzRestClient.get().getAllResultsAsList(searchResults.getPage()));
         }
     }
 
     private void renderStrongMatches(Meta.StrongMatches strongMatches) {
-        if (strongMatches != null) {
-            Label label = new Label("Μήπως ψάχνετε...");
-            GridLayout grid = new GridLayout();
-            grid.setRows(1);
-            List<VerticalLayout> viewsToAdd = new ArrayList<>();
-            if (strongMatches.hasSku()) {
-                viewsToAdd.add(new SkuTile(strongMatches.getSku()));
-            }
-            if (strongMatches.hasCategory()) {
-                viewsToAdd.add(new CategoryTile(strongMatches.getCategory()));
-            }
-            if (strongMatches.hasShop()) {
-                viewsToAdd.add(new ShopTile(strongMatches.getShop()));
-            }
-            if (strongMatches.hasManufacturer()) {
-                viewsToAdd.add(new ManufacturerTile(strongMatches.getManufacturer()));
-            }
-            if (viewsToAdd.size() != 0) {
-                grid.setColumns(viewsToAdd.size());
+        Label label = new Label("Μήπως ψάχνετε...");
+        GridLayout grid = new GridLayout();
+        grid.setRows(1);
+        List<VerticalLayout> viewsToAdd = new ArrayList<>();
+        if (strongMatches.hasSku()) {
+            viewsToAdd.add(new SkuTile(strongMatches.getSku()));
+        }
+        if (strongMatches.hasCategory()) {
+            viewsToAdd.add(new CategoryTile(strongMatches.getCategory()));
+        }
+        if (strongMatches.hasShop()) {
+            viewsToAdd.add(new ShopTile(strongMatches.getShop()));
+        }
+        if (strongMatches.hasManufacturer()) {
+            viewsToAdd.add(new ManufacturerTile(strongMatches.getManufacturer()));
+        }
+        if (viewsToAdd.size() != 0) {
+            grid.setColumns(viewsToAdd.size());
 
-                viewsToAdd.forEach(grid::addComponent);
-                strongMatchesLayout.addComponent(label);
-                strongMatchesLayout.addComponent(grid);
-                addComponent(strongMatchesLayout);
-            }
+            viewsToAdd.forEach(grid::addComponent);
+            strongMatchesLayout.addComponent(label);
+            strongMatchesLayout.addComponent(grid);
+            addComponent(strongMatchesLayout);
         }
     }
 

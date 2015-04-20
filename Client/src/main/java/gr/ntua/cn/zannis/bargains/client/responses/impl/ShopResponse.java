@@ -17,12 +17,14 @@ public class ShopResponse extends RestResponseImpl<Shop> {
 //                        @JsonProperty("reviews") List<Shop.Review> reviews,
 //                        @JsonProperty("locations") List<Shop.Location> locations,
 //                        @JsonProperty("location") Shop.Location location,
-                        @JsonProperty("meta") Meta meta) {
+                        @JsonProperty("meta") Meta meta,
+                        @JsonProperty("error") String errorMessage) {
         this.item = shop;
         this.items = shops;
 //        this.reviews = reviews;
 //        this.locations = locations;
 //        this.location = location;
         this.meta = meta;
+        this.errorMessage = errorMessage;
     }
 }

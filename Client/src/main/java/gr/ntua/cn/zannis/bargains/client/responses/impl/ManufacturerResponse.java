@@ -18,9 +18,11 @@ public class ManufacturerResponse extends RestResponseImpl<Manufacturer> {
     @JsonCreator
     public ManufacturerResponse(@JsonProperty("manufacturer") Manufacturer manufacturer,
                                 @JsonProperty("manufacturers") List<Manufacturer> manufacturers,
-                                @JsonProperty("meta") Meta meta) {
+                                @JsonProperty("meta") Meta meta,
+                                @JsonProperty("error") String errorMessage) {
         this.item = manufacturer;
         this.items = manufacturers;
         this.meta = meta;
+        this.errorMessage = errorMessage;
     }
 }
