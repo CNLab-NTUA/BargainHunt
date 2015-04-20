@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>BargainHunt</artifactId>
+        <artifactId>bargainhunt</artifactId>
         <groupId>gr.ntua.cn.zannis.bargains</groupId>
         <version>0.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>WebApp</artifactId>
+    <artifactId>webapp</artifactId>
     <packaging>war</packaging>
     <name>WebApp</name>
 
@@ -51,6 +51,23 @@
     </dependencyManagement>
 
     <dependencies>
+
+        <!--Client Dependency-->
+        <dependency>
+            <groupId>gr.ntua.cn.zannis.bargains</groupId>
+            <artifactId>client</artifactId>
+            <version>0.5</version>
+            <scope>system</scope>
+            <systemPath>${project.parent.basedir}/Client/target/client-0.5-jar-with-dependencies.jar</systemPath>
+        </dependency>
+        <!--Vaadin Addons-->
+        <dependency>
+            <groupId>org.vaadin.addons</groupId>
+            <artifactId>restrain</artifactId>
+            <version>0.1</version>
+        </dependency>
+
+        <!--Vaadin dependencies-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>

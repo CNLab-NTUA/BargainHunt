@@ -17,11 +17,11 @@ public class OutlierFinder {
 
     private final static FilterStrength DEFAULT_FILTER_STRENGTH = FilterStrength.NORMAL;
 
-    private List<Float> values;
+    private final List<Float> values;
     private float kappa;
-    private double q1;
-    private double q3;
-    private double IQR;
+    private final double q1;
+    private final double q3;
+    private final double IQR;
 
 
     /**

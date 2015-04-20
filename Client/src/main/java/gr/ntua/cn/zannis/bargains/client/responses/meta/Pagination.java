@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 public class Pagination {
     protected int totalResults;
     protected int totalPages;
-    protected int page;
+    protected int currentPage;
     protected int per;
 
     public Pagination() {
@@ -20,11 +20,11 @@ public class Pagination {
     @JsonCreator
     public Pagination(@JsonProperty("total_results") int totalResults,
                       @JsonProperty("total_pages") int totalPages,
-                      @JsonProperty("page") int page,
+                      @JsonProperty("page") int currentPage,
                       @JsonProperty("per") int per) {
         this.totalResults = totalResults;
         this.totalPages = totalPages;
-        this.page = page;
+        this.currentPage = currentPage;
         this.per = per;
     }
 
@@ -44,12 +44,12 @@ public class Pagination {
         this.totalPages = totalPages;
     }
 
-    public int getPage() {
-        return page;
+    public int getCurrentPage() {
+        return currentPage;
     }
 
-    public void setPage(int page) {
-        this.page = page;
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
     }
 
     public int getPer() {
@@ -61,18 +61,18 @@ public class Pagination {
     }
 
     public boolean isFirstPage() {
-        return page == 1 || totalPages == 1;
+        return currentPage == 1 || totalPages == 1;
     }
 
     public boolean isMiddlePage() {
-        return (page != 1 && page != totalPages);
+        return (currentPage != 1 && currentPage != totalPages);
     }
 
     public boolean isLastPage() {
-        return (page == totalPages);
+        return (currentPage == totalPages);
     }
 
     public boolean hasNext() {
-        return (page < totalPages);
+        return (currentPage < totalPages);
     }
 }

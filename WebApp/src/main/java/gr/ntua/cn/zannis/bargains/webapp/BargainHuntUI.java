@@ -9,11 +9,12 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import gr.ntua.cn.zannis.bargains.webapp.views.SearchView;
+import gr.ntua.cn.zannis.bargains.webapp.screens.MainView;
+import gr.ntua.cn.zannis.bargains.webapp.screens.ProductsView;
+import gr.ntua.cn.zannis.bargains.webapp.screens.SearchView;
 
 import javax.servlet.annotation.WebServlet;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 /**
  *
@@ -23,12 +24,21 @@ import java.util.ResourceBundle;
 public class BargainHuntUI extends UI {
 
     private Navigator navigator;
-    public static ResourceBundle MESSAGES = ResourceBundle.getBundle("gr.ntua.cn.zannis.bargains.webapp.i18n.Messages", Locale.getDefault());
+
+    /* Internationalization
+    ResourceBundle i18nBundle;
+    public static ResourceBundle MESSAGES = ResourceBundle.getBundle(, Locale.getDefault()); */
+
+    /* JPA Persistence Unit name */
+    public static final String PERSISTENCE_UNIT = "bargainhunt";
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         Responsive.makeResponsive(this);
         setLocale(vaadinRequest.getLocale());
+
+//        final ResourceBundle i18n = ResourceBundle.getBundle("gr.ntua.cn.zannis.bargains.webapp.i18n.Messages", getLocale());
+
         getPage().setTitle("BargainHunt");
 
         initNavigator();
@@ -38,13 +48,21 @@ public class BargainHuntUI extends UI {
         layout.setSizeFull();
         setContent(layout);
 
-        navigator.navigateTo("");
+        navigator.navigateTo(getNavigator().getState());
 
+    }
+
+    @Override
+    public void setLocale(Locale locale) {
+        super.setLocale(locale);
+//        i18nBundle = ResourceBundle.getBundle("gr.ntua.cn.zannis.bargains.webapp.i18n.Messages", getLocale());
     }
 
     private void initNavigator() {
         navigator = new Navigator(this, this);
-        navigator.addView("", new SearchView());
+        navigator.addView(MainView.NAME, MainView.class);
+        navigator.addView(SearchView.NAME, SearchView.class);
+        navigator.addView(ProductsView.NAME, ProductsView.class);
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)

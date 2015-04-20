@@ -34,4 +34,10 @@ todo save all requests to database if they are successful
     |- persist entity in database
     |- return rest entity
 
+todo first version of vaadin app
+
 -- version 0.6 --
+
+todo i18n
+
+todo autocomplete

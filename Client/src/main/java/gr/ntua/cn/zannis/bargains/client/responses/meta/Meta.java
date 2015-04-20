@@ -132,5 +132,19 @@ public class Meta {
         public void setManufacturer(Manufacturer manufacturer) {
             this.manufacturer = manufacturer;
         }
+
+        public boolean hasCategory() {
+            return this.category != null;
+        }
+        public boolean hasShop() {
+            return this.shop != null;
+        }
+        public boolean hasSku() {
+            return this.sku != null;
+        }
+        public boolean hasManufacturer() {
+            return this.manufacturer != null;
+        }
+
     }
 }

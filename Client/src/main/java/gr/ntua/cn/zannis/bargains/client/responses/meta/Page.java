@@ -22,7 +22,7 @@ public class Page<T> extends Pagination {
         this.next = next;
         this.last = last;
         this.per = pagination.getPer();
-        this.page = pagination.getPage();
+        this.currentPage = pagination.getCurrentPage();
         this.totalPages = pagination.getTotalPages();
         this.totalResults = pagination.getTotalResults();
     }
