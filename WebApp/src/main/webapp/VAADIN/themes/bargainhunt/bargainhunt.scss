@@ -33,17 +33,61 @@
   @include valo;
 
   // Insert your own theme rules here
-  .custom-tile {
-    border: 2px solid #262626;
-    padding: 20px;
-    margin: 10px;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
-  }
-
   .main-view {
 
+  }
+
+  .responsive-grid {
+    overflow: visible;
+    display: inline-block !important;
+
+    .v-panel {
+      padding: 20px 20px 20px 0 !important; // Override inline padding
+    }
+
+    .v-panel-content {
+      height: 100%; // Allow content to take up available space
+    }
+
+    // Width ranges
+
+    &[width-range~="-500px"] {
+      .v-panel {
+        width: 100%;
+      }
+    }
+
+    &[width-range~="501-800px"] {
+      .v-panel {
+        width: 50%;
+      }
+    }
+
+    &[width-range~="801px-"] {
+      .v-panel {
+        width: 33.3%;
+      }
+    }
+
+    // Height ranges
+
+    &[height-range~="-350px"] {
+      .v-panel {
+        height: 100%;
+      }
+    }
+
+    &[height-range~="351-700px"] {
+      .v-panel {
+        height: 50%;
+      }
+    }
+
+    &[height-range~="701px-"] {
+      .v-panel {
+        height: 33.3%;
+      }
+    }
   }
   
 }

@@ -3,8 +3,8 @@ package gr.ntua.cn.zannis.bargains.webapp.screens;
 import com.vaadin.event.LayoutEvents;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient;
@@ -12,6 +12,7 @@ import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.responses.impl.SearchResults;
 import gr.ntua.cn.zannis.bargains.client.responses.meta.Meta;
 import gr.ntua.cn.zannis.bargains.webapp.components.Notifier;
+import gr.ntua.cn.zannis.bargains.webapp.components.ResponsiveGridLayout;
 import gr.ntua.cn.zannis.bargains.webapp.components.tiles.CategoryTile;
 import gr.ntua.cn.zannis.bargains.webapp.components.tiles.ManufacturerTile;
 import gr.ntua.cn.zannis.bargains.webapp.components.tiles.ShopTile;
@@ -29,11 +30,10 @@ import java.util.List;
 public class SearchView extends VerticalLayout implements View, LayoutEvents.LayoutClickListener {
 
     public static final String NAME = "search";
+    private final VerticalLayout strongMatchesLayout = new VerticalLayout();
+    private final VerticalLayout categoryLayout = new VerticalLayout();
     private String query;
     private SearchResults searchResults;
-
-    private VerticalLayout strongMatchesLayout = new VerticalLayout();
-    private VerticalLayout categoryLayout = new VerticalLayout();
 
     public SearchView() {
         buildUI();
@@ -62,25 +62,22 @@ public class SearchView extends VerticalLayout implements View, LayoutEvents.Lay
 
     private void renderStrongMatches(Meta.StrongMatches strongMatches) {
         Label label = new Label("Μήπως ψάχνετε...");
-        GridLayout grid = new GridLayout();
-        grid.setRows(1);
-        List<VerticalLayout> viewsToAdd = new ArrayList<>();
+        ResponsiveGridLayout grid = new ResponsiveGridLayout();
+        List<Panel> panels = new ArrayList<>();
         if (strongMatches.hasSku()) {
-            viewsToAdd.add(new SkuTile(strongMatches.getSku()));
+            panels.add(new SkuTile(strongMatches.getSku()));
         }
         if (strongMatches.hasCategory()) {
-            viewsToAdd.add(new CategoryTile(strongMatches.getCategory()));
+            panels.add(new CategoryTile(strongMatches.getCategory()));
         }
         if (strongMatches.hasShop()) {
-            viewsToAdd.add(new ShopTile(strongMatches.getShop()));
+            panels.add(new ShopTile(strongMatches.getShop()));
         }
         if (strongMatches.hasManufacturer()) {
-            viewsToAdd.add(new ManufacturerTile(strongMatches.getManufacturer()));
+            panels.add(new ManufacturerTile(strongMatches.getManufacturer()));
         }
-        if (viewsToAdd.size() != 0) {
-            grid.setColumns(viewsToAdd.size());
-
-            viewsToAdd.forEach(grid::addComponent);
+        if (panels.size() != 0) {
+            panels.forEach(grid::addComponent);
             strongMatchesLayout.addComponent(label);
             strongMatchesLayout.addComponent(grid);
             addComponent(strongMatchesLayout);
@@ -90,25 +87,20 @@ public class SearchView extends VerticalLayout implements View, LayoutEvents.Lay
     private void renderCategoryLayout(List<Category> categories) {
         Label label = new Label("Βρέθηκαν προϊόντα στις παρακάτω κατηγορίες :");
         label.setStyleName(ValoTheme.LABEL_H4);
-        GridLayout grid = new GridLayout();
-        if (categories.size() < 4) {
-            grid.setColumns(searchResults.getCategories().size());
-        } else {
-            grid.setColumns(4);
-        }
-        grid.setRows(categories.size() / grid.getColumns());
+        ResponsiveGridLayout grid = new ResponsiveGridLayout();
         for (Category c : categories) {
-            CategoryTile view = new CategoryTile(c);
-            view.addLayoutClickListener(layoutClickEvent -> {
+            CategoryTile tile = new CategoryTile(c);
+            tile.addClickListener(layoutClickEvent -> {
                 try {
-                    getUI().getNavigator().navigateTo(ProductsView.NAME + "/"
-                            + view.getEntity().getSkroutzId()
-                            + "/" + URLEncoder.encode(query, "utf-8"));
+                    String uri = ProductsView.NAME + "/"
+                            + tile.getEntity().getSkroutzId()
+                            + "/" + URLEncoder.encode(query, "utf-8");
+                    getUI().getNavigator().navigateTo(uri);
                 } catch (UnsupportedEncodingException e) {
                     Notifier.error("Προβλημα στο encoding", e);
                 }
             });
-            grid.addComponent(view);
+            grid.addComponent(tile);
         }
         categoryLayout.addComponent(label);
         categoryLayout.addComponent(grid);

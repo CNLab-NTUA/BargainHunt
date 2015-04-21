@@ -41,3 +41,5 @@ todo first version of vaadin app
 todo i18n
 
 todo autocomplete
+
+todo responsive uis

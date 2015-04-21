@@ -9,6 +9,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import gr.ntua.cn.zannis.bargains.webapp.screens.BargainView;
 import gr.ntua.cn.zannis.bargains.webapp.screens.MainView;
 import gr.ntua.cn.zannis.bargains.webapp.screens.ProductsView;
 import gr.ntua.cn.zannis.bargains.webapp.screens.SearchView;
@@ -23,14 +24,13 @@ import java.util.Locale;
 @Widgetset("gr.ntua.cn.zannis.bargains.webapp.BargainHuntWidgetset")
 public class BargainHuntUI extends UI {
 
-    private Navigator navigator;
+    /* JPA Persistence Unit name */
+    public static final String PERSISTENCE_UNIT = "bargainhunt";
 
     /* Internationalization
     ResourceBundle i18nBundle;
     public static ResourceBundle MESSAGES = ResourceBundle.getBundle(, Locale.getDefault()); */
-
-    /* JPA Persistence Unit name */
-    public static final String PERSISTENCE_UNIT = "bargainhunt";
+    private Navigator navigator;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -63,11 +63,7 @@ public class BargainHuntUI extends UI {
         navigator.addView(MainView.NAME, MainView.class);
         navigator.addView(SearchView.NAME, SearchView.class);
         navigator.addView(ProductsView.NAME, ProductsView.class);
-    }
-
-    @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
-    @VaadinServletConfiguration(ui = BargainHuntUI.class, productionMode = false)
-    public static class MyUIServlet extends VaadinServlet {
+        navigator.addView(BargainView.NAME, BargainView.class);
     }
 
     @Override
@@ -78,5 +74,10 @@ public class BargainHuntUI extends UI {
     @Override
     public void setNavigator(Navigator navigator) {
         this.navigator = navigator;
+    }
+
+    @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
+    @VaadinServletConfiguration(ui = BargainHuntUI.class, productionMode = false)
+    public static class MyUIServlet extends VaadinServlet {
     }
 }

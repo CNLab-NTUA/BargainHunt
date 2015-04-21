@@ -16,20 +16,15 @@ public class SkuTile extends EntityTile<Sku> {
 
     @Override
     protected void renderComponents() {
-        if (this.entity != null) {
-            if (this.entity.getImages() == null || this.entity.getImages().getMain().isEmpty()) {
-                image = new Embedded(null, new ThemeResource("img/default-product.png"));
-            } else {
-                image = new Embedded(null, new ExternalResource(this.entity.getImages().getMain()));
-            }
-            if (this.entity.getName() == null || this.entity.getName().isEmpty()) {
-                caption.setValue("Άκυρο προϊόν");
-            } else {
-                caption.setValue(this.entity.getName());
-            }
-        } else {
+        if (this.entity.getImages() == null || this.entity.getImages().getMain().isEmpty()) {
             image = new Embedded(null, new ThemeResource("img/default-product.png"));
+        } else {
+            image = new Embedded(null, new ExternalResource(this.entity.getImages().getMain()));
+        }
+        if (this.entity.getName() == null || this.entity.getName().isEmpty()) {
             caption.setValue("Άκυρο προϊόν");
+        } else {
+            caption.setValue(this.entity.getName());
         }
     }
 }

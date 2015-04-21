@@ -1,16 +1,12 @@
 package gr.ntua.cn.zannis.bargains.webapp.components.tiles;
 
-import com.vaadin.event.LayoutEvents;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Embedded;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 
 /**
  * @author zannis <zannis.kal@gmail.com>
  */
-public abstract class EntityTile<T extends SkroutzEntity> extends VerticalLayout implements LayoutEvents.LayoutClickListener {
+public abstract class EntityTile<T extends SkroutzEntity> extends Panel {
 
     protected final T entity;
     protected Embedded image;
@@ -18,13 +14,14 @@ public abstract class EntityTile<T extends SkroutzEntity> extends VerticalLayout
 
     public EntityTile(T entity) {
         this.entity = entity;
-        addLayoutClickListener(this);
         buildUI();
     }
 
     private void buildUI() {
-        setSizeFull();
-        setStyleName("custom-tile");
+        setSizeUndefined();
+//        setStyleName("custom-tile");
+
+        VerticalLayout layout = new VerticalLayout();
 
         caption = new Label();
         renderComponents();
@@ -34,10 +31,12 @@ public abstract class EntityTile<T extends SkroutzEntity> extends VerticalLayout
 
         caption.setWidthUndefined();
 
-        addComponent(image);
-        addComponent(caption);
-        setComponentAlignment(image, Alignment.MIDDLE_CENTER);
-        setComponentAlignment(caption, Alignment.MIDDLE_CENTER);
+        layout.addComponent(image);
+        layout.addComponent(caption);
+        layout.setComponentAlignment(image, Alignment.MIDDLE_CENTER);
+        layout.setComponentAlignment(caption, Alignment.MIDDLE_CENTER);
+
+        setContent(layout);
     }
 
     public T getEntity() {
