@@ -7,6 +7,7 @@ import com.vaadin.ui.VerticalLayout;
 import gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku;
+import gr.ntua.cn.zannis.bargains.client.requests.filters.QueryFilter;
 import gr.ntua.cn.zannis.bargains.webapp.components.Notifier;
 
 import java.io.UnsupportedEncodingException;
@@ -36,7 +37,7 @@ public class ProductsView extends VerticalLayout implements View {
                 this.category = SkroutzRestClient.get().get(Category.class, Long.valueOf(splitParameters[0]));
                 this.query = URLDecoder.decode(splitParameters[1], "utf-8");
                 Label label = new Label();
-                this.skus = SkroutzRestClient.get().getNested(category, Sku.class).getItems();
+                this.skus = SkroutzRestClient.get().getNested(category, Sku.class, new QueryFilter(query)).getItems();
                 label.setValue(skus.toString());
                 addComponent(label);
             } catch (UnsupportedEncodingException e) {

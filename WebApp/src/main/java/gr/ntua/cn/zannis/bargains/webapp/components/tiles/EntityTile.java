@@ -1,5 +1,6 @@
 package gr.ntua.cn.zannis.bargains.webapp.components.tiles;
 
+import com.vaadin.event.LayoutEvents;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Label;
@@ -9,7 +10,7 @@ import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 /**
  * @author zannis <zannis.kal@gmail.com>
  */
-public abstract class EntityTile<T extends SkroutzEntity> extends VerticalLayout {
+public abstract class EntityTile<T extends SkroutzEntity> extends VerticalLayout implements LayoutEvents.LayoutClickListener {
 
     protected final T entity;
     protected Embedded image;
@@ -17,12 +18,13 @@ public abstract class EntityTile<T extends SkroutzEntity> extends VerticalLayout
 
     public EntityTile(T entity) {
         this.entity = entity;
+        addLayoutClickListener(this);
         buildUI();
     }
 
     private void buildUI() {
         setSizeFull();
-        setStyleName("custom-view");
+        setStyleName("custom-tile");
 
         caption = new Label();
         renderComponents();

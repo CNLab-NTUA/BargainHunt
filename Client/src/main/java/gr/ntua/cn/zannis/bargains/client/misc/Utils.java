@@ -124,7 +124,7 @@ public class Utils {
         Properties tokenProperties = getPropertiesFromFile(Const.TOKEN_FILENAME);
 
         if (tokenProperties == null) {
-            log.error("Error accessing " + Const.TOKEN_FILENAME + ".");
+            log.error(Const.TOKEN_FILENAME + " does not exist.");
         } else if (tokenProperties.containsKey("access_token")) {
             String tokenProperty = tokenProperties.getProperty("access_token");
             property = !tokenProperty.isEmpty() ? tokenProperty : null;

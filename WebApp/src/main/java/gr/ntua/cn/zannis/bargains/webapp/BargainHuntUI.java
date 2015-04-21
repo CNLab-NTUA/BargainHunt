@@ -19,7 +19,7 @@ import java.util.Locale;
 /**
  *
  */
-@Theme("mytheme")
+@Theme("bargainhunt")
 @Widgetset("gr.ntua.cn.zannis.bargains.webapp.BargainHuntWidgetset")
 public class BargainHuntUI extends UI {
 

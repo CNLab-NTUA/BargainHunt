@@ -51,16 +51,13 @@
 
     <dependencies>
 
-        <!--Client Dependency-->
+        <!--Skroutz REST API Client-->
         <dependency>
             <groupId>gr.ntua.cn.zannis.bargains</groupId>
             <artifactId>client</artifactId>
             <version>0.5</version>
-            <scope>system</scope>
-            <systemPath>
-                /home/zannis/Dropbox/dev/IdeaProjects/Thesis/Client/target/client-0.5-jar-with-dependencies.jar
-            </systemPath>
         </dependency>
+
         <!--Vaadin Addons-->
         <dependency>
             <groupId>org.vaadin.addons</groupId>
