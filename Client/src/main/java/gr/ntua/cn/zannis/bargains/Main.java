@@ -4,7 +4,6 @@ import gr.ntua.cn.zannis.bargains.algorithm.FilterStrength;
 import gr.ntua.cn.zannis.bargains.algorithm.OutlierFinder;
 import gr.ntua.cn.zannis.bargains.client.exceptions.UnexpectedInputException;
 import gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient;
-import gr.ntua.cn.zannis.bargains.client.misc.Utils;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku;
@@ -30,7 +29,6 @@ public class Main {
         FilterStrength strength;
 
         try {
-            Utils.initPropertiesFiles();
             if (SkroutzRestClient.getInstance() != null) {
                 boolean exit = false;
                 Scanner textScanner = new Scanner(System.in);

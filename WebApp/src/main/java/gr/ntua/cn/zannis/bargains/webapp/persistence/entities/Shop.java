@@ -3,6 +3,7 @@ package gr.ntua.cn.zannis.bargains.webapp.persistence.entities;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -57,6 +58,18 @@ public class Shop extends gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzE
     }
 
     public Shop() {
+    }
+
+    @Override
+    public <T extends SkroutzEntity> void updateFrom(T restEntity) {
+        this.name = ((Shop) restEntity).getName();
+        this.link = ((Shop) restEntity).getLink();
+        this.phone = ((Shop) restEntity).getPhone();
+        this.imageUrl = ((Shop) restEntity).getImageUrl();
+        this.thumbshotUrl = ((Shop) restEntity).getThumbshotUrl();
+        if (restEntity.getEtag() != null) {
+            this.etag = restEntity.getEtag();
+        }
     }
 
     @Id

@@ -1,5 +1,7 @@
 package gr.ntua.cn.zannis.bargains.webapp.persistence.entities;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -8,29 +10,37 @@ import java.util.Date;
 /**
  * The Request entity, which actually logs all the requests made to the api and saves their etag to
  * avoid redundant calls.
+ *
  * @author zannis <zannis.kal@gmail.com>
  */
 @Entity
 @Table(name = "requests", schema = "public", catalog = "bargainhunt")
+@NamedQuery(name = "Request.findByUri", query = "select r from Request r where r.requestUri = :uri")
 public class Request {
     private int id;
     private String requestUri;
     private String etag;
+    private int count;
     private Date checkedAt;
-    private boolean successful;
 
-    public Request(String requestUri, String etag, boolean successful) {
+    public Request(String requestUri, String etag) {
         this.requestUri = requestUri;
         this.etag = etag;
-        this.successful = successful;
     }
 
     public Request() {
     }
 
     @PrePersist
-    private void init() {
+    private void prePersist() {
         this.checkedAt = new Date();
+        this.count = 1;
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.checkedAt = new Date();
+        this.count++;
     }
 
     @Id
@@ -77,12 +87,22 @@ public class Request {
     }
 
     @NotNull
-    @Column(name = "successful")
-    public boolean isSuccessful() {
-        return this.successful;
+    @Column(name = "count")
+    public int getCount() {
+        return count;
     }
 
-    public void setSuccessful(boolean successful) {
-        this.successful = successful;
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("requestUri", requestUri)
+                .append("etag", etag)
+                .append("checkedAt", checkedAt)
+                .toString();
     }
 }

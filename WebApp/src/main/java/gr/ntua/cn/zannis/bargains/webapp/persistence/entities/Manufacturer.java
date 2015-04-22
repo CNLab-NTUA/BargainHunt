@@ -2,6 +2,7 @@ package gr.ntua.cn.zannis.bargains.webapp.persistence.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -16,7 +17,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "manufacturers", schema = "public", catalog = "bargainhunt")
 @NamedQuery(name = "Manufacturer.findAll", query = "select m from Manufacturer m")
-public class Manufacturer extends gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity {
+public class Manufacturer extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
 
@@ -34,6 +35,15 @@ public class Manufacturer extends gr.ntua.cn.zannis.bargains.webapp.persistence.
     }
 
     public Manufacturer() {
+    }
+
+    @Override
+    public <T extends SkroutzEntity> void updateFrom(T restEntity) {
+        this.name = ((Manufacturer) restEntity).name;
+        this.imageUrl = ((Manufacturer) restEntity).imageUrl;
+        if (restEntity.getEtag() != null) {
+            this.etag = restEntity.getEtag();
+        }
     }
 
     @Id

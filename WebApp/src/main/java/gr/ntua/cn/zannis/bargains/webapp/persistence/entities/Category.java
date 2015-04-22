@@ -68,6 +68,14 @@ public class Category extends SkroutzEntity {
     public Category() {
     }
 
+    @Override
+    public <T extends SkroutzEntity> void updateFrom(T restEntity) {
+        this.name = ((Category) restEntity).getName();
+        this.imageUrl = ((Category) restEntity).getImageUrl();
+        this.parentId = ((Category) restEntity).getParentId();
+        this.etag = restEntity.getEtag();
+    }
+
     @Id
     @GeneratedValue(generator = "CategorySequence")
     @SequenceGenerator(name = "CategorySequence", sequenceName = "category_seq", allocationSize = 1)
@@ -184,7 +192,7 @@ public class Category extends SkroutzEntity {
     }
 
     @OneToMany(mappedBy = "category")
-    public List<gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku> getSku() {
+    public List<Sku> getSku() {
         return skus;
     }
 

@@ -41,7 +41,7 @@ public class Sku extends SkroutzEntity {
     private int reviewsCount;
     private boolean virtual;
     private Images images;
-    private List<gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product> products;
+    private List<Product> products;
     private Category category;
 
     public Sku(@JsonProperty("id") long id,
@@ -84,6 +84,18 @@ public class Sku extends SkroutzEntity {
     }
 
     public Sku() {
+    }
+
+    @Override
+    public <T extends SkroutzEntity> void updateFrom(T restEntity) {
+        this.name = ((Sku) restEntity).getName();
+        this.displayName = ((Sku) restEntity).getDisplayName();
+        this.clickUrl = ((Sku) restEntity).getClickUrl();
+        this.priceMax = ((Sku) restEntity).getPriceMax();
+        this.priceMin = ((Sku) restEntity).getPriceMin();
+        if (restEntity.getEtag() != null) {
+            this.etag = restEntity.getEtag();
+        }
     }
 
     @Id
@@ -259,11 +271,11 @@ public class Sku extends SkroutzEntity {
     }
 
     @OneToMany(mappedBy = "sku")
-    public List<gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product> getProducts() {
+    public List<Product> getProducts() {
         return products;
     }
 
-    public void setProducts(List<gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product> products) {
+    public void setProducts(List<Product> products) {
         this.products = products;
     }
 

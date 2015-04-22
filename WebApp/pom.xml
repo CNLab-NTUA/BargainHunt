@@ -14,7 +14,7 @@
     <properties>
         <vaadin.version>7.4.4</vaadin.version>
         <wildfly.bom.version>8.2.1.Final</wildfly.bom.version>
-        <wildfly.plugin.version>1.0.2.Final</wildfly.plugin.version>
+        <wildfly.plugin.version>1.1.0.Alpha2</wildfly.plugin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
         <jetty.plugin.version>9.2.3.v20140905</jetty.plugin.version>
         <project.source.version>1.8</project.source.version>
@@ -39,7 +39,7 @@
         </repository>
         <repository>
             <id>jboss</id>
-            <url>http://repository.jboss.org/maven2</url>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
         </repository>
     </repositories>
 
@@ -54,10 +54,10 @@
                 <scope>import</scope>
             </dependency>
 
-            <!--WildFly BOM with RestEasy-->
+            <!--WildFly BOM-->
             <dependency>
                 <groupId>org.wildfly.bom</groupId>
-                <artifactId>jboss-javaee-7.0-with-resteasy</artifactId>
+                <artifactId>jboss-javaee-7.0-with-logging</artifactId>
                 <version>${wildfly.bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -67,6 +67,20 @@
 
     <dependencies>
 
+        <!-- Jersey for JAX-RS-->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.16</version>
+        </dependency>
+
+        <!--Library to integrate SLF4J with java.util.Logging-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>1.7.12</version>
+        </dependency>
+
         <!--WildFly Java EE dependencies-->
         <dependency>
             <groupId>org.jboss.spec.javax.ejb</groupId>
@@ -74,18 +88,20 @@
             <scope>provided</scope>
         </dependency>
 
-        <!--RestEasy REST Client-->
+        <!--EclipseLink for JPA-->
         <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-client</artifactId>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>eclipselink</artifactId>
+            <version>2.6.0</version>
             <scope>provided</scope>
         </dependency>
 
-        <!--Skroutz REST API Client  todo remove this -->
+        <!--Jackson 2 JSON parsing provider-->
         <dependency>
-            <groupId>gr.ntua.cn.zannis.bargains</groupId>
-            <artifactId>client</artifactId>
-            <version>0.5</version>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jackson2-provider</artifactId>
+            <version>3.0.10.Final</version>
+            <scope>provided</scope>
         </dependency>
 
         <!--Vaadin Addons-->
@@ -132,6 +148,14 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-themes</artifactId>
+        </dependency>
+
+        <!--General dependencies-->
+        <!--Apache Commons Lang 3-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.3.2</version>
         </dependency>
     </dependencies>
 
@@ -229,8 +253,10 @@
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
-                <version>1.1.0.Alpha2</version>
+                <version>${wildfly.plugin.version}</version>
                 <configuration>
+                    <jboss-home>C:\Java\wildfly-8.2.0.Final</jboss-home>
+                    <server-config>standalone.xml</server-config>
                 </configuration>
             </plugin>
 

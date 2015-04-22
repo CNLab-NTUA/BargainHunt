@@ -1,8 +1,8 @@
 package gr.ntua.cn.zannis.bargains.webapp.client;
 
-import gr.ntua.cn.zannis.bargains.client.requests.filters.Filter;
-import gr.ntua.cn.zannis.bargains.client.responses.impl.SearchResults;
-import gr.ntua.cn.zannis.bargains.client.responses.meta.Page;
+import gr.ntua.cn.zannis.bargains.webapp.client.requests.filters.Filter;
+import gr.ntua.cn.zannis.bargains.webapp.client.responses.impl.SearchResults;
+import gr.ntua.cn.zannis.bargains.webapp.client.responses.meta.Page;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.*;
 
@@ -121,8 +121,8 @@ public interface RestClient {
 
     /**
      * Search request using a string query. It typically returns a list of categories that contain
-     * SKUs with the given string and maybe  a list of {@link gr.ntua.cn.zannis.bargains.client.responses.meta.Meta.Alternative}
-     * or {@link gr.ntua.cn.zannis.bargains.client.responses.meta.Meta.StrongMatches}.
+     * SKUs with the given string and maybe  a list of {@link gr.ntua.cn.zannis.bargains.webapp.client.responses.meta.Meta.Alternative}
+     * or {@link gr.ntua.cn.zannis.bargains.webapp.client.responses.meta.Meta.StrongMatches}.
      * @param query The string we are looking for.
      * @return A {@link SearchResults} object. Practically a {@link Page<Category>} with some extra features.
      */

@@ -12,7 +12,7 @@ import java.util.Date;
  * @author zannis <zannis.kal@gmail.com
  */
 @MappedSuperclass
-public class SkroutzEntity implements Serializable {
+public abstract class SkroutzEntity implements Serializable {
 
     private static final long serialVersionUID = -1L;
 
@@ -23,9 +23,20 @@ public class SkroutzEntity implements Serializable {
     protected String etag;
 
     public SkroutzEntity() {
+    }
+
+    @PrePersist
+    private void prePersist() {
         Date now = new Date();
         this.checkedAt = now;
         this.insertedAt = now;
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        Date now = new Date();
+        this.checkedAt = now;
+        this.modifiedAt = now;
     }
 
     @NotNull
@@ -80,12 +91,9 @@ public class SkroutzEntity implements Serializable {
     }
 
     @Transient
-    public void wasJustChecked() {
-        this.checkedAt = new Date();
+    public boolean hasEtag() {
+        return this.etag != null && !this.etag.isEmpty();
     }
 
-    @Transient
-    public boolean hasEtag() {
-        return this.etag != null;
-    }
+    public abstract <T extends SkroutzEntity> void updateFrom(T restEntity);
 }

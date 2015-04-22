@@ -1,17 +1,20 @@
-package gr.ntua.cn.zannis.bargains.client.misc;
+package gr.ntua.cn.zannis.bargains.webapp.client.misc;
 
-import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
-import gr.ntua.cn.zannis.bargains.client.requests.filters.Filter;
-import gr.ntua.cn.zannis.bargains.client.responses.RestResponse;
-import gr.ntua.cn.zannis.bargains.client.responses.impl.*;
+import gr.ntua.cn.zannis.bargains.webapp.client.requests.filters.Filter;
+import gr.ntua.cn.zannis.bargains.webapp.client.responses.RestResponse;
+import gr.ntua.cn.zannis.bargains.webapp.client.responses.impl.*;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;
@@ -20,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
+import static gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.*;
 
 
 /**
@@ -61,7 +64,7 @@ public class Utils {
         Properties properties = null;
         InputStream stream = null;
         try {
-            stream = new FileInputStream(new File(Const.DOTFOLDER.toString(), propFileName));
+            stream = new FileInputStream(new File(DOTFOLDER.toString(), propFileName));
             properties = new Properties();
             properties.load(stream);
         } catch (IOException e) {
@@ -94,7 +97,7 @@ public class Utils {
         boolean result = false;
         OutputStream stream = null;
         try {
-            stream = new FileOutputStream(new File(Const.DOTFOLDER.toString(), propFileName));
+            stream = new FileOutputStream(new File(DOTFOLDER.toString(), propFileName));
             props.store(stream, null);
             result = true;
         } catch (FileNotFoundException e) {
@@ -118,12 +121,11 @@ public class Utils {
      * @return The access token or null if an error occured.
      */
     public static String getLocalAccessToken() {
-        log.debug("Getting access token...");
         String property = null;
-        Properties tokenProperties = getPropertiesFromFile(Const.TOKEN_FILENAME);
+        Properties tokenProperties = getPropertiesFromFile(TOKEN_FILENAME);
 
         if (tokenProperties == null) {
-            log.error(Const.TOKEN_FILENAME + " does not exist.");
+            log.error(TOKEN_FILENAME + " does not exist.");
         } else if (tokenProperties.containsKey("access_token")) {
             String tokenProperty = tokenProperties.getProperty("access_token");
             property = !tokenProperty.isEmpty() ? tokenProperty : null;
@@ -140,19 +142,19 @@ public class Utils {
      * This method checks if the required properties files exist, and if not
      * creates them.
      */
-    public static void initPropertiesFiles() throws IOException {
-        log.debug("Initializing properties files...");
-        if (!Files.isDirectory(Const.DOTFOLDER)) {
-            Files.createDirectory(Const.DOTFOLDER);
-            log.debug("Created .BargainCrawler directory.");
+    public static void initClientPropertyFiles() throws IOException {
+        if (!Files.isDirectory(DOTFOLDER)) {
+            log.debug("First time running!");
+            Files.createDirectory(DOTFOLDER);
+            log.debug("Created directory " + DOTFOLDER + ".");
         }
-        if (!Files.isWritable(Const.CONFIG_PATH)) {
-            Files.createFile(Const.CONFIG_PATH);
-            log.debug("Created " + Const.CONFIG_FILENAME);
+        if (!Files.isWritable(CONFIG_PATH)) {
+            Files.createFile(CONFIG_PATH);
+            log.debug("Created file " + CONFIG_PATH + ".");
         }
-        if (!Files.isWritable(Const.TOKEN_PATH)) {
-            Files.createFile(Const.TOKEN_PATH);
-            log.debug("Created " + Const.TOKEN_FILENAME);
+        if (!Files.isWritable(TOKEN_PATH)) {
+            Files.createFile(TOKEN_PATH);
+            log.debug("Created file " + TOKEN_PATH + ".");
         }
         log.debug("Properties files initialized successfully!");
     }
@@ -161,13 +163,13 @@ public class Utils {
      * Attempts to get a new OAuth 2.0 access token and writes it to the config file.
      * @return True on success, false on fail.
      */
-    public static TokenResponse requestAccessToken() throws Exception {
+    public static String requestAccessToken() throws IOException {
         log.debug("Requesting access token...");
 
         Properties config = Utils.getPropertiesFromFile(Const.CONFIG_FILENAME);
 
         if (config == null) {
-            throw new Exception("Config file empty, please get a proper client_id and client_secret.");
+            throw new IOException("Config file empty, please get a proper client_id and client_secret.");
         } else {
             UriBuilder builder = UriBuilder.fromUri("https://www.skroutz.gr").path("oauth2/token")
                     .queryParam("client_id", config.getProperty("client_id"))
@@ -175,13 +177,17 @@ public class Utils {
                     .queryParam("grant_type", "client_credentials")
                     .queryParam("redirect_uri", config.getProperty("redirect_uri"))
                     .queryParam("scope", "public");
-
-            return ClientBuilder.newClient().target(builder).request()
-                    .post(Entity.entity(new TokenResponse(), MediaType.APPLICATION_JSON_TYPE), TokenResponse.class);
+            try {
+                AccessTokenResponse response = ClientBuilder.newClient().target(builder).request()
+                        .post(null, AccessTokenResponse.class);
+                return response.getToken();
+            } catch (ProcessingException e) {
+                log.error("Error requesting a new access token", e);
+                return null;
+            }
         }
     }
 
-    // client
     /**
      * Method that matches a {@link SkroutzEntity} to its corresponding {@link RestResponseImpl}
      * @param tClass The {@link SkroutzEntity} class type.

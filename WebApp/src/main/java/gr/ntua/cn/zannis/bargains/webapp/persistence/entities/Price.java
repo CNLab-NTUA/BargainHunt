@@ -18,7 +18,7 @@ public class Price {
     private long id;
     private float price;
     private Date checkedAt;
-    private gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product product;
+    private Product product;
 
     @Id
     @GeneratedValue(generator = "PriceSequence")

@@ -18,9 +18,13 @@
 
 * webapp: create skroutz entity manager - done
 
-todo single item query logic to implement
+* webapp: save all requests to database if they are successful - done
 
-todo save all requests to database if they are successful
+* server: add eclipselink to remote wildfly - done
+
+* webapp: stopped implementing resteasy client cause the api lacks basic functionality - done
+
+todo single item query logic to implement
 
 send single item query
 2. check db for entity
@@ -36,10 +40,16 @@ send single item query
 
 todo first version of vaadin app
 
+todo webapp: remove dependency from jersey config
+
+todo reimplement client for webapp
+
 -- version 0.6 --
 
 todo i18n
 
-todo autocomplete
+todo autocomplete while searching
 
 todo responsive uis
+
+todo enable ssl on postgres

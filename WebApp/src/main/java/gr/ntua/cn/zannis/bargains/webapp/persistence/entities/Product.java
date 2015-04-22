@@ -73,6 +73,21 @@ public class Product extends SkroutzEntity {
     public Product() {
     }
 
+    @Override
+    public <T extends SkroutzEntity> void updateFrom(T restEntity) {
+        this.name = ((Product) restEntity).name;
+        this.availability = ((Product) restEntity).availability;
+        this.clickUrl = ((Product) restEntity).clickUrl;
+        this.shopUid = ((Product) restEntity).shopUid;
+        this.price = ((Product) restEntity).price;
+        this.skuId = ((Product) restEntity).skuId;
+        this.categoryId = ((Product) restEntity).categoryId;
+        this.shopId = ((Product) restEntity).shopId;
+        if (restEntity.getEtag() != null) {
+            this.etag = restEntity.getEtag();
+        }
+    }
+
     @Id
     @GeneratedValue(generator = "ProductSequence")
     @SequenceGenerator(name = "ProductSequence", sequenceName = "prod_seq", allocationSize = 1)
@@ -225,7 +240,7 @@ public class Product extends SkroutzEntity {
     }
 
     @OneToMany(mappedBy = "product")
-    public List<gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Price> getPrices() {
+    public List<Price> getPrices() {
         return prices;
     }
 
@@ -251,18 +266,18 @@ public class Product extends SkroutzEntity {
         return shop;
     }
 
-    public void setShop(gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Shop shop) {
+    public void setShop(Shop shop) {
         this.shop = shop;
     }
 
     @ManyToOne
     @NotNull
     @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id")
-    public gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
@@ -282,15 +297,11 @@ public class Product extends SkroutzEntity {
                 Objects.equals(name, product.name) &&
                 Objects.equals(availability, product.availability) &&
                 Objects.equals(clickUrl, product.clickUrl) &&
-                Objects.equals(shopUid, product.shopUid) &&
-                Objects.equals(sku, product.sku) &&
-                Objects.equals(shop, product.shop) &&
-                Objects.equals(category, product.category) &&
-                Objects.equals(prices, product.prices);
+                Objects.equals(shopUid, product.shopUid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, skuId, shopId, categoryId, priceChanges, averagePastPrice, availability, clickUrl, shopUid, price, bargain, sku, shop, category, prices);
+        return Objects.hash(id, name, skuId, shopId, categoryId, priceChanges, averagePastPrice, availability, clickUrl, shopUid, price, bargain);
     }
 }
