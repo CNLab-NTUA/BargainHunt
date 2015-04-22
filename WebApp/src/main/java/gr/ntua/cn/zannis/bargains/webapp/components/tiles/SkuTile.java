@@ -2,7 +2,6 @@ package gr.ntua.cn.zannis.bargains.webapp.components.tiles;
 
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.Embedded;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku;
 
 /**
@@ -17,12 +16,12 @@ public class SkuTile extends EntityTile<Sku> {
     @Override
     protected void renderComponents() {
         if (this.entity.getImages() == null || this.entity.getImages().getMain().isEmpty()) {
-            image = new Embedded(null, new ThemeResource("img/default-product.png"));
+            image.setSource(new ThemeResource(DEFAULT_IMAGE_URL));
         } else {
-            image = new Embedded(null, new ExternalResource(this.entity.getImages().getMain()));
+            image.setSource(new ExternalResource(this.entity.getImages().getMain()));
         }
         if (this.entity.getName() == null || this.entity.getName().isEmpty()) {
-            caption.setValue("Άκυρο προϊόν");
+            caption.setValue(DEFAULT_NAME);
         } else {
             caption.setValue(this.entity.getName());
         }

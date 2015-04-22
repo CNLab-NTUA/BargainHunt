@@ -58,9 +58,9 @@ public class ProductsView extends VerticalLayout implements View {
         String[] splitParameters = parameters.split("/");
         if (splitParameters.length == 2) {
             try {
-                this.category = SkroutzRestClient.get().get(Category.class, Long.valueOf(splitParameters[0]));
+                this.category = SkroutzRestClient.getInstance().get(Category.class, Long.valueOf(splitParameters[0]));
                 this.query = URLDecoder.decode(splitParameters[1], "utf-8");
-                this.skus = SkroutzRestClient.get().getNested(category, Sku.class, new QueryFilter(query)).getItems();
+                this.skus = SkroutzRestClient.getInstance().getNested(category, Sku.class, new QueryFilter(query)).getItems();
             } catch (UnsupportedEncodingException e) {
                 Notifier.error("Δεν ήταν δυνατό το διάβασμα του query", e);
             }

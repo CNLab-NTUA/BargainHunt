@@ -1,4 +1,4 @@
-package gr.ntua.cn.zannis.bargains.client.persistence.entities;
+package gr.ntua.cn.zannis.bargains.webapp.persistence.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

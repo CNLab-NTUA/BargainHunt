@@ -1,5 +1,6 @@
-package gr.ntua.cn.zannis.bargains.client.misc;
+package gr.ntua.cn.zannis.bargains.webapp.client.impl;
 
+import gr.ntua.cn.zannis.bargains.client.misc.Const;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
 import gr.ntua.cn.zannis.bargains.client.requests.filters.Filter;

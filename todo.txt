@@ -16,13 +16,13 @@
 
 ** we are here **
 
-todo Create DAOs for all entities
+* webapp: create skroutz entity manager - done
 
 todo single item query logic to implement
 
 todo save all requests to database if they are successful
 
-1. send single item query
+send single item query
 2. check db for entity
 3. if entity exists and has etag
     |- send conditional request with etag

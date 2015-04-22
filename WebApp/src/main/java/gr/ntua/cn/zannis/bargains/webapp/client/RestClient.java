@@ -1,10 +1,10 @@
-package gr.ntua.cn.zannis.bargains.client;
+package gr.ntua.cn.zannis.bargains.webapp.client;
 
-import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
 import gr.ntua.cn.zannis.bargains.client.requests.filters.Filter;
 import gr.ntua.cn.zannis.bargains.client.responses.impl.SearchResults;
 import gr.ntua.cn.zannis.bargains.client.responses.meta.Page;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -23,7 +23,7 @@ public interface RestClient {
      * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
      * @return An object of type T.
      */
-    <T extends SkroutzEntity> T get(Class<T> tClass, Long skroutzId);
+    <T extends SkroutzEntity> T get(Class<T> tClass, Long skroutzId) throws RuntimeException;
 
     /**
      * Generic method to retrieve all results from the given type.

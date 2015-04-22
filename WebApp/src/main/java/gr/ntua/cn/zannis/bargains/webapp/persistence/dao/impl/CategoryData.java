@@ -1,29 +1,29 @@
-package gr.ntua.cn.zannis.bargains.client.persistence.dao.impl;
+package gr.ntua.cn.zannis.bargains.webapp.persistence.dao.impl;
 
 import gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.client.responses.impl.CategoryResponse;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
- * The custom {@link Category} data access object.
+ * The custom {@link gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category} data access object.
  * @author zannis <zannis.kal@gmail.com>
  */
 public class CategoryData extends GenericSkroutzDaoImpl<Category> {
 
     public CategoryData() {
-        super(Category.class);
+        super(gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category.class);
     }
 
     /**
      * We persist a category entity that contains the fields taken from the {@link CategoryResponse}
      * and we use its parentPath field to persist all its transient parents before persisting itself so that
      * we create valid parent-child relations.
-     * @param category The transient {@link Category} entity.
+     * @param category The transient {@link gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category} entity.
      * @return The persistent entity.
      */
     @Override
-    public Category persist(Category category) {
+    public gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category persist(Category category) {
         Category parentCategory = null;
         Category currentCategory;
         // we parse its parents first

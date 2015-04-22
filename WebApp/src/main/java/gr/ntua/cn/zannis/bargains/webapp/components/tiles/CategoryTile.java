@@ -2,7 +2,6 @@ package gr.ntua.cn.zannis.bargains.webapp.components.tiles;
 
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.Embedded;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
 
 /**
@@ -17,12 +16,12 @@ public class CategoryTile extends EntityTile<Category> {
     @Override
     protected void renderComponents() {
         if (this.entity.getImageUrl() == null || this.entity.getImageUrl().isEmpty()) {
-            image = new Embedded(null, new ThemeResource("img/default-category.png"));
+            image.setSource(new ThemeResource(DEFAULT_IMAGE_URL));
         } else {
-            image = new Embedded(null, new ExternalResource(this.entity.getImageUrl()));
+            image.setSource(new ExternalResource(this.entity.getImageUrl()));
         }
         if (this.entity.getName() == null || this.entity.getName().isEmpty()) {
-            caption.setValue("Κενή κατηγορία");
+            caption.setValue(DEFAULT_NAME);
         } else {
             caption.setValue(this.entity.getName());
         }

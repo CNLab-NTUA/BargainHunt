@@ -41,7 +41,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * Static method to retrieve singleton instance.
      * @return The singleton instance of {@link SkroutzRestClient}
      */
-     public static synchronized SkroutzRestClient get() {
+     public static synchronized SkroutzRestClient getInstance() {
         if (instance == null) {
             String token = Utils.getLocalAccessToken();
             if (token == null) {

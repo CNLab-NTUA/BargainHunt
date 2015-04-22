@@ -31,7 +31,7 @@ public class Main {
 
         try {
             Utils.initPropertiesFiles();
-            if (SkroutzRestClient.get() != null) {
+            if (SkroutzRestClient.getInstance() != null) {
                 boolean exit = false;
                 Scanner textScanner = new Scanner(System.in);
 //                textScanner.useDelimiter("\n");
@@ -55,7 +55,7 @@ public class Main {
                     }
                     System.out.print("Εισάγετε προϊόν για αναζήτηση : ");
                     String query = textScanner.nextLine();
-                    SearchResults results = SkroutzRestClient.get().search(query);
+                    SearchResults results = SkroutzRestClient.getInstance().search(query);
                     // get first category and keep looking
                     System.out.println("Βρέθηκαν προϊόντα σαν αυτό που ζητήσατε στις παρακάτω κατηγορίες, επιλέξτε μία για να συνεχίσετε : ");
                     int i = 1;
@@ -64,8 +64,8 @@ public class Main {
                     }
                     int categoryId = intScanner.nextInt() - 1;
                     assert categoryId > 0 ;
-                    Page<Sku> skuPage = SkroutzRestClient.get().searchSkusFromCategory(results.getCategories().get(categoryId), query);
-                    List<Sku> skuList = SkroutzRestClient.get().getAllResultsAsList(skuPage);
+                    Page<Sku> skuPage = SkroutzRestClient.getInstance().searchSkusFromCategory(results.getCategories().get(categoryId), query);
+                    List<Sku> skuList = SkroutzRestClient.getInstance().getAllResultsAsList(skuPage);
                     System.out.println("Βρέθηκαν τα εξής προϊόντα, παρακαλώ επιλέξτε αυτό που επιθυμείτε : ");
                     i = 1;
                     for (Sku s : skuList) {
@@ -73,8 +73,8 @@ public class Main {
                     }
                     int skuId = intScanner.nextInt() - 1;
                     assert skuId > 0 && skuId <= skuList.size();
-                    Page<Product> productsPage = SkroutzRestClient.get().getProductsFromSku(skuList.get(skuId));
-                    List<Product> productList = SkroutzRestClient.get().getAllResultsAsList(productsPage);
+                    Page<Product> productsPage = SkroutzRestClient.getInstance().getProductsFromSku(skuList.get(skuId));
+                    List<Product> productList = SkroutzRestClient.getInstance().getAllResultsAsList(productsPage);
                     List<Float> prices = productList.stream().map(Product::getPrice).collect(Collectors.toList());
                     OutlierFinder finder = new OutlierFinder(prices, strength);
                     if (finder.getLowOutliers().isEmpty()) {

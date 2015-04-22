@@ -1,6 +1,6 @@
 package gr.ntua.cn.zannis.bargains.webapp.screens;
 
-import com.vaadin.event.LayoutEvents;
+import com.vaadin.event.MouseEvents;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Label;
@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * @author zannis <zannis.kal@gmail.com>
  */
-public class SearchView extends VerticalLayout implements View, LayoutEvents.LayoutClickListener {
+public class SearchView extends VerticalLayout implements View, MouseEvents.ClickListener {
 
     public static final String NAME = "search";
     private final VerticalLayout strongMatchesLayout = new VerticalLayout();
@@ -50,13 +50,13 @@ public class SearchView extends VerticalLayout implements View, LayoutEvents.Lay
         } else if (query.length() < 3) {
             Notifier.error("Πρέπει να εισάγετε από 3 χαρακτήρες και πάνω για να γίνει αναζήτηση.", new Exception());
         } else {
-            searchResults = SkroutzRestClient.get().search(query);
+            searchResults = SkroutzRestClient.getInstance().search(query);
 
             if (searchResults.hasStrongMatches()) {
                 renderStrongMatches(searchResults.getStrongMatches());
             }
 
-            renderCategoryLayout(SkroutzRestClient.get().getAllResultsAsList(searchResults.getPage()));
+            renderCategoryLayout(SkroutzRestClient.getInstance().getAllResultsAsList(searchResults.getPage()));
         }
     }
 
@@ -90,16 +90,7 @@ public class SearchView extends VerticalLayout implements View, LayoutEvents.Lay
         ResponsiveGridLayout grid = new ResponsiveGridLayout();
         for (Category c : categories) {
             CategoryTile tile = new CategoryTile(c);
-            tile.addClickListener(layoutClickEvent -> {
-                try {
-                    String uri = ProductsView.NAME + "/"
-                            + tile.getEntity().getSkroutzId()
-                            + "/" + URLEncoder.encode(query, "utf-8");
-                    getUI().getNavigator().navigateTo(uri);
-                } catch (UnsupportedEncodingException e) {
-                    Notifier.error("Προβλημα στο encoding", e);
-                }
-            });
+            tile.addClickListener(this);
             grid.addComponent(tile);
         }
         categoryLayout.addComponent(label);
@@ -123,16 +114,21 @@ public class SearchView extends VerticalLayout implements View, LayoutEvents.Lay
     }
 
     @Override
-    public void layoutClick(LayoutEvents.LayoutClickEvent layoutClickEvent) {
-        if (layoutClickEvent.getClickedComponent().getClass().isAssignableFrom(CategoryTile.class)) {
-            getUI().getNavigator().navigateTo(ProductsView.NAME + "/"
-                    + ((CategoryTile) layoutClickEvent.getClickedComponent()).getEntity().getSkroutzId()
-                    + "/" + query);
-        } else if (layoutClickEvent.getClickedComponent().getClass().isAssignableFrom(SkuTile.class)) {
+    public void click(MouseEvents.ClickEvent clickEvent) {
+        if (clickEvent.getComponent().getClass().isAssignableFrom(CategoryTile.class)) {
+            try {
+                String uri = ProductsView.NAME + "/"
+                        + ((CategoryTile) clickEvent.getComponent()).getEntity().getSkroutzId()
+                        + "/" + URLEncoder.encode(query, "utf-8");
+                getUI().getNavigator().navigateTo(uri);
+            } catch (UnsupportedEncodingException e) {
+                Notifier.error("Προβλημα στο encoding", e);
+            }
+        } else if (clickEvent.getComponent().getClass().isAssignableFrom(SkuTile.class)) {
 
-        } else if (layoutClickEvent.getClickedComponent().getClass().isAssignableFrom(ShopTile.class)) {
+        } else if (clickEvent.getComponent().getClass().isAssignableFrom(ShopTile.class)) {
 
-        } else if (layoutClickEvent.getClickedComponent().getClass().isAssignableFrom(ManufacturerTile.class)) {
+        } else if (clickEvent.getComponent().getClass().isAssignableFrom(ManufacturerTile.class)) {
 
         }
     }

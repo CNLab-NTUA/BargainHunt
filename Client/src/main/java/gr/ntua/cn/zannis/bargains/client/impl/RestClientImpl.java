@@ -5,6 +5,7 @@ import gr.ntua.cn.zannis.bargains.client.exceptions.NoEntityFoundException;
 import gr.ntua.cn.zannis.bargains.client.exceptions.UnexpectedResponseStatusException;
 import gr.ntua.cn.zannis.bargains.client.misc.Utils;
 import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
+import gr.ntua.cn.zannis.bargains.client.persistence.entities.Request;
 import gr.ntua.cn.zannis.bargains.client.requests.filters.Filter;
 import gr.ntua.cn.zannis.bargains.client.responses.RestResponse;
 import gr.ntua.cn.zannis.bargains.client.responses.impl.RestResponseImpl;
@@ -22,7 +23,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -177,16 +180,29 @@ public abstract class RestClientImpl implements RestClient {
     }
 
     @Override
-    public SearchResults search(String query) {
+    public SearchResults search(String query) throws UnsupportedEncodingException {
         SearchResults results = null;
-        URI uri = UriBuilder.fromPath(target).path(SEARCH).queryParam("q", query.trim()).build();
+        Request request = null;
+        String encodedQuery = URLEncoder.encode(query, "utf-8");
+        URI uri = UriBuilder.fromUri(target).path(SEARCH).queryParam("q", encodedQuery).build();
         try {
             Response response = sendGetRequest(uri);
+
+            // create a copy of the request
+            request = new Request(uri.getPath(), response.getEntityTag().getValue(), response.getStatus() == 200);
+
+
+
+
             Map<String, URI> links = Utils.getLinks(response);
             results = response.readEntity(SearchResults.class);
             results.setLinks(links);
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + uri, e);
+        } finally {
+            if (request != null) {
+
+            }
         }
         return results;
     }

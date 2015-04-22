@@ -13,6 +13,8 @@
 
     <properties>
         <vaadin.version>7.4.4</vaadin.version>
+        <wildfly.bom.version>8.2.1.Final</wildfly.bom.version>
+        <wildfly.plugin.version>1.0.2.Final</wildfly.plugin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
         <jetty.plugin.version>9.2.3.v20140905</jetty.plugin.version>
         <project.source.version>1.8</project.source.version>
@@ -35,14 +37,28 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>jboss</id>
+            <url>http://repository.jboss.org/maven2</url>
+        </repository>
     </repositories>
 
     <dependencyManagement>
         <dependencies>
+            <!--Vaadin BOM-->
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-bom</artifactId>
                 <version>${vaadin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!--WildFly BOM with RestEasy-->
+            <dependency>
+                <groupId>org.wildfly.bom</groupId>
+                <artifactId>jboss-javaee-7.0-with-resteasy</artifactId>
+                <version>${wildfly.bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -51,7 +67,21 @@
 
     <dependencies>
 
-        <!--Skroutz REST API Client-->
+        <!--WildFly Java EE dependencies-->
+        <dependency>
+            <groupId>org.jboss.spec.javax.ejb</groupId>
+            <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--RestEasy REST Client-->
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--Skroutz REST API Client  todo remove this -->
         <dependency>
             <groupId>gr.ntua.cn.zannis.bargains</groupId>
             <artifactId>client</artifactId>
@@ -87,7 +117,7 @@
         </dependency>
         <!--
 		  Needed when using the widgetset optimizer (custom ConnectorBundleLoaderFactory).
-		  
+
 		  For widgetset compilation, vaadin-client-compiler is automatically added on the
 		  compilation classpath by vaadin-maven-plugin so normally there is no need for an
 		  explicit dependency.
@@ -195,6 +225,15 @@
                     <stopPort/>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>1.1.0.Alpha2</version>
+                <configuration>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
