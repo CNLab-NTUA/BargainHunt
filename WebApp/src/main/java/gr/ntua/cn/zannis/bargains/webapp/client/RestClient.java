@@ -1,8 +1,8 @@
 package gr.ntua.cn.zannis.bargains.webapp.client;
 
-import gr.ntua.cn.zannis.bargains.client.requests.filters.Filter;
-import gr.ntua.cn.zannis.bargains.client.responses.impl.SearchResults;
-import gr.ntua.cn.zannis.bargains.client.responses.meta.Page;
+import gr.ntua.cn.zannis.bargains.webapp.client.requests.filters.Filter;
+import gr.ntua.cn.zannis.bargains.webapp.client.responses.impl.SearchResults;
+import gr.ntua.cn.zannis.bargains.webapp.client.responses.meta.Page;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.*;
 

@@ -2,7 +2,7 @@ package gr.ntua.cn.zannis.bargains.webapp.components.tiles;
 
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.ThemeResource;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.Shop;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Shop;
 
 /**
  * @author zannis <zannis.kal@gmail.com>

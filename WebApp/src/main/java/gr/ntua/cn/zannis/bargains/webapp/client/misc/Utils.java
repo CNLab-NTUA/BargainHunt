@@ -1,11 +1,10 @@
-package gr.ntua.cn.zannis.bargains.webapp.client.impl;
+package gr.ntua.cn.zannis.bargains.webapp.client.misc;
 
-import gr.ntua.cn.zannis.bargains.client.misc.Const;
-import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.*;
-import gr.ntua.cn.zannis.bargains.client.requests.filters.Filter;
-import gr.ntua.cn.zannis.bargains.client.responses.RestResponse;
-import gr.ntua.cn.zannis.bargains.client.responses.impl.*;
+import gr.ntua.cn.zannis.bargains.webapp.client.requests.filters.Filter;
+import gr.ntua.cn.zannis.bargains.webapp.client.responses.RestResponse;
+import gr.ntua.cn.zannis.bargains.webapp.client.responses.impl.*;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static gr.ntua.cn.zannis.bargains.client.misc.Const.*;
+import static gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.*;
 
 
 /**
@@ -63,7 +62,7 @@ public class Utils {
         Properties properties = null;
         InputStream stream = null;
         try {
-            stream = new FileInputStream(new File(Const.DOTFOLDER.toString(), propFileName));
+            stream = new FileInputStream(new File(gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.DOTFOLDER.toString(), propFileName));
             properties = new Properties();
             properties.load(stream);
         } catch (IOException e) {
@@ -96,7 +95,7 @@ public class Utils {
         boolean result = false;
         OutputStream stream = null;
         try {
-            stream = new FileOutputStream(new File(Const.DOTFOLDER.toString(), propFileName));
+            stream = new FileOutputStream(new File(gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.DOTFOLDER.toString(), propFileName));
             props.store(stream, null);
             result = true;
         } catch (FileNotFoundException e) {
@@ -122,10 +121,10 @@ public class Utils {
     public static String getLocalAccessToken() {
         log.debug("Getting access token...");
         String property = null;
-        Properties tokenProperties = getPropertiesFromFile(Const.TOKEN_FILENAME);
+        Properties tokenProperties = getPropertiesFromFile(gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.TOKEN_FILENAME);
 
         if (tokenProperties == null) {
-            log.error(Const.TOKEN_FILENAME + " does not exist.");
+            log.error(gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.TOKEN_FILENAME + " does not exist.");
         } else if (tokenProperties.containsKey("access_token")) {
             String tokenProperty = tokenProperties.getProperty("access_token");
             property = !tokenProperty.isEmpty() ? tokenProperty : null;
@@ -144,17 +143,17 @@ public class Utils {
      */
     public static void initPropertiesFiles() throws IOException {
         log.debug("Initializing properties files...");
-        if (!Files.isDirectory(Const.DOTFOLDER)) {
-            Files.createDirectory(Const.DOTFOLDER);
+        if (!Files.isDirectory(gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.DOTFOLDER)) {
+            Files.createDirectory(gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.DOTFOLDER);
             log.debug("Created .BargainCrawler directory.");
         }
-        if (!Files.isWritable(Const.CONFIG_PATH)) {
-            Files.createFile(Const.CONFIG_PATH);
-            log.debug("Created " + Const.CONFIG_FILENAME);
+        if (!Files.isWritable(gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.CONFIG_PATH)) {
+            Files.createFile(gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.CONFIG_PATH);
+            log.debug("Created " + gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.CONFIG_FILENAME);
         }
-        if (!Files.isWritable(Const.TOKEN_PATH)) {
-            Files.createFile(Const.TOKEN_PATH);
-            log.debug("Created " + Const.TOKEN_FILENAME);
+        if (!Files.isWritable(gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.TOKEN_PATH)) {
+            Files.createFile(gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.TOKEN_PATH);
+            log.debug("Created " + gr.ntua.cn.zannis.bargains.webapp.client.misc.Const.TOKEN_FILENAME);
         }
         log.debug("Properties files initialized successfully!");
     }

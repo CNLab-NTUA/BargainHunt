@@ -8,15 +8,15 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
-import gr.ntua.cn.zannis.bargains.client.responses.impl.SearchResults;
-import gr.ntua.cn.zannis.bargains.client.responses.meta.Meta;
+import gr.ntua.cn.zannis.bargains.webapp.client.responses.impl.SearchResults;
+import gr.ntua.cn.zannis.bargains.webapp.client.responses.meta.Meta;
 import gr.ntua.cn.zannis.bargains.webapp.components.Notifier;
 import gr.ntua.cn.zannis.bargains.webapp.components.ResponsiveGridLayout;
 import gr.ntua.cn.zannis.bargains.webapp.components.tiles.CategoryTile;
 import gr.ntua.cn.zannis.bargains.webapp.components.tiles.ManufacturerTile;
 import gr.ntua.cn.zannis.bargains.webapp.components.tiles.ShopTile;
 import gr.ntua.cn.zannis.bargains.webapp.components.tiles.SkuTile;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

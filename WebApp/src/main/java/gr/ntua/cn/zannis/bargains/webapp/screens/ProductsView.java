@@ -5,12 +5,12 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
-import gr.ntua.cn.zannis.bargains.client.persistence.entities.Sku;
-import gr.ntua.cn.zannis.bargains.client.requests.filters.QueryFilter;
+import gr.ntua.cn.zannis.bargains.webapp.client.requests.filters.QueryFilter;
 import gr.ntua.cn.zannis.bargains.webapp.components.Notifier;
 import gr.ntua.cn.zannis.bargains.webapp.components.ResponsiveGridLayout;
 import gr.ntua.cn.zannis.bargains.webapp.components.tiles.SkuTile;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

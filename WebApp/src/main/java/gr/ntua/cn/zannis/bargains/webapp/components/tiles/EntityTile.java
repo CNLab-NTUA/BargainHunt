@@ -1,7 +1,7 @@
 package gr.ntua.cn.zannis.bargains.webapp.components.tiles;
 
 import com.vaadin.ui.*;
-import gr.ntua.cn.zannis.bargains.client.persistence.SkroutzEntity;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 
 /**
  * @author zannis <zannis.kal@gmail.com>
