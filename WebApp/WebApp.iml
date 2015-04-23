@@ -13,7 +13,7 @@
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="" />
         <datasource-mapping>
-          <factory-entry name="BargainHunt" value="c1eb0c81-0c03-4ae2-b120-ef324dac184d" />
+          <factory-entry name="BargainHunt" value="a69bbd0e-4f65-43ba-b3ac-36bdd713b95f" />
         </datasource-mapping>
         <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/src/main/resources/META-INF/persistence.xml" />
       </configuration>
