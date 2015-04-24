@@ -42,8 +42,6 @@ todo first version of vaadin app
 
 todo webapp: remove dependency from jersey config
 
-todo reimplement client for webapp
-
 -- version 0.6 --
 
 todo i18n

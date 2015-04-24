@@ -1,5 +1,6 @@
 package gr.ntua.cn.zannis.bargains.webapp.client.impl;
 
+import com.vaadin.ui.UI;
 import gr.ntua.cn.zannis.bargains.webapp.client.RestClient;
 import gr.ntua.cn.zannis.bargains.webapp.client.misc.Utils;
 import gr.ntua.cn.zannis.bargains.webapp.client.requests.filters.Filter;
@@ -7,17 +8,17 @@ import gr.ntua.cn.zannis.bargains.webapp.client.responses.RestResponse;
 import gr.ntua.cn.zannis.bargains.webapp.client.responses.impl.RestResponseImpl;
 import gr.ntua.cn.zannis.bargains.webapp.client.responses.impl.SearchResults;
 import gr.ntua.cn.zannis.bargains.webapp.client.responses.meta.Page;
-import gr.ntua.cn.zannis.bargains.webapp.ejb.impl.SkroutzEntityManagerImpl;
+import gr.ntua.cn.zannis.bargains.webapp.ejb.impl.CustomEntityManager;
+import gr.ntua.cn.zannis.bargains.webapp.ejb.impl.SkroutzEntityManager;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Request;
+import gr.ntua.cn.zannis.bargains.webapp.ui.BargainHuntUI;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJB;
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.ProcessingException;
@@ -51,14 +52,14 @@ public abstract class RestClientImpl implements RestClient {
     protected final String token;
     protected final ClientConfig config = new ClientConfig();
     protected int remainingRequests;
-    @EJB
-    private SkroutzEntityManagerImpl skroutzEm;
-    @EJB
-    private EntityManager defaultEm;
+    protected SkroutzEntityManager skroutzEm;
+    protected CustomEntityManager defaultEm;
 
     public RestClientImpl(String targetUri, String token) {
         this.target = targetUri;
         this.token = token;
+        skroutzEm = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm();
+        defaultEm = ((BargainHuntUI) UI.getCurrent()).getDefaultEm();
     }
 
     @Override
@@ -310,16 +311,17 @@ public abstract class RestClientImpl implements RestClient {
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                     .accept("application/vnd.skroutz+json; version=3")
                     .get();
-            //persist/merge request
+            // persist/merge request
             try {
                 TypedQuery<Request> q = defaultEm.createNamedQuery("Request.findByUri", Request.class);
-                Request result = q.setParameter("uri", requestUri.getPath()).getSingleResult();
+                q.setParameter("uri", requestUri.getQuery());
+                Request result = q.getSingleResult();
                 defaultEm.merge(result);
             } catch (NoResultException e) {
-                // query doesnt exist in the db, create it
+//                query doesnt exist in the db, create it
                 Request request = null;
                 try {
-                    request = new Request(requestUri.getPath(), response.getEntityTag().getValue());
+                    request = new Request(requestUri.getQuery(), response.getEntityTag().getValue());
                     defaultEm.persist(request);
                 } catch (Exception e1) {
                     log.error("Error trying to persist request " + request);
@@ -356,13 +358,13 @@ public abstract class RestClientImpl implements RestClient {
             //persist/merge request
             try {
                 TypedQuery<Request> q = defaultEm.createNamedQuery("Request.findByUri", Request.class);
-                Request result = q.setParameter("uri", requestUri.getPath()).getSingleResult();
+                Request result = q.setParameter("uri", requestUri.getQuery()).getSingleResult();
                 defaultEm.merge(result);
             } catch (NoResultException e) {
                 // query doesnt exist in the db, create it
                 Request request = null;
                 try {
-                    request = new Request(requestUri.getPath(), response.getEntityTag().getValue());
+                    request = new Request(requestUri.getQuery(), response.getEntityTag().getValue());
                     defaultEm.persist(request);
                 } catch (Exception e1) {
                     log.error("Error trying to persist request " + request);

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import gr.ntua.cn.zannis.bargains.webapp.client.misc.Utils;
 import gr.ntua.cn.zannis.bargains.webapp.client.requests.filters.Filter;
 import gr.ntua.cn.zannis.bargains.webapp.client.requests.filters.QueryFilter;
-import gr.ntua.cn.zannis.bargains.webapp.client.responses.impl.AccessTokenResponse;
 import gr.ntua.cn.zannis.bargains.webapp.client.responses.meta.Page;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
@@ -46,7 +45,6 @@ public final class SkroutzRestClient extends RestClientImpl {
         if (instance == null) {
             String token = Utils.getLocalAccessToken();
             if (token == null) {
-                AccessTokenResponse response;
                 try {
                     token = Utils.requestAccessToken();
                     instance = new SkroutzRestClient(token);

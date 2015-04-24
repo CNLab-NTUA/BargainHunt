@@ -7,7 +7,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import gr.ntua.cn.zannis.bargains.webapp.client.impl.RestEasyClientImpl;
+import gr.ntua.cn.zannis.bargains.webapp.client.impl.SkroutzRestClient;
 import gr.ntua.cn.zannis.bargains.webapp.client.responses.impl.SearchResults;
 import gr.ntua.cn.zannis.bargains.webapp.client.responses.meta.Meta;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
@@ -51,7 +51,7 @@ public class SearchView extends VerticalLayout implements View, MouseEvents.Clic
             Notifier.error("Πρέπει να εισάγετε από 3 χαρακτήρες και πάνω για να γίνει αναζήτηση.", new Exception());
         } else {
             try {
-                searchResults = RestEasyClientImpl.getInstance().search(query);
+                searchResults = SkroutzRestClient.getInstance().search(query);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }

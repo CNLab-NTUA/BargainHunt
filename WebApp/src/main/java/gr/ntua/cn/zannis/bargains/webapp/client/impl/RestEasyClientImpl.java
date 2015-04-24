@@ -11,7 +11,7 @@ import gr.ntua.cn.zannis.bargains.webapp.client.requests.filters.Filter;
 import gr.ntua.cn.zannis.bargains.webapp.client.responses.RestResponse;
 import gr.ntua.cn.zannis.bargains.webapp.client.responses.impl.SearchResults;
 import gr.ntua.cn.zannis.bargains.webapp.client.responses.meta.Page;
-import gr.ntua.cn.zannis.bargains.webapp.ejb.impl.SkroutzEntityManagerImpl;
+import gr.ntua.cn.zannis.bargains.webapp.ejb.impl.SkroutzEntityManager;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Request;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
@@ -49,7 +49,7 @@ public class RestEasyClientImpl implements RestClient {
     }
 
     @EJB
-    private SkroutzEntityManagerImpl skroutzEm;
+    private SkroutzEntityManager skroutzEm;
     @EJB
     private EntityManager defaultEm;
     private int remainingRequests = 100;

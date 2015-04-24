@@ -14,7 +14,7 @@
     <properties>
         <vaadin.version>7.4.4</vaadin.version>
         <wildfly.bom.version>8.2.1.Final</wildfly.bom.version>
-        <wildfly.plugin.version>1.1.0.Alpha2</wildfly.plugin.version>
+        <wildfly.plugin.version>1.0.2.Final</wildfly.plugin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
         <jetty.plugin.version>9.2.3.v20140905</jetty.plugin.version>
         <project.source.version>1.8</project.source.version>
@@ -36,10 +36,6 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </repository>
-        <repository>
-            <id>jboss</id>
-            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
         </repository>
     </repositories>
 
@@ -67,10 +63,25 @@
 
     <dependencies>
 
+        <!--Postgres JDBC driver-->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.3-1103-jdbc41</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Jersey for JAX-RS-->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
+            <version>2.16</version>
+        </dependency>
+
+        <!-- Jackson for JSON parsing -->
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
             <version>2.16</version>
         </dependency>
 
@@ -109,6 +120,11 @@
             <groupId>org.vaadin.addons</groupId>
             <artifactId>restrain</artifactId>
             <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-cdi</artifactId>
+            <version>1.0.2</version>
         </dependency>
 
         <!--Vaadin dependencies-->
@@ -201,7 +217,7 @@
                     <draftCompile>false</draftCompile>
                     <compileReport>false</compileReport>
                     <style>OBF</style>
-                    <strict>true</strict>
+                    <!--<strict>true</strict>-->
                 </configuration>
                 <executions>
                     <execution>
