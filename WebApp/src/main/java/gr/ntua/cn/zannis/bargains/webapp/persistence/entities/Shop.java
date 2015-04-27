@@ -33,6 +33,7 @@ public class Shop extends gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzE
     private int reviewCount;
     private int reviewScore;
     private PaymentMethods paymentMethods;
+    private Shipping shipping;
     private List<Product> products;
 
     @JsonCreator
@@ -44,7 +45,9 @@ public class Shop extends gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzE
                 @JsonProperty("thumbshot_url") String thumbshotUrl,
                 @JsonProperty("reviews_count") int reviewCount,
                 @JsonProperty("review_score") int reviewScore,
-                @JsonProperty("payment_methods") PaymentMethods paymentMethods) {
+                @JsonProperty("payment_methods") PaymentMethods paymentMethods,
+                @JsonProperty("shipping") Shipping shipping) {
+
         super();
         this.skroutzId = skroutzId;
         this.name = name;
@@ -55,6 +58,7 @@ public class Shop extends gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzE
         this.reviewCount = reviewCount;
         this.reviewScore = reviewScore;
         this.paymentMethods = paymentMethods;
+        this.shipping = shipping;
     }
 
     public Shop() {
@@ -250,6 +254,56 @@ public class Shop extends gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzE
 
         public void setComments(String comments) {
             this.comments = comments;
+        }
+    }
+
+    private static class Shipping implements Serializable {
+        private boolean free;
+        private int freeFrom;
+        private String freeFromInfo;
+        private float minPrice;
+
+        @JsonCreator
+        public Shipping(@JsonProperty("free") boolean free,
+                        @JsonProperty("free_from") int freeFrom,
+                        @JsonProperty("free_from_info") String freeFromInfo,
+                        @JsonProperty("min_price") float minPrice) {
+            this.free = free;
+            this.freeFrom = freeFrom;
+            this.freeFromInfo = freeFromInfo;
+            this.minPrice = minPrice;
+        }
+
+        public boolean isFree() {
+            return free;
+        }
+
+        public void setFree(boolean free) {
+            this.free = free;
+        }
+
+        public int getFreeFrom() {
+            return freeFrom;
+        }
+
+        public void setFreeFrom(int freeFrom) {
+            this.freeFrom = freeFrom;
+        }
+
+        public String getFreeFromInfo() {
+            return freeFromInfo;
+        }
+
+        public void setFreeFromInfo(String freeFromInfo) {
+            this.freeFromInfo = freeFromInfo;
+        }
+
+        public float getMinPrice() {
+            return minPrice;
+        }
+
+        public void setMinPrice(float minPrice) {
+            this.minPrice = minPrice;
         }
     }
 }

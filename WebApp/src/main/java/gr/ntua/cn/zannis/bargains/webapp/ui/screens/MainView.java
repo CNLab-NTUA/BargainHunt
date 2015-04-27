@@ -1,5 +1,6 @@
 package gr.ntua.cn.zannis.bargains.webapp.ui.screens;
 
+import com.vaadin.cdi.CDIView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Alignment;
@@ -12,6 +13,7 @@ import gr.ntua.cn.zannis.bargains.webapp.ui.components.SearchField;
  * A minimal main view for the BargainHunt application.
  * @author zannis <zannis.kal@gmail.com>
  */
+@CDIView(MainView.NAME)
 public class MainView extends VerticalLayout implements View {
 
     public static final String NAME = "";
@@ -41,5 +43,6 @@ public class MainView extends VerticalLayout implements View {
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {
         viewChangeEvent.getNewView();
+
     }
 }

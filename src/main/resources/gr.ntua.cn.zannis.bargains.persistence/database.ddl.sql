@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS public.prices
 CREATE TABLE IF NOT EXISTS public.requests
 (
   id          INT PRIMARY KEY     NOT NULL DEFAULT nextval('request_seq'),
-  request_uri VARCHAR(200) UNIQUE NOT NULL, -- the request uri on the skroutz website
+  url VARCHAR(200) UNIQUE NOT NULL, -- the request uri on the skroutz website
   etag        VARCHAR(32), -- the etag we received on the last request
   checked_at  TIMESTAMP     -- the timestamp when we last hit the selected request
 );

@@ -1,6 +1,5 @@
 package gr.ntua.cn.zannis.bargains.webapp.ejb.impl;
 
-import gr.ntua.cn.zannis.bargains.webapp.ejb.CustomEntityManager;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 import org.slf4j.Logger;
@@ -20,14 +19,13 @@ import java.util.List;
  */
 @Stateless
 @LocalBean
-public class SkroutzEntityManager implements CustomEntityManager {
+public class SkroutzEntityManager {
 
     private static final Logger log = LoggerFactory.getLogger(SkroutzEntityManager.class);
 
-    @PersistenceContext(unitName = "BargainHunt")
+    @PersistenceContext
     private EntityManager em;
 
-    @Override
     public <T extends SkroutzEntity> void persist(T object) throws RuntimeException {
         try {
             em.persist(object);
@@ -37,7 +35,6 @@ public class SkroutzEntityManager implements CustomEntityManager {
         }
     }
 
-    @Override
     public <T extends SkroutzEntity> T merge(T object) throws RuntimeException {
         try {
             em.merge(object);
@@ -48,7 +45,6 @@ public class SkroutzEntityManager implements CustomEntityManager {
         return object;
     }
 
-    @Override
     public <T extends SkroutzEntity> void remove(T object) throws RuntimeException {
         try {
             em.remove(object);
@@ -58,7 +54,6 @@ public class SkroutzEntityManager implements CustomEntityManager {
         }
     }
 
-    @Override
     public <T extends SkroutzEntity> T find(Class<T> tClass, Object skroutzId) throws RuntimeException {
         T result;
         // finds an object by its skroutzId
@@ -76,7 +71,6 @@ public class SkroutzEntityManager implements CustomEntityManager {
         return result;
     }
 
-    @Override
     public <T extends SkroutzEntity> List<T> findAll(Class<T> tClass) throws RuntimeException {
         List<T> result;
         TypedQuery<T> q = createNamedQuery(tClass.getSimpleName() + ".findAll", tClass);
@@ -89,7 +83,6 @@ public class SkroutzEntityManager implements CustomEntityManager {
         return result;
     }
 
-    @Override
     public <T extends SkroutzEntity> TypedQuery<T> createNamedQuery(String namedQuery, Class<T> tClass) {
         return em.createNamedQuery(namedQuery, tClass);
     }

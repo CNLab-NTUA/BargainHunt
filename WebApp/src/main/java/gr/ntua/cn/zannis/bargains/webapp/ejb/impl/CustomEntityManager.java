@@ -21,7 +21,7 @@ public class CustomEntityManager {
 
     public static final Logger log = LoggerFactory.getLogger(CustomEntityManager.class.getSimpleName());
 
-    @PersistenceContext(unitName = "BargainHunt")
+    @PersistenceContext
     private EntityManager em;
 
     public <T> void persist(T object) throws RuntimeException {

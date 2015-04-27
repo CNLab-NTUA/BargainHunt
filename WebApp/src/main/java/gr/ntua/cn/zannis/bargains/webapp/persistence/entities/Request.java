@@ -14,17 +14,21 @@ import java.util.Date;
  * @author zannis <zannis.kal@gmail.com>
  */
 @Entity
-@Table(name = "requests", schema = "public", catalog = "bargainhunt")
-@NamedQuery(name = "Request.findByUri", query = "select r from Request r where r.requestUri = :uri")
+@Table(name = "requests", schema = "public")
+@NamedQueries({
+        @NamedQuery(name = "Request.findByUrl", query = "select r from Request r where r.url = :url"),
+        @NamedQuery(name = "Request.findByEtag", query = "select r from Request r where r.etag = :etag"),
+        @NamedQuery(name = "Request.findAll", query = "select r from Request r")
+})
 public class Request {
     private int id;
-    private String requestUri;
+    private String url;
     private String etag;
     private int count;
     private Date checkedAt;
 
-    public Request(String requestUri, String etag) {
-        this.requestUri = requestUri;
+    public Request(String url, String etag) {
+        this.url = url;
         this.etag = etag;
     }
 
@@ -57,13 +61,13 @@ public class Request {
 
     @NotNull
     @Size(min = 1, max = 200)
-    @Column(name = "request_uri")
-    public String getRequestUri() {
-        return requestUri;
+    @Column(name = "url")
+    public String getUrl() {
+        return url;
     }
 
-    public void setRequestUri(String requestUri) {
-        this.requestUri = requestUri;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     @Size(max = 32)
@@ -100,7 +104,7 @@ public class Request {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
-                .append("requestUri", requestUri)
+                .append("requestUri", url)
                 .append("etag", etag)
                 .append("checkedAt", checkedAt)
                 .toString();

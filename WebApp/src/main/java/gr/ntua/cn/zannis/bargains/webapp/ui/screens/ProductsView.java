@@ -1,11 +1,10 @@
 package gr.ntua.cn.zannis.bargains.webapp.ui.screens;
 
+import com.vaadin.cdi.CDIView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import gr.ntua.cn.zannis.bargains.webapp.client.impl.RestEasyClientImpl;
-import gr.ntua.cn.zannis.bargains.webapp.client.requests.filters.QueryFilter;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
@@ -16,9 +15,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
 
+//import gr.ntua.cn.zannis.bargains.webapp.rest.impl.RestEasyClientImpl;
+//import gr.ntua.cn.zannis.bargains.webapp.rest.requests.filters.QueryFilter;
+
 /**
  * @author zannis <zannis.kal@gmail.com>
  */
+@CDIView(ProductsView.NAME)
 public class ProductsView extends VerticalLayout implements View {
 
     public static final String NAME = "products";
@@ -58,9 +61,9 @@ public class ProductsView extends VerticalLayout implements View {
         String[] splitParameters = parameters.split("/");
         if (splitParameters.length == 2) {
             try {
-                this.category = RestEasyClientImpl.getInstance().get(Category.class, Long.valueOf(splitParameters[0]));
+//                this.category = RestEasyClientImpl.getInstance().get(Category.class, Long.valueOf(splitParameters[0]));
                 this.query = URLDecoder.decode(splitParameters[1], "utf-8");
-                this.skus = RestEasyClientImpl.getInstance().getNested(category, Sku.class, new QueryFilter(query)).getItems();
+//                this.skus = RestEasyClientImpl.getInstance().getNested(category, Sku.class, new QueryFilter(query)).getItems();
             } catch (UnsupportedEncodingException e) {
                 Notifier.error("Δεν ήταν δυνατό το διάβασμα του query", e);
             }

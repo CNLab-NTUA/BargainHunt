@@ -17,12 +17,10 @@ public class Request {
     private String requestUri;
     private String etag;
     private Date checkedAt;
-    private boolean successful;
 
     public Request(String requestUri, String etag, boolean successful) {
         this.requestUri = requestUri;
         this.etag = etag;
-        this.successful = successful;
     }
 
     public Request() {
@@ -47,7 +45,7 @@ public class Request {
 
     @NotNull
     @Size(min = 1, max = 200)
-    @Column(name = "request_uri")
+    @Column(name = "url")
     public String getRequestUri() {
         return requestUri;
     }
@@ -74,15 +72,5 @@ public class Request {
 
     public void setCheckedAt(Date checkedAt) {
         this.checkedAt = checkedAt;
-    }
-
-    @NotNull
-    @Column(name = "successful")
-    public boolean isSuccessful() {
-        return this.successful;
-    }
-
-    public void setSuccessful(boolean successful) {
-        this.successful = successful;
     }
 }

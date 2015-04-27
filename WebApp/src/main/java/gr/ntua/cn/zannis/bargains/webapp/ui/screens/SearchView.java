@@ -1,5 +1,6 @@
 package gr.ntua.cn.zannis.bargains.webapp.ui.screens;
 
+import com.vaadin.cdi.CDIView;
 import com.vaadin.event.MouseEvents;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -7,10 +8,10 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import gr.ntua.cn.zannis.bargains.webapp.client.impl.SkroutzRestClient;
-import gr.ntua.cn.zannis.bargains.webapp.client.responses.impl.SearchResults;
-import gr.ntua.cn.zannis.bargains.webapp.client.responses.meta.Meta;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
+import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzRestClient;
+import gr.ntua.cn.zannis.bargains.webapp.rest.responses.impl.SearchResults;
+import gr.ntua.cn.zannis.bargains.webapp.rest.responses.meta.Meta;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.ResponsiveGridLayout;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.tiles.CategoryTile;
@@ -27,6 +28,7 @@ import java.util.List;
 /**
  * @author zannis <zannis.kal@gmail.com>
  */
+@CDIView(SearchView.NAME)
 public class SearchView extends VerticalLayout implements View, MouseEvents.ClickListener {
 
     public static final String NAME = "search";
@@ -52,15 +54,16 @@ public class SearchView extends VerticalLayout implements View, MouseEvents.Clic
         } else {
             try {
                 searchResults = SkroutzRestClient.getInstance().search(query);
+                if (searchResults != null) {
+                    if (searchResults.hasStrongMatches()) {
+                        renderStrongMatches(searchResults.getStrongMatches());
+                    }
+//                 currently fetches only the first page of results
+                    renderCategoryLayout(searchResults.getCategories());
+                }
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                Notifier.error("Η αναζήτησή σας δεν είναι δυνατή στη συγκεκριμένη κωδικοποίηση.", e);
             }
-
-            if (searchResults.hasStrongMatches()) {
-                renderStrongMatches(searchResults.getStrongMatches());
-            }
-            // currently fetches only the first page of results
-            renderCategoryLayout(searchResults.getCategories());
         }
     }
 
