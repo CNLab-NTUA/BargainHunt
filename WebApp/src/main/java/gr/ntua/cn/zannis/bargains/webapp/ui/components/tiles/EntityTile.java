@@ -1,5 +1,6 @@
 package gr.ntua.cn.zannis.bargains.webapp.ui.components.tiles;
 
+import com.vaadin.event.MouseEvents;
 import com.vaadin.ui.*;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 
@@ -18,6 +19,11 @@ public abstract class EntityTile<T extends SkroutzEntity> extends Panel {
     public EntityTile(T entity) {
         this.entity = entity;
         buildUI();
+    }
+
+    public EntityTile(T entity, MouseEvents.ClickListener listener) {
+        this.entity = entity;
+        addClickListener(listener);
     }
 
     private void buildUI() {

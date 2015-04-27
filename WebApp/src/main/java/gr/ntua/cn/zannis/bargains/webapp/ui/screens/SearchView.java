@@ -122,21 +122,29 @@ public class SearchView extends VerticalLayout implements View, MouseEvents.Clic
 
     @Override
     public void click(MouseEvents.ClickEvent clickEvent) {
+        String uri = null;
         if (clickEvent.getComponent().getClass().isAssignableFrom(CategoryTile.class)) {
+            uri = ProductsView.NAME + "/"
+                    + ((CategoryTile) clickEvent.getComponent()).getEntity().getSkroutzId() + "/";
             try {
-                String uri = ProductsView.NAME + "/"
-                        + ((CategoryTile) clickEvent.getComponent()).getEntity().getSkroutzId()
-                        + "/" + URLEncoder.encode(query, "utf-8");
-                getUI().getNavigator().navigateTo(uri);
+                uri = uri.concat(URLEncoder.encode(query, "utf-8"));
             } catch (UnsupportedEncodingException e) {
-                Notifier.error("Προβλημα στο encoding", e);
+                uri = uri.concat(query);
             }
         } else if (clickEvent.getComponent().getClass().isAssignableFrom(SkuTile.class)) {
-
+            uri = BargainView.NAME + "/"
+                    + ((SkuTile) clickEvent.getComponent()).getEntity().getSkroutzId();
         } else if (clickEvent.getComponent().getClass().isAssignableFrom(ShopTile.class)) {
-
+            uri = ShopView.NAME + "/"
+                    + ((ShopTile) clickEvent.getComponent()).getEntity().getSkroutzId();
         } else if (clickEvent.getComponent().getClass().isAssignableFrom(ManufacturerTile.class)) {
-
+            uri = ManufacturerView.NAME + "/" +
+                    ((ManufacturerTile) clickEvent.getComponent()).getEntity().getSkroutzId();
+        }
+        if (uri != null) {
+            getUI().getNavigator().navigateTo(uri);
+        } else {
+            Notifier.error("Λάθος σύνδεσμος.", false);
         }
     }
 }

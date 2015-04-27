@@ -1,4 +1,4 @@
-package gr.ntua.cn.zannis.bargains.webapp.ui.screens;
+package gr.ntua.cn.zannis.bargains.webapp.ui;
 
 /**
  * @author zannis <zannis.kal@gmail.com

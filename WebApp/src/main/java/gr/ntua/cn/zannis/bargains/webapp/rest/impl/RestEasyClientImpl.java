@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.vaadin.external.org.slf4j.Logger;
 import com.vaadin.external.org.slf4j.LoggerFactory;
-import gr.ntua.cn.zannis.bargains.webapp.ejb.impl.SkroutzEntityManager;
+import gr.ntua.cn.zannis.bargains.webapp.ejb.SkroutzEntityManager;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Request;
 import gr.ntua.cn.zannis.bargains.webapp.rest.RestClient;
@@ -53,7 +53,6 @@ public class RestEasyClientImpl implements RestClient {
     @EJB
     private EntityManager defaultEm;
     private int remainingRequests = 100;
-    //    private final ClientConfiguration configuration = new ClientConfiguration(ResteasyProviderFactory.getInstance());
     private String token;
 
     private RestEasyClientImpl() throws IOException {

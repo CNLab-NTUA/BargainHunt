@@ -1,5 +1,6 @@
 package gr.ntua.cn.zannis.bargains.webapp.ui.components.tiles;
 
+import com.vaadin.event.MouseEvents;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.ThemeResource;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
@@ -11,6 +12,10 @@ public class SkuTile extends EntityTile<Sku> {
 
     public SkuTile(Sku sku) {
         super(sku);
+    }
+
+    public SkuTile(Sku entity, MouseEvents.ClickListener listener) {
+        super(entity, listener);
     }
 
     @Override

@@ -7,6 +7,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
+import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzRestClient;
+import gr.ntua.cn.zannis.bargains.webapp.rest.requests.filters.QueryFilter;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.ResponsiveGridLayout;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.tiles.SkuTile;
@@ -14,9 +16,6 @@ import gr.ntua.cn.zannis.bargains.webapp.ui.components.tiles.SkuTile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
-
-//import gr.ntua.cn.zannis.bargains.webapp.rest.impl.RestEasyClientImpl;
-//import gr.ntua.cn.zannis.bargains.webapp.rest.requests.filters.QueryFilter;
 
 /**
  * @author zannis <zannis.kal@gmail.com>
@@ -61,9 +60,9 @@ public class ProductsView extends VerticalLayout implements View {
         String[] splitParameters = parameters.split("/");
         if (splitParameters.length == 2) {
             try {
-//                this.category = RestEasyClientImpl.getInstance().get(Category.class, Long.valueOf(splitParameters[0]));
+                this.category = SkroutzRestClient.getInstance().get(Category.class, Long.valueOf(splitParameters[0]));
                 this.query = URLDecoder.decode(splitParameters[1], "utf-8");
-//                this.skus = RestEasyClientImpl.getInstance().getNested(category, Sku.class, new QueryFilter(query)).getItems();
+                this.skus = SkroutzRestClient.getInstance().getNested(category, Sku.class, new QueryFilter(query)).getItems();
             } catch (UnsupportedEncodingException e) {
                 Notifier.error("Δεν ήταν δυνατό το διάβασμα του query", e);
             }
