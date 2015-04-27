@@ -290,7 +290,7 @@
                 <artifactId>wildfly-maven-plugin</artifactId>
                 <version>${wildfly.plugin.version}</version>
                 <configuration>
-                    <jboss-home>C:\Java\wildfly-8.2.0.Final</jboss-home>
+                    <!--<jboss-home>C:\Java\wildfly-8.2.0.Final</jboss-home>-->
                     <server-config>standalone.xml</server-config>
                 </configuration>
             </plugin>

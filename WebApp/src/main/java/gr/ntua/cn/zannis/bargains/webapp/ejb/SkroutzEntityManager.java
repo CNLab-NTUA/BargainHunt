@@ -1,5 +1,6 @@
-package gr.ntua.cn.zannis.bargains.webapp.ejb.impl;
+package gr.ntua.cn.zannis.bargains.webapp.ejb;
 
+import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.ArrayList;
@@ -17,14 +19,14 @@ import java.util.List;
  */
 @Stateless
 @LocalBean
-public class CustomEntityManager {
+public class SkroutzEntityManager {
 
-    public static final Logger log = LoggerFactory.getLogger(CustomEntityManager.class.getSimpleName());
+    private static final Logger log = LoggerFactory.getLogger(SkroutzEntityManager.class);
 
     @PersistenceContext
     private EntityManager em;
 
-    public <T> void persist(T object) throws RuntimeException {
+    public <T extends SkroutzEntity> void persist(T object) throws RuntimeException {
         try {
             em.persist(object);
             log.info("Object " + object.toString() + " persisted successfully.");
@@ -33,7 +35,7 @@ public class CustomEntityManager {
         }
     }
 
-    public <T> T merge(T object) throws RuntimeException {
+    public <T extends SkroutzEntity> T merge(T object) throws RuntimeException {
         try {
             em.merge(object);
             log.info("Object " + object.toString() + " merged successfully.");
@@ -43,7 +45,7 @@ public class CustomEntityManager {
         return object;
     }
 
-    public <T> void remove(T object) throws RuntimeException {
+    public <T extends SkroutzEntity> void remove(T object) throws RuntimeException {
         try {
             em.remove(object);
             log.info("Object " + object + " removed successfully.");
@@ -52,18 +54,24 @@ public class CustomEntityManager {
         }
     }
 
-    public <T> T find(Class<T> tClass, Object id) throws RuntimeException {
+    public <T extends SkroutzEntity> T find(Class<T> tClass, Object skroutzId) throws RuntimeException {
         T result;
+        // finds an object by its skroutzId
+        TypedQuery<T> q = em.createNamedQuery(tClass.getSimpleName() + ".findBySkroutzId", tClass);
+        q.setParameter("skroutzId", skroutzId);
         try {
-            result = em.find(tClass, id);
+            result = q.getSingleResult();
+        } catch (NoResultException e) {
+            // swallow and return null
+            result = null;
         } catch (Exception e) {
-            Notifier.error("Υπήρξε πρόβλημα στο find" + tClass.getSimpleName() + " με skroutzId " + id, e);
+            Notifier.error("Υπήρξε πρόβλημα στο find" + tClass.getSimpleName() + " με skroutzId " + skroutzId, e);
             result = null;
         }
         return result;
     }
 
-    public <T> List<T> findAll(Class<T> tClass) throws RuntimeException {
+    public <T extends SkroutzEntity> List<T> findAll(Class<T> tClass) throws RuntimeException {
         List<T> result;
         TypedQuery<T> q = createNamedQuery(tClass.getSimpleName() + ".findAll", tClass);
         try {
@@ -75,7 +83,7 @@ public class CustomEntityManager {
         return result;
     }
 
-    public <T> TypedQuery<T> createNamedQuery(String namedQuery, Class<T> tClass) {
+    public <T extends SkroutzEntity> TypedQuery<T> createNamedQuery(String namedQuery, Class<T> tClass) {
         return em.createNamedQuery(namedQuery, tClass);
     }
 }
