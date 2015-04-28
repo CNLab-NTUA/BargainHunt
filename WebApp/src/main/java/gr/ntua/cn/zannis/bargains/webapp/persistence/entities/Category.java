@@ -27,11 +27,11 @@ public class Category extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
 
-    private long id;
+    private int id;
     private String name;
     private int childrenCount;
     private String imageUrl;
-    private long parentId;
+    private int parentId;
     private boolean fashion;
     private String parentPath;
     private boolean showSpecifications;
@@ -42,11 +42,11 @@ public class Category extends SkroutzEntity {
     private List<Sku> skus;
 
     @JsonCreator
-    public Category(@JsonProperty("id") long skroutzId,
+    public Category(@JsonProperty("id") int skroutzId,
                     @JsonProperty("name") String name,
                     @JsonProperty("children_count") int childrenCount,
                     @JsonProperty("image_url") String imageUrl,
-                    @JsonProperty("parent_id") long parentId,
+                    @JsonProperty("parent_id") int parentId,
                     @JsonProperty("fashion") boolean fashion,
                     @JsonProperty("path") String parentPath,
                     @JsonProperty("show_specifications") boolean showSpecifications,
@@ -80,11 +80,11 @@ public class Category extends SkroutzEntity {
     @GeneratedValue(generator = "CategorySequence")
     @SequenceGenerator(name = "CategorySequence", sequenceName = "category_seq", allocationSize = 1)
     @Column(name = "id")
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -118,12 +118,12 @@ public class Category extends SkroutzEntity {
         this.imageUrl = imageUrl;
     }
 
-    @Transient
-    public long getParentId() {
+    @Column(name = "parent_id")
+    public int getParentId() {
         return parentId;
     }
 
-    public void setParentId(long parentId) {
+    public void setParentId(int parentId) {
         this.parentId = parentId;
     }
 
@@ -173,7 +173,7 @@ public class Category extends SkroutzEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name = "parent_id", referencedColumnName = "skroutz_id")
+    @JoinColumn(name = "parent_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
     public Category getParent() {
         return parent;
     }

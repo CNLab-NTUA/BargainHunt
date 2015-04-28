@@ -30,7 +30,7 @@ public final class SkroutzRestClient extends RestClientImpl {
 
     private static volatile SkroutzRestClient instance;
 
-    public SkroutzRestClient(String token) {
+    private SkroutzRestClient(String token) {
         super(API_HOST, token);
         log.debug("SkroutzClient started.");
         initClientConfig();

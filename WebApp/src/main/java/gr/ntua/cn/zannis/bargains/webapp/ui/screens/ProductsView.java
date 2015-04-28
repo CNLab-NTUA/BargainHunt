@@ -24,6 +24,7 @@ import java.util.List;
 public class ProductsView extends VerticalLayout implements View {
 
     public static final String NAME = "products";
+    private static final long serialVersionUID = -1592490364645646030L;
 
     private String query;
     private Category category;
@@ -60,14 +61,16 @@ public class ProductsView extends VerticalLayout implements View {
         String[] splitParameters = parameters.split("/");
         if (splitParameters.length == 2) {
             try {
-                this.category = SkroutzRestClient.getInstance().get(Category.class, Long.valueOf(splitParameters[0]));
+                this.category = SkroutzRestClient.getInstance().get(Category.class, Integer.valueOf(splitParameters[0]));
                 this.query = URLDecoder.decode(splitParameters[1], "utf-8");
                 this.skus = SkroutzRestClient.getInstance().getNested(category, Sku.class, new QueryFilter(query)).getItems();
             } catch (UnsupportedEncodingException e) {
-                Notifier.error("Δεν ήταν δυνατό το διάβασμα του query", e);
+                Notifier.error("Δεν ήταν δυνατό το διάβασμα του query", true);
+            } catch (NumberFormatException e) {
+                Notifier.error("Δεν δώσατε κατάλληλο αναγνωριστικό κατηγορίας.", true);
             }
         } else {
-            Notifier.error("Δεν υπάρχει η σελίδα που αναζητήσατε.", new Exception());
+            Notifier.error("Δεν υπάρχει η σελίδα που αναζητήσατε.", true);
         }
     }
 }

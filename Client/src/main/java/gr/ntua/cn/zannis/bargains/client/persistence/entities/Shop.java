@@ -181,6 +181,8 @@ public class Shop extends SkroutzEntity {
     }
 
     public static class PaymentMethods implements Serializable {
+
+        private static final long serialVersionUID = 7171575417568342696L;
         private boolean creditCard;
         private boolean paypal;
         private boolean bank;

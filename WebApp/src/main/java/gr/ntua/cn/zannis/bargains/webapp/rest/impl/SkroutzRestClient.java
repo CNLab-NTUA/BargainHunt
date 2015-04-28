@@ -94,7 +94,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * @return The {@link Product} entity
      * or null if there was an error.
      */
-    public Product getProductById(Long productId) {
+    public Product getProductById(Integer productId) {
         return get(Product.class, productId);
     }
 
@@ -110,7 +110,7 @@ public final class SkroutzRestClient extends RestClientImpl {
      * @return The {@link Shop} entity
      * or null if there was an error.
      */
-    public Shop getShopById(Long shopId) {
+    public Shop getShopById(Integer shopId) {
         return get(Shop.class, shopId);
     }
 
@@ -155,11 +155,11 @@ public final class SkroutzRestClient extends RestClientImpl {
         return get(Product.class, query);
     }
 
-    public Category getCategoryById(Long categoryId) {
+    public Category getCategoryById(Integer categoryId) {
         return get(Category.class, categoryId);
     }
 
-    public Sku getSkuById(Long skuId) {
+    public Sku getSkuById(Integer skuId) {
         return get(Sku.class, skuId);
     }
 

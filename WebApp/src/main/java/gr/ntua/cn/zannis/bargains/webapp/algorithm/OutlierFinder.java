@@ -18,10 +18,10 @@ public class OutlierFinder {
     private final static FilterStrength DEFAULT_FILTER_STRENGTH = FilterStrength.NORMAL;
 
     private final List<Float> values;
-    private float kappa;
     private final double q1;
     private final double q3;
     private final double IQR;
+    private float kappa;
 
 
     /**
@@ -59,7 +59,6 @@ public class OutlierFinder {
      * @return The {@link List<Float>} containing the results or empty list.
      */
     public List<Float> getLowOutliers() {
-        // return
         return values.stream().filter(aFloat -> aFloat < q1 - kappa * Math.abs(q3 - q1)).collect(Collectors.toList());
     }
 

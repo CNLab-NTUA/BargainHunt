@@ -19,12 +19,15 @@ import java.util.Objects;
 @JsonRootName("shop")
 @Entity
 @Table(name = "shops", schema = "public", catalog = "bargainhunt")
-@NamedQuery(name = "Shop.findAll", query = "select s from Shop s")
-public class Shop extends gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity {
+@NamedQueries({
+        @NamedQuery(name = "Shop.findBySkroutzId", query = "select s from Shop s where s.skroutzId = :skroutzId"),
+        @NamedQuery(name = "Shop.findAll", query = "select s from Shop s")
+})
+public class Shop extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
 
-    private long id;
+    private int id;
     private String name;
     private String link;
     private String phone;
@@ -37,7 +40,7 @@ public class Shop extends gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzE
     private List<Product> products;
 
     @JsonCreator
-    public Shop(@JsonProperty("id") long skroutzId,
+    public Shop(@JsonProperty("id") int skroutzId,
                 @JsonProperty("name") String name,
                 @JsonProperty("link") String link,
                 @JsonProperty("phone") String phone,
@@ -80,11 +83,11 @@ public class Shop extends gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzE
     @GeneratedValue(generator = "ShopSequence")
     @SequenceGenerator(name = "ShopSequence", sequenceName = "shop_seq", allocationSize = 1)
     @Column(name = "id")
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -194,6 +197,14 @@ public class Shop extends gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzE
     @Override
     public int hashCode() {
         return Objects.hash(id, name, link, phone, imageUrl, thumbshotUrl, reviewCount, reviewScore, paymentMethods);
+    }
+
+    public Shipping getShipping() {
+        return shipping;
+    }
+
+    public void setShipping(Shipping shipping) {
+        this.shipping = shipping;
     }
 
     public static class PaymentMethods implements Serializable {

@@ -59,13 +59,11 @@ public class GenericDaoImpl<T> implements GenericDao<T> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public T find(long id) {
         return em.find(entityClass, id);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<T> findAll() {
         TypedQuery<T> query = em.createNamedQuery(entityClass.getSimpleName() + ".findAll", entityClass);
         return query.getResultList();

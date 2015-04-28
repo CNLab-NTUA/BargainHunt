@@ -279,6 +279,8 @@ public class Sku extends SkroutzEntity {
     }
 
     public static class Images implements Serializable {
+
+        private static final long serialVersionUID = 3714599549416047661L;
         String main;
         List<String> alternatives;
 

@@ -32,6 +32,7 @@ import java.util.List;
 public class SearchView extends VerticalLayout implements View, MouseEvents.ClickListener {
 
     public static final String NAME = "search";
+    private static final long serialVersionUID = -2974526790845822198L;
     private final VerticalLayout strongMatchesLayout = new VerticalLayout();
     private final VerticalLayout categoryLayout = new VerticalLayout();
     private String query;
@@ -143,8 +144,6 @@ public class SearchView extends VerticalLayout implements View, MouseEvents.Clic
         }
         if (uri != null) {
             getUI().getNavigator().navigateTo(uri);
-        } else {
-            Notifier.error("Λάθος σύνδεσμος.", false);
         }
     }
 }

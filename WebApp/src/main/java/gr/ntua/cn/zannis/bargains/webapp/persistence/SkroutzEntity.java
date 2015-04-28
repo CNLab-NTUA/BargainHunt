@@ -16,7 +16,7 @@ public abstract class SkroutzEntity implements Serializable {
 
     private static final long serialVersionUID = -1L;
 
-    protected long skroutzId;
+    protected int skroutzId;
     protected Date insertedAt;
     protected Date checkedAt;
     protected Date modifiedAt;
@@ -41,11 +41,11 @@ public abstract class SkroutzEntity implements Serializable {
 
     @NotNull
     @Column(name = "skroutz_id")
-    public long getSkroutzId() {
+    public int getSkroutzId() {
         return skroutzId;
     }
 
-    public void setSkroutzId(long skroutzId) {
+    public void setSkroutzId(int skroutzId) {
         this.skroutzId = skroutzId;
     }
 

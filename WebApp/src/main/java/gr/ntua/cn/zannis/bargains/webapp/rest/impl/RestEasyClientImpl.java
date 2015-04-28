@@ -78,7 +78,7 @@ public class RestEasyClientImpl implements RestClient {
     }
 
     @Override
-    public <T extends SkroutzEntity> T get(Class<T> tClass, Long skroutzId) {
+    public <T extends SkroutzEntity> T get(Class<T> tClass, Integer skroutzId) {
         T restEntity;
         T persistentEntity = skroutzEm.find(tClass, skroutzId);
         URI uri = Utils.getMatchingUri(tClass);

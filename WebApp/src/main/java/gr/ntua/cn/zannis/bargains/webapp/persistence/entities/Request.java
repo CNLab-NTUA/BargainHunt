@@ -44,7 +44,6 @@ public class Request {
     @PreUpdate
     private void preUpdate() {
         this.checkedAt = new Date();
-        this.count++;
     }
 
     @Id
@@ -104,9 +103,15 @@ public class Request {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
-                .append("requestUri", url)
+                .append("url", url)
                 .append("etag", etag)
                 .append("checkedAt", checkedAt)
                 .toString();
+    }
+
+    public void updateFrom(Request request) {
+        this.url = request.getUrl();
+        this.etag = request.getEtag();
+        this.count++;
     }
 }

@@ -20,7 +20,8 @@ import javax.inject.Inject;
 import java.util.Locale;
 
 /**
- *
+ * Main UI class for BargainHunt. Initializes the {@link Navigator} and the EJB classes
+ * we are using inside the project.
  */
 @CDIUI("")
 @Theme("bargainhunt")

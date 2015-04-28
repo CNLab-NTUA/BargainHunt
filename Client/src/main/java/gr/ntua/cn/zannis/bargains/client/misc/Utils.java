@@ -31,7 +31,7 @@ public class Utils {
 
     private final static Logger log = LoggerFactory.getLogger(Utils.class);
     private final static Map<Class, String> PATH_MAP;
-    private final static Map<Class, Class> RESPONSE_MAP;
+    private final static Map<Class<SkroutzEntity>, Class<RestResponse>> RESPONSE_MAP;
 
     static {
         HashMap<Class, String> pathMap = new HashMap<>();

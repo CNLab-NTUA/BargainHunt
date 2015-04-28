@@ -55,7 +55,7 @@ public abstract class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T extends SkroutzEntity> T get(Class<T> tClass, Long skroutzId) {
+    public <T extends SkroutzEntity> T get(Class<T> tClass, Integer skroutzId) {
         T restEntity;
         T persistentEntity = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().find(tClass, skroutzId);
         URI uri = Utils.getMatchingUri(tClass, skroutzId);
@@ -83,7 +83,11 @@ public abstract class RestClientImpl implements RestClient {
                 if (response.hasEntity()) {
                     restEntity = response.readEntity(responseClass).getItem();
                     restEntity.setEtag(etag);
-                    ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persist(restEntity);
+                    if (persistentEntity != null) {
+                        persistentEntity.updateFrom(restEntity);
+                    } else {
+                        ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persist(restEntity);
+                    }
                     return restEntity;
                 }
             }
@@ -110,6 +114,9 @@ public abstract class RestClientImpl implements RestClient {
             Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(tClass);
             Response response = sendGetRequest(uri);
             result = extractPage(response, responseClass);
+            if (result != null) {
+                ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(tClass, result.getItems());
+            }
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + uri, e);
         }
@@ -158,10 +165,13 @@ public abstract class RestClientImpl implements RestClient {
     public <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(U parentEntity, Class<T> childClass) {
         Page<T> result = null;
         URI uri = Utils.getMatchingUri(parentEntity, childClass);
-        try {
+        try { // todo add conditional uri here
             Response response = sendGetRequest(uri);
             Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(childClass);
             result = extractPage(response, responseClass);
+            if (result != null) {
+                ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(childClass, result.getItems());
+            }
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + uri, e);
         }
@@ -304,7 +314,7 @@ public abstract class RestClientImpl implements RestClient {
                     .accept("application/vnd.skroutz+json; version=3")
                     .get();
             // persist/merge request
-            ((BargainHuntUI) UI.getCurrent()).getRequests().saveOrUpdate(new Request(requestUri.getPath() + "?" + requestUri.getQuery(), response.getEntityTag().getValue()));
+            ((BargainHuntUI) UI.getCurrent()).getRequests().saveOrUpdate(new Request(Utils.getFullPathFromUri(requestUri), response.getEntityTag() != null ? response.getEntityTag().getValue() : null));
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + requestUri, e);
@@ -330,11 +340,11 @@ public abstract class RestClientImpl implements RestClient {
                     .property(ClientProperties.FOLLOW_REDIRECTS, true)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                    .header(HttpHeaders.IF_NONE_MATCH, eTag)
+                    .header(HttpHeaders.IF_NONE_MATCH, "\"" + eTag + "\"")
                     .accept("application/vnd.skroutz+json; version=3")
                     .get();
             //persist/merge request
-            ((BargainHuntUI) UI.getCurrent()).getRequests().saveOrUpdate(new Request(requestUri.getPath() + "?" + requestUri.getQuery(), response.getEntityTag().getValue()));
+            ((BargainHuntUI) UI.getCurrent()).getRequests().saveOrUpdate(new Request(Utils.getFullPathFromUri(requestUri), response.getEntityTag() != null ? response.getEntityTag().getValue() : null));
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + requestUri, e);

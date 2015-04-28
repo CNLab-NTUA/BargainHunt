@@ -13,22 +13,26 @@ import java.util.List;
 /**
  * The persistent class for a Stock Keeping Unit which practically is
  * a collection of products.
+ *
  * @author zannis <zannis.kal@gmail.com
  */
 @JsonRootName("sku")
 @Entity
 @Table(name = "skus", schema = "public", catalog = "bargainhunt")
-@NamedQuery(name = "Sku.findAll", query = "select s from Sku s")
+@NamedQueries({
+        @NamedQuery(name = "Sku.findBySkroutzId", query = "select s from Sku s where s.skroutzId = :skroutzId"),
+        @NamedQuery(name = "Sku.findAll", query = "select s from Sku s")
+})
 public class Sku extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
 
-    private long id;
+    private int id;
     private String ean;
     private String pn;
     private String name;
     private String displayName;
-    private long categoryId;
+    private int categoryId;
     private String firstProductShopInfo;
     private String clickUrl;
     private float priceMax;
@@ -36,7 +40,7 @@ public class Sku extends SkroutzEntity {
     private float reviewScore;
     private int shopCount;
     private String plainSpecSummary;
-    private long manufacturerId;
+    private int manufacturerId;
     private boolean future;
     private int reviewsCount;
     private boolean virtual;
@@ -44,12 +48,12 @@ public class Sku extends SkroutzEntity {
     private List<Product> products;
     private Category category;
 
-    public Sku(@JsonProperty("id") long id,
+    public Sku(@JsonProperty("id") int id,
                @JsonProperty("ean") String ean,
                @JsonProperty("pn") String pn,
                @JsonProperty("name") String name,
                @JsonProperty("display_name") String displayName,
-               @JsonProperty("category_id") long categoryId,
+               @JsonProperty("category_id") int categoryId,
                @JsonProperty("first_product_shop_info") String firstProductShopInfo,
                @JsonProperty("click_url") String clickUrl,
                @JsonProperty("price_max") float priceMax,
@@ -57,7 +61,7 @@ public class Sku extends SkroutzEntity {
                @JsonProperty("reviewscore") float reviewScore,
                @JsonProperty("shop_count") int shopCount,
                @JsonProperty("plain_spec_summary") String plainSpecSummary,
-               @JsonProperty("manufacturer_id") long manufacturerId,
+               @JsonProperty("manufacturer_id") int manufacturerId,
                @JsonProperty("future") boolean future,
                @JsonProperty("reviews_count") int reviewsCount,
                @JsonProperty("virtual") boolean virtual,
@@ -102,11 +106,11 @@ public class Sku extends SkroutzEntity {
     @GeneratedValue(generator = "SkuSequence")
     @SequenceGenerator(name = "SkuSequence", sequenceName = "sku_seq", allocationSize = 1)
     @Column(name = "id")
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -150,12 +154,13 @@ public class Sku extends SkroutzEntity {
         this.displayName = displayName;
     }
 
-    @Transient
-    public long getCategoryId() {
+    @NotNull
+    @Column(name = "category_id")
+    public int getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(long categoryId) {
+    public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
     }
 
@@ -226,11 +231,11 @@ public class Sku extends SkroutzEntity {
     }
 
     @Transient
-    public long getManufacturerId() {
+    public int getManufacturerId() {
         return manufacturerId;
     }
 
-    public void setManufacturerId(long manufacturerId) {
+    public void setManufacturerId(int manufacturerId) {
         this.manufacturerId = manufacturerId;
     }
 
@@ -279,9 +284,9 @@ public class Sku extends SkroutzEntity {
         this.products = products;
     }
 
-    @ManyToOne
     @NotNull
-    @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id")
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
     public Category getCategory() {
         return category;
     }

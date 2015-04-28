@@ -33,11 +33,11 @@ import static gr.ntua.cn.zannis.bargains.webapp.rest.misc.Const.*;
 public class Utils {
 
     private final static Logger log = LoggerFactory.getLogger(Utils.class);
-    private final static Map<Class, String> PATH_MAP;
-    private final static Map<Class, Class> RESPONSE_MAP;
+    private final static Map<Class<? extends SkroutzEntity>, String> PATH_MAP;
+    private final static Map<Class<? extends SkroutzEntity>, Class> RESPONSE_MAP;
 
     static {
-        HashMap<Class, String> pathMap = new HashMap<>();
+        HashMap<Class<? extends SkroutzEntity>, String> pathMap = new HashMap<>();
         pathMap.put(Product.class, PRODUCTS);
         pathMap.put(Shop.class, SHOPS);
         pathMap.put(Category.class, CATEGORIES);
@@ -45,7 +45,7 @@ public class Utils {
         pathMap.put(Manufacturer.class, MANUFACTURERS);
         PATH_MAP = Collections.unmodifiableMap(pathMap);
 
-        HashMap<Class, Class> responseMap = new HashMap<>();
+        HashMap<Class<? extends SkroutzEntity>, Class<? extends RestResponse<?>>> responseMap = new HashMap<>();
         responseMap.put(Product.class, ProductResponse.class);
         responseMap.put(Shop.class, ShopResponse.class);
         responseMap.put(Category.class, CategoryResponse.class);
@@ -267,7 +267,7 @@ public class Utils {
      * @param <T> One of the {@link SkroutzEntity} class types.
      * @return The correct uri.
      */
-    public static <T extends SkroutzEntity> URI getMatchingUri(Class<T> tClass, Long id) {
+    public static <T extends SkroutzEntity> URI getMatchingUri(Class<T> tClass, Integer id) {
         UriBuilder builder = UriBuilder.fromUri(API_HOST)
                 .path(PATH_MAP.get(tClass))
                 .path(ID);
@@ -282,7 +282,7 @@ public class Utils {
      * @param <T> One of the {@link SkroutzEntity} class types.
      * @return The correct uri.
      */
-    public static <T extends SkroutzEntity> URI getMatchingUri(Class<T> tClass, Long id, Filter... filters) {
+    public static <T extends SkroutzEntity> URI getMatchingUri(Class<T> tClass, Integer id, Filter... filters) {
         UriBuilder builder = UriBuilder.fromUri(API_HOST)
                 .path(PATH_MAP.get(tClass))
                 .path(ID);
@@ -340,5 +340,19 @@ public class Utils {
                 .path(PATH_MAP.get(entity.getClass()))
                 .path(ID);
         return builder.build(entity.getSkroutzId());
+    }
+
+    /**
+     * Method to extract the path including the queries from a {@link URI}.
+     *
+     * @param requestUri The uri to parse
+     * @return The full path after the authority.
+     */
+    public static String getFullPathFromUri(URI requestUri) {
+        StringBuilder sb = new StringBuilder(requestUri.getPath());
+        if (requestUri.getQuery() != null) {
+            sb.append("?").append(requestUri.getQuery());
+        }
+        return sb.toString();
     }
 }

@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,6 +23,7 @@ import java.util.Objects;
 @Table(name = "products", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
         @NamedQuery(name = "Product.findAll", query = "select p from Product p"),
+        @NamedQuery(name = "Product.findBySkroutzId", query = "select p from Product p where p.skroutzId = :skroutzId"),
         @NamedQuery(name = "Product.findAllByShop", query = "select p from Product p where p.shop = :shop"),
         @NamedQuery(name = "Product.findAllBySku", query = "select p from Product p where p.sku = :sku")
 })
@@ -31,9 +31,9 @@ public class Product extends SkroutzEntity {
 
     private static final long serialVersionUID = -1L;
 
-    private long id;
+    private int id;
     private String name;
-    private long skuId;
+    private int skuId;
     private int shopId;
     private int categoryId;
     private int priceChanges;
@@ -42,6 +42,7 @@ public class Product extends SkroutzEntity {
     private String clickUrl;
     private String shopUid;
     private float price;
+    private String expenses;
     private boolean bargain;
     private Sku sku;
     private Shop shop;
@@ -49,15 +50,16 @@ public class Product extends SkroutzEntity {
     private List<Price> prices;
 
     @JsonCreator
-    public Product(@JsonProperty("id") long skroutzId,
+    public Product(@JsonProperty("id") int skroutzId,
                    @JsonProperty("name") String name,
-                   @JsonProperty("sku_id") long skuId,
+                   @JsonProperty("sku_id") int skuId,
                    @JsonProperty("shop_id") int shopId,
                    @JsonProperty("category_id") int categoryId,
                    @JsonProperty("availability") String availability,
                    @JsonProperty("click_url") String clickUrl,
                    @JsonProperty("shop_uid") String shopUid,
-                   @JsonProperty("price") float price) {
+                   @JsonProperty("price") float price,
+                   @JsonProperty("expenses") String expenses) {
         super();
         this.skroutzId = skroutzId;
         this.name = StringEscapeUtils.unescapeJson(name);
@@ -68,6 +70,7 @@ public class Product extends SkroutzEntity {
         this.clickUrl = clickUrl;
         this.shopUid = shopUid;
         this.price = price;
+        this.expenses = expenses;
     }
 
     public Product() {
@@ -92,11 +95,11 @@ public class Product extends SkroutzEntity {
     @GeneratedValue(generator = "ProductSequence")
     @SequenceGenerator(name = "ProductSequence", sequenceName = "prod_seq", allocationSize = 1)
     @Column(name = "id")
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -111,16 +114,18 @@ public class Product extends SkroutzEntity {
         this.name = name;
     }
 
-    @Transient
-    public long getSkuId() {
+    @NotNull
+    @Column(name = "sku_id")
+    public int getSkuId() {
         return skuId;
     }
 
-    public void setSkuId(long skuId) {
+    public void setSkuId(int skuId) {
         this.skuId = skuId;
     }
 
-    @Transient
+    @NotNull
+    @Column(name = "shop_id")
     public int getShopId() {
         return shopId;
     }
@@ -129,7 +134,8 @@ public class Product extends SkroutzEntity {
         this.shopId = shopId;
     }
 
-    @Transient
+    @NotNull
+    @Column(name = "category_id")
     public int getCategoryId() {
         return categoryId;
     }
@@ -207,26 +213,13 @@ public class Product extends SkroutzEntity {
         this.bargain = bargain;
     }
 
-    /**
-     * Update our persistent product entity with information from the API service.
-     * @param product The product entity containing the updated information.
-     * @param eTag The Etag taken from the HTTP Response headers.
-     * @return The updated entity.
-     */
-    public Product updateFromJson(Product product, String eTag) {
-        Date now = new Date();
-        this.name = product.name;
-        this.skuId = product.skuId;
-        this.availability = product.availability;
-        this.clickUrl = product.clickUrl;
-        this.shopUid = product.shopUid;
-        this.price = product.price;
-        this.checkedAt = now;
-        this.modifiedAt = now;
-        if (eTag != null) {
-            this.etag = eTag;
-        }
-        return this;
+    @Transient
+    public String getExpenses() {
+        return expenses;
+    }
+
+    public void setExpenses(String expenses) {
+        this.expenses = expenses;
     }
 
     @Override
@@ -250,7 +243,7 @@ public class Product extends SkroutzEntity {
 
     @ManyToOne
     @NotNull
-    @JoinColumn(name = "sku_id", referencedColumnName = "skroutz_id")
+    @JoinColumn(name = "sku_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
     public Sku getSku() {
         return sku;
     }
@@ -261,7 +254,7 @@ public class Product extends SkroutzEntity {
 
     @ManyToOne
     @NotNull
-    @JoinColumn(name = "shop_id", referencedColumnName = "skroutz_id")
+    @JoinColumn(name = "shop_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
     public Shop getShop() {
         return shop;
     }
@@ -272,7 +265,7 @@ public class Product extends SkroutzEntity {
 
     @ManyToOne
     @NotNull
-    @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id")
+    @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
     public Category getCategory() {
         return category;
     }

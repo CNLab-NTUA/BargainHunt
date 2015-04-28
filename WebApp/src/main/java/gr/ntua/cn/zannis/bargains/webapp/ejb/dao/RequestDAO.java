@@ -18,5 +18,4 @@ public interface RequestDAO {
     List<Request> findAll();
 
     Request saveOrUpdate(Request request);
-
 }

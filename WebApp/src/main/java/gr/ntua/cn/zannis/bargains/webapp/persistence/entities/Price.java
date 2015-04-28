@@ -15,7 +15,7 @@ import java.util.Objects;
         @NamedQuery(name = "Price.findAllByProduct", query = "select p from Price p where p.product = :product")
 })
 public class Price {
-    private long id;
+    private int id;
     private float price;
     private Date checkedAt;
     private Product product;
@@ -24,11 +24,11 @@ public class Price {
     @GeneratedValue(generator = "PriceSequence")
     @SequenceGenerator(name = "PriceSequence", sequenceName = "price_seq", allocationSize = 1)
     @Column(name = "id")
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -52,8 +52,8 @@ public class Price {
         this.checkedAt = checkedAt;
     }
 
-    @ManyToOne
     @NotNull
+    @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "skroutz_id")
     public Product getProduct() {
         return product;

@@ -23,7 +23,7 @@ public interface RestClient {
      * @param <T> A type between {@link Category}, {@link Manufacturer}, {@link Sku}, {@link Product}, {@link Shop}
      * @return An object of type T.
      */
-    <T extends SkroutzEntity> T get(Class<T> tClass, Long skroutzId) throws RuntimeException;
+    <T extends SkroutzEntity> T get(Class<T> tClass, Integer skroutzId) throws RuntimeException;
 
     /**
      * Generic method to retrieve all results from the given type.

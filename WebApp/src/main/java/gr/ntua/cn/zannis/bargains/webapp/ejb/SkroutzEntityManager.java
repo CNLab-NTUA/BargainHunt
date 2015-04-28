@@ -1,6 +1,11 @@
 package gr.ntua.cn.zannis.bargains.webapp.ejb;
 
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Shop;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
+import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzRestClient;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +31,14 @@ public class SkroutzEntityManager {
     @PersistenceContext
     private EntityManager em;
 
-    public <T extends SkroutzEntity> void persist(T object) throws RuntimeException {
+    public <T extends SkroutzEntity> T persist(T object) throws RuntimeException {
         try {
             em.persist(object);
             log.info("Object " + object.toString() + " persisted successfully.");
         } catch (Exception e) {
             Notifier.error("Υπήρξε πρόβλημα στο persist στο " + object.toString(), e);
         }
+        return object;
     }
 
     public <T extends SkroutzEntity> T merge(T object) throws RuntimeException {
@@ -85,5 +91,39 @@ public class SkroutzEntityManager {
 
     public <T extends SkroutzEntity> TypedQuery<T> createNamedQuery(String namedQuery, Class<T> tClass) {
         return em.createNamedQuery(namedQuery, tClass);
+    }
+
+    public <T extends SkroutzEntity> void persistOrMerge(Class<T> tClass, List<T> objects) {
+        for (T object : objects) {
+            persistOrMerge(tClass, object);
+        }
+    }
+
+    public <T extends SkroutzEntity> T persistOrMerge(Class<T> tClass, T transientObject) {
+        T persistentObject = find(tClass, transientObject.getSkroutzId());
+        if (persistentObject == null) {
+            if (transientObject.getClass().isAssignableFrom(Product.class)) {
+                // the transient object contains the fields shop_id, category_id, sku_id
+                // first persist all its dependencies (shop, category). sku must have been persisted before this call
+                Product transientProduct = (Product) transientObject;
+                Shop shop = SkroutzRestClient.getInstance().get(Shop.class, transientProduct.getShopId());
+                persistOrMerge(Shop.class, shop);
+                Category category = SkroutzRestClient.getInstance().get(Category.class, transientProduct.getCategoryId());
+                persistOrMerge(Category.class, category);
+            } else if (transientObject.getClass().isAssignableFrom(Sku.class)) {
+                Sku transientSku = (Sku) transientObject;
+                Category category = SkroutzRestClient.getInstance().get(Category.class, transientSku.getCategoryId());
+                persistOrMerge(Category.class, category);
+            } else if (transientObject.getClass().isAssignableFrom(Category.class)) {
+                Category transientCategory = (Category) transientObject;
+                Category parent = SkroutzRestClient.getInstance().get(Category.class, transientCategory.getParentId());
+                persistOrMerge(Category.class, parent);
+            }
+            persistentObject = persist(transientObject);
+        } else {
+            persistentObject.updateFrom(transientObject);
+            merge(persistentObject);
+        }
+        return persistentObject;
     }
 }

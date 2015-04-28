@@ -48,7 +48,7 @@ public class RequestDAOImpl implements RequestDAO {
     public Request saveOrUpdate(Request request) {
         try {
             Request result = findByUrl(request.getUrl());
-            em.merge(result);
+            result.updateFrom(request);
             log.info("Request " + request.getUrl() + " was successfully merged.");
             return result;
         } catch (NoResultException e) {

@@ -24,6 +24,8 @@
 
 * webapp: stopped implementing resteasy client cause the api lacks basic functionality - done
 
+* persistence: properly map entities so that they include their relation id and object - done
+
 todo single item query logic to implement
 
 send single item query
@@ -35,12 +37,10 @@ send single item query
     |- else update entity in database
         |- return rest entity
 4. else send unconditional request
-    |- persist entity in database
+    |- persist or merge entity in database
     |- return rest entity
 
 todo first version of vaadin app
-
-todo webapp: remove dependency from jersey config
 
 -- version 0.6 --
 

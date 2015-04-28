@@ -16,16 +16,19 @@ import java.util.Objects;
 @JsonRootName("manufacturer")
 @Entity
 @Table(name = "manufacturers", schema = "public", catalog = "bargainhunt")
-@NamedQuery(name = "Manufacturer.findAll", query = "select m from Manufacturer m")
+@NamedQueries({
+        @NamedQuery(name = "Manufacturer.findBySkroutzId", query = "select m from Manufacturer m where m.skroutzId = :skroutzId"),
+        @NamedQuery(name = "Manufacturer.findAll", query = "select m from Manufacturer m")
+})
 public class Manufacturer extends SkroutzEntity {
 
     protected static final long serialVersionUID = -1L;
 
-    private long id;
+    private int id;
     private String name;
     private String imageUrl;
 
-    public Manufacturer(@JsonProperty("id") long id,
+    public Manufacturer(@JsonProperty("id") int id,
                         @JsonProperty("name") String name,
                         @JsonProperty("image_url") String imageUrl) {
         super();
@@ -50,11 +53,11 @@ public class Manufacturer extends SkroutzEntity {
     @GeneratedValue(generator = "ManufacturerSequence")
     @SequenceGenerator(name = "ManufacturerSequence", sequenceName = "manufacturer_seq", allocationSize = 1)
     @Column(name = "id")
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
