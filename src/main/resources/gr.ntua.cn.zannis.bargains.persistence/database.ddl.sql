@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.categories
 (
   id          INT PRIMARY KEY       NOT NULL DEFAULT nextval('category_seq'),
   skroutz_id  INT UNIQUE            NOT NULL, -- the sku id we get from a request to the Skroutz API
-  name        VARCHAR(100)          NOT NULL, -- the category name
+  name        VARCHAR(300)          NOT NULL, -- the category name
   image_url   VARCHAR(300), -- the category's image url
   parent_id   INT REFERENCES categories (skroutz_id), -- the parent id
   etag        VARCHAR(32), -- a tag used for conditional http requests
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS public.manufacturers
 (
   id          INT PRIMARY KEY  NOT NULL DEFAULT nextval('manufacturer_seq'),
   skroutz_id  INT UNIQUE       NOT NULL, -- the manufacturer id we get from a request to the Skroutz API
-  name        VARCHAR(100)     NOT NULL, -- the manufacturer's name
+  name        VARCHAR(300)     NOT NULL, -- the manufacturer's name
   image_url   VARCHAR(300), -- the manufacturer's image url
   etag        VARCHAR(32), -- a tag used for conditional http requests
   inserted_at TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
@@ -48,9 +48,9 @@ CREATE TABLE IF NOT EXISTS public.shops
 (
   id            INT PRIMARY KEY  NOT NULL DEFAULT nextval('shop_seq'),
   skroutz_id    INT UNIQUE       NOT NULL, -- the shop id we get from a request to the Skroutz API
-  name          VARCHAR(100)     NOT NULL, -- the shop name
+  name          VARCHAR(300)     NOT NULL, -- the shop name
   link          VARCHAR(300)     NOT NULL, -- the shop url
-  phone         VARCHAR(20), -- the shop's phone, a 10 digit number
+  phone         VARCHAR(100), -- the shop's phone, a 10 digit number
   image_url     VARCHAR(300), -- the shop's image url
   thumbshot_url VARCHAR(300), -- the shop's thumbnail url
   etag          VARCHAR(32), -- a tag used for conditional http requests
@@ -64,14 +64,12 @@ CREATE TABLE IF NOT EXISTS public.skus
 (
   id           INT PRIMARY KEY NOT NULL DEFAULT nextval('sku_seq'),
   skroutz_id   INT UNIQUE      NOT NULL, -- the sku id we get from a request to the Skroutz API
-  name         VARCHAR(100)    NOT NULL, -- the sku name
---   ean          VARCHAR(100)       NOT NULL, -- UNNEEDED
---   pn           VARCHAR(100)       NOT NULL, -- part number UNNEEDED
-  display_name VARCHAR(100)    NOT NULL, -- the sku display name
+  name         VARCHAR(300)    NOT NULL, -- the sku name
+  display_name VARCHAR(300)    NOT NULL, -- the sku display name
   category_id  INT             NOT NULL REFERENCES categories (skroutz_id), -- the category id
   click_url    VARCHAR(300), -- the sku's url
-  price_max    NUMERIC(5, 2)   NOT NULL, -- the max price the sku had at the last check
-  price_min    NUMERIC(5, 2)   NOT NULL, -- the min price the sku had at the last check
+  price_max    NUMERIC(7, 2)   NOT NULL, -- the max price the sku had at the last check
+  price_min    NUMERIC(7, 2)   NOT NULL, -- the min price the sku had at the last check
   etag         VARCHAR(32), -- a tag used for conditional http requests
   inserted_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   modified_at  TIMESTAMP, -- the timestamp when the item was last modified
@@ -83,17 +81,17 @@ CREATE TABLE IF NOT EXISTS public.products
 (
   id                 INT PRIMARY KEY      NOT NULL DEFAULT nextval('prod_seq'),
   skroutz_id         INT UNIQUE           NOT NULL, -- the product id we get from a request to the Skroutz API
-  name               VARCHAR(100)         NOT NULL, -- the product name
+  name               VARCHAR(300)         NOT NULL, -- the product name
   sku_id             INT                  NOT NULL REFERENCES skus (skroutz_id), -- the product code given to match this product in other shops
   shop_id            INT                  NOT NULL REFERENCES shops (skroutz_id),
-  shop_uid           VARCHAR(30), -- the unique uid given from the shop
+  shop_uid           VARCHAR(64), -- the unique uid given from the shop
   category_id        INT                  NOT NULL REFERENCES categories (skroutz_id),
   etag               VARCHAR(32), -- a tag used for conditional http requests
   availability       VARCHAR(50), -- the current availability
   click_url          VARCHAR(300), -- the url given from Skroutz API
-  price              NUMERIC(5, 2)        NOT NULL, -- the current price
+  price              NUMERIC(7, 2)        NOT NULL, -- the current price
   price_changes      INT                  NOT NULL DEFAULT 0, -- how many times the product's price has changed
-  average_past_price NUMERIC(5, 2)        NOT NULL, -- the average price we have calculated for the product in the past
+  average_past_price NUMERIC(7, 2)        NOT NULL, -- the average price we have calculated for the product in the past
   is_bargain         BOOL, -- true if the product is a bargain
   inserted_at        TIMESTAMP            NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   modified_at        TIMESTAMP, -- the timestamp when the item was last modified
@@ -105,16 +103,16 @@ CREATE TABLE IF NOT EXISTS public.prices
 (
   id         INT PRIMARY KEY NOT NULL DEFAULT nextval('price_seq'),
   product_id INT             NOT NULL REFERENCES products (id), -- the product id
-  price      NUMERIC(5, 2)   NOT NULL, -- the price
+  price      NUMERIC(7, 2)   NOT NULL, -- the price
   checked_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP -- the moment we logged the change
 );
 
 CREATE TABLE IF NOT EXISTS public.requests
 (
-  id          INT PRIMARY KEY     NOT NULL DEFAULT nextval('request_seq'),
-  url VARCHAR(200) UNIQUE NOT NULL, -- the request uri on the skroutz website
-  etag        VARCHAR(32), -- the etag we received on the last request
-  checked_at  TIMESTAMP     -- the timestamp when we last hit the selected request
+  id         INT PRIMARY KEY     NOT NULL DEFAULT nextval('request_seq'),
+  url        VARCHAR(200) UNIQUE NOT NULL, -- the request uri on the skroutz website
+  etag       VARCHAR(32), -- the etag we received on the last request
+  checked_at TIMESTAMP     -- the timestamp when we last hit the selected request
 );
 
 -- match sequences to their tables

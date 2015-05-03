@@ -13,8 +13,8 @@
         <class>gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Price</class>
         <class>gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Request</class>
         <properties>
-            <property name="wildfly.jpa.twophasebootstrap" value="false"/>
-            <property name="eclipselink.logging.level" value="FINEST"/>
+            <!--<property name="wildfly.jpa.twophasebootstrap" value="false"/>-->
+            <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.target-database" value="PostgreSQL"/>
             <property name="eclipselink.target-server" value="JBoss"/>
         </properties>

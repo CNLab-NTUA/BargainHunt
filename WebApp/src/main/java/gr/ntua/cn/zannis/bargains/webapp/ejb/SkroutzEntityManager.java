@@ -1,11 +1,9 @@
 package gr.ntua.cn.zannis.bargains.webapp.ejb;
 
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
-import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
-import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
-import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Shop;
-import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.*;
 import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzRestClient;
+import gr.ntua.cn.zannis.bargains.webapp.rest.responses.meta.Meta;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,12 +102,10 @@ public class SkroutzEntityManager {
         if (persistentObject == null) {
             if (transientObject.getClass().isAssignableFrom(Product.class)) {
                 // the transient object contains the fields shop_id, category_id, sku_id
-                // first persist all its dependencies (shop, category). sku must have been persisted before this call
+                // persist its shop. sku and category must have been persisted before this call
                 Product transientProduct = (Product) transientObject;
                 Shop shop = SkroutzRestClient.getInstance().get(Shop.class, transientProduct.getShopId());
                 persistOrMerge(Shop.class, shop);
-                Category category = SkroutzRestClient.getInstance().get(Category.class, transientProduct.getCategoryId());
-                persistOrMerge(Category.class, category);
             } else if (transientObject.getClass().isAssignableFrom(Sku.class)) {
                 Sku transientSku = (Sku) transientObject;
                 Category category = SkroutzRestClient.getInstance().get(Category.class, transientSku.getCategoryId());
@@ -125,5 +121,17 @@ public class SkroutzEntityManager {
             merge(persistentObject);
         }
         return persistentObject;
+    }
+
+    public void persistOrMergeStrongMatches(Meta.StrongMatches strongMatches) {
+        if (strongMatches.hasCategory()) {
+            persistOrMerge(Category.class, strongMatches.getCategory());
+        } else if (strongMatches.hasManufacturer()) {
+            persistOrMerge(Manufacturer.class, strongMatches.getManufacturer());
+        } else if (strongMatches.hasShop()) {
+            persistOrMerge(Shop.class, strongMatches.getShop());
+        } else if (strongMatches.hasSku()) {
+            persistOrMerge(Sku.class, strongMatches.getSku());
+        }
     }
 }

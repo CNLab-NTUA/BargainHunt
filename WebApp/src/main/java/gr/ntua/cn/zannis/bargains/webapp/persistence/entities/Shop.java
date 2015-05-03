@@ -199,6 +199,7 @@ public class Shop extends SkroutzEntity {
         return Objects.hash(id, name, link, phone, imageUrl, thumbshotUrl, reviewCount, reviewScore, paymentMethods);
     }
 
+    @Transient
     public Shipping getShipping() {
         return shipping;
     }
@@ -316,5 +317,13 @@ public class Shop extends SkroutzEntity {
         public void setMinPrice(float minPrice) {
             this.minPrice = minPrice;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Shop{" +
+                "skroutzId='" + skroutzId + '\'' +
+                "name='" + name + '\'' +
+                '}';
     }
 }

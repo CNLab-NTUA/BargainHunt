@@ -4,11 +4,13 @@ import com.vaadin.cdi.CDIView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
 import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzRestClient;
 import gr.ntua.cn.zannis.bargains.webapp.rest.requests.filters.QueryFilter;
+import gr.ntua.cn.zannis.bargains.webapp.ui.BargainHuntUI;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.ResponsiveGridLayout;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.tiles.SkuTile;
@@ -36,7 +38,9 @@ public class ProductsView extends VerticalLayout implements View {
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         parseParameters(event.getParameters());
         if (this.category != null && this.skus != null) {
+            // render and persist if needed
             renderSkus(this.skus);
+            ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(Sku.class, this.skus);
         }
     }
 
