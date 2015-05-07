@@ -16,7 +16,6 @@ import org.glassfish.jersey.client.filter.CsrfProtectionFilter;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import javax.naming.AuthenticationException;
 import java.util.List;
 
 import static gr.ntua.cn.zannis.bargains.client.misc.Const.API_HOST;
@@ -50,7 +49,7 @@ public final class SkroutzRestClient extends RestClientImpl {
                     response = Utils.requestAccessToken();
                     token = response.getAccessToken();
                     instance = new SkroutzRestClient(token);
-                } catch (AuthenticationException e) {
+                } catch (Exception e) {
                     log.error("Authentication error", e);
                 }
             } else {

@@ -41,15 +41,15 @@ import static javax.ws.rs.core.Response.Status.OK;
  * @author zannis <zannis.kal@gmail.com>
  */
 
-public abstract class RestClientImpl implements RestClient {
+public abstract class OldRestClientImpl implements RestClient {
 
-    protected static final Logger log = LoggerFactory.getLogger(SkroutzRestClient.class);
+    protected static final Logger log = LoggerFactory.getLogger(SkroutzOldRestClient.class);
     protected final String target;
     protected final String token;
     protected final ClientConfig config = new ClientConfig();
     protected int remainingRequests;
 
-    public RestClientImpl(String targetUri, String token) {
+    public OldRestClientImpl(String targetUri, String token) {
         this.target = targetUri;
         this.token = token;
     }
@@ -169,9 +169,6 @@ public abstract class RestClientImpl implements RestClient {
             Response response = sendGetRequest(uri);
             Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(childClass);
             result = extractPage(response, responseClass);
-            if (result != null) {
-                ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(childClass, result.getItems());
-            }
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + uri, e);
         }
@@ -193,23 +190,23 @@ public abstract class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T extends SkroutzEntity> List<T> getAsList(Class<T> tClass) {
+    public <T extends SkroutzEntity> List<T> getAll(Class<T> tClass) {
         return getAllResultsAsList(get(tClass));
     }
 
     @Override
-    public <T extends SkroutzEntity> List<T> getAsList(Class<T> tClass, Filter... filters) {
+    public <T extends SkroutzEntity> List<T> getAll(Class<T> tClass, Filter... filters) {
         return getAllResultsAsList(get(tClass, filters));
     }
 
     @Override
-    public <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(U parentEntity, Class<T> childClass) {
+    public <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getAllNested(U parentEntity, Class<T> childClass) {
         Page<T> firstPage = getNested(parentEntity, childClass);
         return getAllResultsAsList(firstPage);
     }
 
     @Override
-    public <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getNestedAsList(U parentEntity, Class<T> childClass, Filter... filters) {
+    public <T extends SkroutzEntity, U extends SkroutzEntity> List<T> getAllNested(U parentEntity, Class<T> childClass, Filter... filters) {
         Page<T> firstPage = getNested(parentEntity, childClass, filters);
         return getAllResultsAsList(firstPage);
     }

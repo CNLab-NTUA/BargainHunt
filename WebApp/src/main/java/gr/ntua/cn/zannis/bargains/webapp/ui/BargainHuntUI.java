@@ -10,11 +10,9 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
 import gr.ntua.cn.zannis.bargains.webapp.ejb.SkroutzEntityManager;
 import gr.ntua.cn.zannis.bargains.webapp.ejb.dao.RequestDAO;
+import gr.ntua.cn.zannis.bargains.webapp.ejb.dao.impl.PriceDAOImpl;
 import gr.ntua.cn.zannis.bargains.webapp.ejb.dao.impl.RequestDAOImpl;
-import gr.ntua.cn.zannis.bargains.webapp.ui.screens.BargainView;
-import gr.ntua.cn.zannis.bargains.webapp.ui.screens.MainView;
-import gr.ntua.cn.zannis.bargains.webapp.ui.screens.ProductsView;
-import gr.ntua.cn.zannis.bargains.webapp.ui.screens.SearchView;
+import gr.ntua.cn.zannis.bargains.webapp.ui.screens.*;
 
 import javax.inject.Inject;
 import java.util.Locale;
@@ -33,6 +31,9 @@ public class BargainHuntUI extends UI {
 
     @Inject
     RequestDAOImpl requests;
+
+    @Inject
+    PriceDAOImpl prices;
 
     @Inject
     CDIViewProvider viewProvider;
@@ -65,6 +66,7 @@ public class BargainHuntUI extends UI {
         navigator.addView(SearchView.NAME, SearchView.class);
         navigator.addView(ProductsView.NAME, ProductsView.class);
         navigator.addView(BargainView.NAME, BargainView.class);
+        navigator.addView(CrawlerView.NAME, CrawlerView.class);
         navigator.navigateTo(getNavigator().getState());
     }
 
@@ -84,6 +86,10 @@ public class BargainHuntUI extends UI {
 
     public RequestDAO getRequests() {
         return requests;
+    }
+
+    public PriceDAOImpl getPrices() {
+        return prices;
     }
 //
 //    @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)

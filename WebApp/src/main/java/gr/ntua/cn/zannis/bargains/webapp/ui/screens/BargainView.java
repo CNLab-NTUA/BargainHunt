@@ -9,7 +9,7 @@ import gr.ntua.cn.zannis.bargains.webapp.algorithm.FilterStrength;
 import gr.ntua.cn.zannis.bargains.webapp.algorithm.OutlierFinder;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
-import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzRestClient;
+import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzOldRestClient;
 import gr.ntua.cn.zannis.bargains.webapp.rest.responses.meta.Page;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 
@@ -59,9 +59,9 @@ public class BargainView extends VerticalLayout implements View {
         String[] splitParameters = parameters.split("/");
         if (splitParameters.length == 1) {
             try {
-                this.sku = SkroutzRestClient.getInstance().get(Sku.class, Integer.valueOf(splitParameters[0]));
-                Page<Product> firstPage = SkroutzRestClient.getInstance().getNested(sku, Product.class);
-                this.products = SkroutzRestClient.getInstance().getAllResultsAsList(firstPage);
+                this.sku = SkroutzOldRestClient.getInstance().get(Sku.class, Integer.valueOf(splitParameters[0]));
+                Page<Product> firstPage = SkroutzOldRestClient.getInstance().getNested(sku, Product.class);
+                this.products = SkroutzOldRestClient.getInstance().getAllResultsAsList(firstPage);
             } catch (NumberFormatException e) {
                 Notifier.error("Δεν δώσατε κατάλληλο αναγνωριστικό προϊόντος.", true);
             }

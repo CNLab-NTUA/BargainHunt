@@ -3,6 +3,7 @@ package gr.ntua.cn.zannis.bargains.webapp.rest.impl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Shop;
@@ -29,11 +30,11 @@ import static gr.ntua.cn.zannis.bargains.webapp.rest.misc.Const.API_HOST;
  */
 @Stateless
 @LocalBean
-public final class SkroutzRestClient extends RestClientImpl {
+public final class SkroutzOldRestClient extends OldRestClientImpl {
 
-    private static volatile SkroutzRestClient instance;
+    private static volatile SkroutzOldRestClient instance;
 
-    public SkroutzRestClient(String token) {
+    public SkroutzOldRestClient(String token) {
         super(API_HOST, token);
         log.debug("SkroutzClient started.");
         initClientConfig();
@@ -43,20 +44,20 @@ public final class SkroutzRestClient extends RestClientImpl {
     /**
      * Static method to retrieve singleton instance.
      *
-     * @return The singleton instance of {@link SkroutzRestClient}
+     * @return The singleton instance of {@link SkroutzOldRestClient}
      */
-    public static synchronized SkroutzRestClient getInstance() {
+    public static synchronized SkroutzOldRestClient getInstance() {
         if (instance == null) {
             String token = Utils.getLocalAccessToken();
             if (token == null) {
                 try {
                     token = Utils.requestAccessToken();
-                    instance = new SkroutzRestClient(token);
+                    instance = new SkroutzOldRestClient(token);
                 } catch (IOException e) {
                     log.error("Authentication error", e);
                 }
             } else {
-                instance = new SkroutzRestClient(token);
+                instance = new SkroutzOldRestClient(token);
             }
         }
         return instance;
@@ -164,10 +165,35 @@ public final class SkroutzRestClient extends RestClientImpl {
     }
 
     public List<Category> getAllCategories() {
-        return getAsList(Category.class);
+        return getAll(Category.class);
     }
 
     public int getRemainingRequests() {
         return remainingRequests;
+    }
+
+    @Override
+    public <T extends SkroutzEntity> T get(Class<T> tClass, Integer skroutzId, String etag) throws RuntimeException {
+        return null;
+    }
+
+    @Override
+    public <T extends SkroutzEntity> Page<T> get(Class<T> tClass, String etag) {
+        return null;
+    }
+
+    @Override
+    public <T extends SkroutzEntity> Page<T> get(Class<T> tClass, String etag, Filter... filters) {
+        return null;
+    }
+
+    @Override
+    public <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(U parentEntity, Class<T> childClass, String etag) {
+        return null;
+    }
+
+    @Override
+    public <T extends SkroutzEntity, U extends SkroutzEntity> Page<T> getNested(U parentEntity, Class<T> childClass, String etag, Filter... filters) {
+        return null;
     }
 }

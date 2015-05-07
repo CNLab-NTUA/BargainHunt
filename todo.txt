@@ -12,21 +12,14 @@
 -- version 0.5 --
 
 * Implement filtering - done
-* Add table to database with : unique request - etag to perform conditional requests - done
-
-** we are here **
-
+* Add table to database with : unique request - etag to perform conditional requests - don
 * webapp: create skroutz entity manager - done
-
 * webapp: save all requests to database if they are successful - done
-
 * server: add eclipselink to remote wildfly - done
-
 * webapp: stopped implementing resteasy client cause the api lacks basic functionality - done
-
 * persistence: properly map entities so that they include their relation id and object - done
-
-todo single item query logic to implement
+* webapp: first version of vaadin app - done
+* webapp: single item query logic to implement - done
 
 send single item query
 2. check db for entity
@@ -40,14 +33,24 @@ send single item query
     |- persist or merge entity in database
     |- return rest entity
 
-todo first version of vaadin app
-
 -- version 0.6 --
 
-todo i18n
+todo enable prices table
 
-todo autocomplete while searching
+todo daily crawl app
+
+-- version 0.7 --
+
+todo refactor: split client from db agent
+
+todo vaadin graphs
+
+-- version 0.8 --
+
+todo fix UI, tiles, views etc
+
+-- version 0.9 --
 
 todo responsive uis
 
-todo enable ssl on postgres
+-- version 1.0 --

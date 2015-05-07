@@ -12,13 +12,21 @@ import java.util.Objects;
 @Table(name = "prices", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
         @NamedQuery(name = "Price.findAll", query = "select p from Price p"),
-        @NamedQuery(name = "Price.findAllByProduct", query = "select p from Price p where p.product = :product")
+        @NamedQuery(name = "Price.findLastByProduct", query = "select p from Price p where p.product.skroutzId = :skroutzId and p.checkedAt = (select max(p1.checkedAt) from Price p1 where p1.product.skroutzId = :skroutzId)"),
+        @NamedQuery(name = "Price.findByProduct", query = "select p from Price p where p.product.skroutzId = :skroutzId"),
+        @NamedQuery(name = "Price.findBySku", query = "select p from Price p where p.product.sku.skroutzId = :skroutzId")
 })
 public class Price {
     private int id;
     private float price;
     private Date checkedAt;
+    private int productId;
     private Product product;
+
+    @PrePersist
+    void prePersist() {
+        this.checkedAt = new Date();
+    }
 
     @Id
     @GeneratedValue(generator = "PriceSequence")
@@ -53,8 +61,18 @@ public class Price {
     }
 
     @NotNull
+    @Column(name = "product_id")
+    public int getProductId() {
+        return productId;
+    }
+
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
+
+    @NotNull
     @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "skroutz_id")
+    @JoinColumn(name = "product_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
     public Product getProduct() {
         return product;
     }
