@@ -227,10 +227,7 @@ public class Category extends SkroutzEntity {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("id", id)
-                .append("skroutzId", skroutzId)
                 .append("name", name)
-                .append("parentId", parentId)
                 .toString();
     }
 }

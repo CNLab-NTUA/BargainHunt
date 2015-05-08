@@ -24,6 +24,7 @@ import java.util.Properties;
  * @author zannis <zannis.kal@gmail.com>
  */
 @CDIView(CrawlerView.NAME)
+@SuppressWarnings("serial")
 public class CrawlerView extends VerticalLayout implements View {
 
     public static final String NAME = "crawler";
@@ -47,17 +48,18 @@ public class CrawlerView extends VerticalLayout implements View {
         HorizontalLayout content = new HorizontalLayout();
 
         // build category chooser panel
-        Panel categoryPanel = buildPanel();
+        HorizontalLayout categoryLayout = buildPanel();
 
         // build textarea log
         TextArea logArea = new TextArea("Συμβάντα");
         logArea.setSizeFull();
 
         // add to content pane
-        content.addComponent(categoryPanel);
+        content.addComponent(categoryLayout);
         content.addComponent(logArea);
-        content.setExpandRatio(categoryPanel, 0.5f);
+        content.setExpandRatio(categoryLayout, 0.5f);
         content.setExpandRatio(logArea, 0.5f);
+        content.setSizeFull();
         // add to ui
         addComponent(logo);
         addComponent(content);
@@ -70,7 +72,7 @@ public class CrawlerView extends VerticalLayout implements View {
         CustomAppender.logTextArea = logArea;
         try {
             Properties loggingProperties = new Properties();
-            loggingProperties.load(getClass().getResourceAsStream("log4j-config.properties"));
+            loggingProperties.load(this.getClass().getClassLoader().getResourceAsStream("log4j-config.properties"));
 
             PropertyConfigurator.configure(loggingProperties);
         } catch (IOException e) {
@@ -79,11 +81,12 @@ public class CrawlerView extends VerticalLayout implements View {
         }
     }
 
-    private Panel buildPanel() {
-        Panel categoryPanel = new Panel();
+    private HorizontalLayout buildPanel() {
+        HorizontalLayout categoryLayout = new HorizontalLayout();
+        categoryLayout.setSizeFull();
 
         // fetch categories from db
-//        categories = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findAll(Category.class);
+        categories = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findAll(Category.class);
 
         // build panel ui
         NativeSelect categorySelect = new NativeSelect("Επιλέξτε κατηγορία :", categories);
@@ -94,8 +97,10 @@ public class CrawlerView extends VerticalLayout implements View {
                 crawlButton.setEnabled(false);
             }
         });
+
         crawlButton = new Button("Λήψη προϊόντων");
         crawlButton.setDisableOnClick(true);
+        crawlButton.setEnabled(false);
         crawlButton.addClickListener(clickEvent -> {
             log.info("Κατέβασμα προϊόντων της κατηγορίας " + ((Category) categorySelect.getValue()).getName());
             log.info("---------------------------------------------------------------------------------------");
@@ -114,11 +119,12 @@ public class CrawlerView extends VerticalLayout implements View {
                 log.info("Κατέβηκαν " + skuPage.getPer() + " προϊόντα.");
             }
             log.info("To κατέβασμα ολοκληρώθηκε επιτυχώς.");
+            crawlButton.setEnabled(true);
         });
 
-        HorizontalLayout layout = new HorizontalLayout(categorySelect, crawlButton);
-        categoryPanel.setContent(layout);
-        return categoryPanel;
+        categoryLayout.addComponent(categorySelect);
+        categoryLayout.addComponent(crawlButton);
+        return categoryLayout;
 
     }
 

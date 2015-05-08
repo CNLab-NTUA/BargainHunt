@@ -19,7 +19,11 @@ public class Page<T extends SkroutzEntity> extends Pagination {
 
     @SuppressWarnings("unchecked")
     public Page(List<T> items, Pagination pagination, URI prev, URI next, URI last) {
-        this.entityType = (Class<T>) items.get(0).getClass();
+        if (items != null && !items.isEmpty()) {
+            this.entityType = (Class<T>) items.get(0).getClass();
+        } else {
+            this.entityType = null;
+        }
         this.items = items;
         this.prev = prev;
         this.next = next;

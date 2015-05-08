@@ -215,10 +215,6 @@
                     <encoding>${project.encoding}</encoding>
                     <source>${project.source.version}</source>
                     <target>${project.target.version}</target>
-                    <excludes>
-                        <!--<exclude>**/rest/*</exclude>-->
-                        <!--<exclude>**/persistence/*</exclude>-->
-                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
