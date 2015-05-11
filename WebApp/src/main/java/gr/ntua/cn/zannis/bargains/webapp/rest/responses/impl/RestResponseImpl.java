@@ -15,6 +15,7 @@ import java.util.Map;
 public class RestResponseImpl<T extends SkroutzEntity> implements RestResponse<T> {
     protected Map<String, URI> links;
     protected List<T> items;
+    protected URI uri;
     protected T item;
     protected Meta meta;
     protected String errorMessage;
@@ -73,4 +74,14 @@ public class RestResponseImpl<T extends SkroutzEntity> implements RestResponse<T
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
+
+    @Override
+    public URI getUri() {
+        return uri;
+    }
+
+    public void setUri(URI uri) {
+        this.uri = uri;
+    }
+
 }

@@ -114,8 +114,11 @@ public abstract class OldRestClientImpl implements RestClient {
             Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(tClass);
             Response response = sendGetRequest(uri);
             result = extractPage(response, responseClass);
+//            if (result != null) {
+//                ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(tClass, result.getItems());
+//            }
             if (result != null) {
-                ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(tClass, result.getItems());
+                result.setUri(uri);
             }
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + uri, e);
@@ -131,6 +134,9 @@ public abstract class OldRestClientImpl implements RestClient {
             Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(tClass);
             Response response = sendGetRequest(uri);
             result = extractPage(response, responseClass);
+            if (result != null) {
+                result.setUri(uri);
+            }
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + uri, e);
         }
@@ -151,9 +157,15 @@ public abstract class OldRestClientImpl implements RestClient {
             if (page.hasNext()) {
                 // check if it's the last page
                 nextUri = page.getNext() != null ? page.getNext() : page.getLast();
+                if (nextUri == null) { // this means the response didn't include the correct headers
+                    nextUri = UriBuilder.fromUri(page.getUri()).replaceQueryParam("page", page.getCurrentPage() + 1).build();
+                }
                 Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(page.getEntityType());
                 Response response = sendGetRequest(nextUri);
                 result = extractPage(response, responseClass);
+                if (result != null) {
+                    result.setUri(nextUri);
+                }
             }
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + nextUri, e);
@@ -169,6 +181,9 @@ public abstract class OldRestClientImpl implements RestClient {
             Response response = sendGetRequest(uri);
             Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(childClass);
             result = extractPage(response, responseClass);
+            if (result != null) {
+                result.setUri(uri);
+            }
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + uri, e);
         }
@@ -183,6 +198,9 @@ public abstract class OldRestClientImpl implements RestClient {
             Response response = sendGetRequest(uri);
             Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(childClass);
             result = extractPage(response, responseClass);
+            if (result != null) {
+                result.setUri(uri);
+            }
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + uri, e);
         }
@@ -221,6 +239,7 @@ public abstract class OldRestClientImpl implements RestClient {
             Map<String, URI> links = Utils.getLinks(response);
             results = response.readEntity(SearchResults.class);
             results.setLinks(links);
+            results.setUri(uri);
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + uri, e);
         }
@@ -251,6 +270,13 @@ public abstract class OldRestClientImpl implements RestClient {
             // parse useful headers
             Map<String, URI> links = Utils.getLinks(response);
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            if (remainingRequests < 10) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             // parse entity
             if (response.hasEntity()) {
                 Page<T> page = response.readEntity(responseClass).getPage();

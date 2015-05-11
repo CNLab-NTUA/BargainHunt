@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,7 +48,7 @@ public class Product extends SkroutzEntity {
     private Sku sku;
     private Shop shop;
     private Category category;
-    private List<Price> prices;
+    private List<Price> prices = new ArrayList<>();
 
     @JsonCreator
     public Product(@JsonProperty("id") int skroutzId,
@@ -232,7 +233,7 @@ public class Product extends SkroutzEntity {
                 '}';
     }
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST)
     public List<Price> getPrices() {
         return prices;
     }

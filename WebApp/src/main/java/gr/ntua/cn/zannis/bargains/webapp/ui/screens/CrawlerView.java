@@ -1,5 +1,7 @@
 package gr.ntua.cn.zannis.bargains.webapp.ui.screens;
 
+import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -30,8 +32,10 @@ public class CrawlerView extends VerticalLayout implements View {
     public static final String NAME = "crawler";
 
     public static final Logger log = LoggerFactory.getLogger(CrawlerView.class);
-    private List<Category> categories;
+    private JPAContainer<Category> categories = JPAContainerFactory.make(Category.class, BargainHuntUI.PERSISTENCE_UNIT);
     private Button crawlButton;
+    private Button clearButton;
+    private TextArea logArea;
 
     public CrawlerView() {
         buildUI();
@@ -45,20 +49,26 @@ public class CrawlerView extends VerticalLayout implements View {
         logo.setSizeUndefined();
         logo.setStyleName(ValoTheme.LABEL_HUGE);
 
-        HorizontalLayout content = new HorizontalLayout();
+        VerticalLayout content = new VerticalLayout();
 
         // build category chooser panel
         HorizontalLayout categoryLayout = buildPanel();
+        categoryLayout.setSizeFull();
 
         // build textarea log
-        TextArea logArea = new TextArea("Συμβάντα");
+        logArea = new TextArea("Συμβάντα");
+        logArea.addValueChangeListener(valueChangeEvent -> {
+            if (logArea.getValue() != null) {
+                logArea.setCursorPosition(logArea.getValue().length() - 1);
+            }
+        });
         logArea.setSizeFull();
 
         // add to content pane
         content.addComponent(categoryLayout);
         content.addComponent(logArea);
-        content.setExpandRatio(categoryLayout, 0.5f);
-        content.setExpandRatio(logArea, 0.5f);
+        content.setExpandRatio(categoryLayout, 0.1f);
+        content.setExpandRatio(logArea, 1f);
         content.setSizeFull();
         // add to ui
         addComponent(logo);
@@ -86,10 +96,11 @@ public class CrawlerView extends VerticalLayout implements View {
         categoryLayout.setSizeFull();
 
         // fetch categories from db
-        categories = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findAll(Category.class);
+//        categories = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findAll(Category.class);
 
         // build panel ui
-        NativeSelect categorySelect = new NativeSelect("Επιλέξτε κατηγορία :", categories);
+        ComboBox categorySelect = new ComboBox("Επιλέξτε κατηγορία :", categories);
+        categorySelect.setItemCaptionPropertyId("name");
         categorySelect.addValueChangeListener(valueChangeEvent -> {
             if (categorySelect.getValue() != null) {
                 crawlButton.setEnabled(true);
@@ -102,9 +113,9 @@ public class CrawlerView extends VerticalLayout implements View {
         crawlButton.setDisableOnClick(true);
         crawlButton.setEnabled(false);
         crawlButton.addClickListener(clickEvent -> {
-            log.info("Κατέβασμα προϊόντων της κατηγορίας " + ((Category) categorySelect.getValue()).getName());
+            log.info("Κατέβασμα προϊόντων της κατηγορίας " + categories.getItem(categorySelect.getValue()).getEntity().getName());
             log.info("---------------------------------------------------------------------------------------");
-            Page<Sku> skuPage = SkroutzOldRestClient.getInstance().getNested(((Category) categorySelect.getValue()), Sku.class);
+            Page<Sku> skuPage = SkroutzOldRestClient.getInstance().getNested((categories.getItem(categorySelect.getValue()).getEntity()), Sku.class);
             while (skuPage != null && (skuPage.hasNext() || skuPage.isLastPage())) {
                 log.info("Κατέβηκαν " + skuPage.getPer() + " προϊόντα.");
                 ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(Sku.class, skuPage.getItems());
@@ -122,8 +133,13 @@ public class CrawlerView extends VerticalLayout implements View {
             crawlButton.setEnabled(true);
         });
 
+        clearButton = new Button("Καθαρισμός log");
+        clearButton.addClickListener(clickEvent -> logArea.clear());
+
+
         categoryLayout.addComponent(categorySelect);
         categoryLayout.addComponent(crawlButton);
+        categoryLayout.addComponent(clearButton);
         return categoryLayout;
 
     }

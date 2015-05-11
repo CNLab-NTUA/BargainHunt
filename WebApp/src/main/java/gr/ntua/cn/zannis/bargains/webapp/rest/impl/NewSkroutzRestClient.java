@@ -219,6 +219,7 @@ public class NewSkroutzRestClient implements RestClient {
             // parse entity
             if (response.hasEntity()) {
                 Page<T> page = response.readEntity(responseClass).getPage();
+                page.setUri(response.getLocation());
                 page.setPrev(links.get("prev"));
                 page.setNext(links.get("next"));
                 page.setLast(links.get("last"));

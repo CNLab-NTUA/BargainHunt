@@ -26,6 +26,7 @@ import java.util.Locale;
 @Widgetset("gr.ntua.cn.zannis.bargains.webapp.BargainHuntWidgetset")
 public class BargainHuntUI extends UI {
 
+    public static final String PERSISTENCE_UNIT = "BargainHunt";
     @Inject
     SkroutzEntityManager skroutzEm;
 

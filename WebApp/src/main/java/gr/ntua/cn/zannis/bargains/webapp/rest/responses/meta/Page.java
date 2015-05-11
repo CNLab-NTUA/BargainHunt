@@ -16,6 +16,7 @@ public class Page<T extends SkroutzEntity> extends Pagination {
     private URI prev;
     private URI next;
     private URI last;
+    private URI uri;
 
     @SuppressWarnings("unchecked")
     public Page(List<T> items, Pagination pagination, URI prev, URI next, URI last) {
@@ -76,5 +77,13 @@ public class Page<T extends SkroutzEntity> extends Pagination {
 
     public void setEntityType(Class<T> entityType) {
         this.entityType = entityType;
+    }
+
+    public URI getUri() {
+        return uri;
+    }
+
+    public void setUri(URI uri) {
+        this.uri = uri;
     }
 }

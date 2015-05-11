@@ -61,7 +61,7 @@ public class Price {
     }
 
     @NotNull
-    @Column(name = "product_id")
+    @Column(name = "product_id", insertable = false, updatable = false)
     public int getProductId() {
         return productId;
     }
@@ -72,7 +72,7 @@ public class Price {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
+    @JoinColumn(name = "product_id", referencedColumnName = "id")
     public Product getProduct() {
         return product;
     }

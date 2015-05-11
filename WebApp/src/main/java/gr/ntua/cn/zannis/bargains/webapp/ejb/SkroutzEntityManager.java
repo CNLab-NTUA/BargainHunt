@@ -1,11 +1,9 @@
 package gr.ntua.cn.zannis.bargains.webapp.ejb;
 
-import com.vaadin.ui.UI;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.*;
 import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzOldRestClient;
 import gr.ntua.cn.zannis.bargains.webapp.rest.responses.meta.Meta;
-import gr.ntua.cn.zannis.bargains.webapp.ui.BargainHuntUI;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,34 +98,38 @@ public class SkroutzEntityManager {
     }
 
     public <T extends SkroutzEntity> T persistOrMerge(Class<T> tClass, T transientObject) {
-        T persistentObject = find(tClass, transientObject.getSkroutzId());
-        if (persistentObject == null) {
-            if (transientObject.getClass().isAssignableFrom(Product.class)) {
-                // the transient object contains the fields shop_id, category_id, sku_id
-                // persist its shop. sku and category must have been persisted before this call
-                Product transientProduct = (Product) transientObject;
-                Shop shop = SkroutzOldRestClient.getInstance().get(Shop.class, transientProduct.getShopId());
-                persistOrMerge(Shop.class, shop);
-                // also persist its price
-                Price price = new Price();
-                price.setPrice(transientProduct.getPrice());
-                price.setProductId(transientProduct.getSkroutzId());
-                ((BargainHuntUI) UI.getCurrent()).getPrices().persist(price);
-            } else if (transientObject.getClass().isAssignableFrom(Sku.class)) {
-                Sku transientSku = (Sku) transientObject;
-                Category category = SkroutzOldRestClient.getInstance().get(Category.class, transientSku.getCategoryId());
-                persistOrMerge(Category.class, category);
-            } else if (transientObject.getClass().isAssignableFrom(Category.class)) {
-                Category transientCategory = (Category) transientObject;
-                Category parent = SkroutzOldRestClient.getInstance().get(Category.class, transientCategory.getParentId());
-                persistOrMerge(Category.class, parent);
+        if (transientObject != null) {
+            T persistentObject = find(tClass, transientObject.getSkroutzId());
+            if (persistentObject == null) {
+                if (transientObject.getClass().isAssignableFrom(Product.class)) {
+                    // the transient object contains the fields shop_id, category_id, sku_id
+                    // persist its shop. sku and category must have been persisted before this call
+                    Product transientProduct = (Product) transientObject;
+                    Shop shop = SkroutzOldRestClient.getInstance().get(Shop.class, transientProduct.getShopId());
+                    persistOrMerge(Shop.class, shop);
+                    // also persist its price
+                    Price price = new Price();
+                    price.setPrice(transientProduct.getPrice());
+                    price.setProduct(transientProduct);
+                    transientProduct.getPrices().add(price);
+                } else if (transientObject.getClass().isAssignableFrom(Sku.class)) {
+                    Sku transientSku = (Sku) transientObject;
+                    Category category = SkroutzOldRestClient.getInstance().get(Category.class, transientSku.getCategoryId());
+                    persistOrMerge(Category.class, category);
+                } else if (transientObject.getClass().isAssignableFrom(Category.class)) {
+                    Category transientCategory = (Category) transientObject;
+                    Category parent = SkroutzOldRestClient.getInstance().get(Category.class, transientCategory.getParentId());
+                    persistOrMerge(Category.class, parent);
+                }
+                persistentObject = persist(transientObject);
+            } else {
+                persistentObject.updateFrom(transientObject);
+                merge(persistentObject);
             }
-            persistentObject = persist(transientObject);
-        } else {
-            persistentObject.updateFrom(transientObject);
-            merge(persistentObject);
+
+            return persistentObject;
         }
-        return persistentObject;
+        return null;
     }
 
     public void persistOrMergeStrongMatches(Meta.StrongMatches strongMatches) {
