@@ -269,14 +269,6 @@ public abstract class OldRestClientImpl implements RestClient {
         } else if (status == OK.getStatusCode()) {
             // parse useful headers
             Map<String, URI> links = Utils.getLinks(response);
-            remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
-            if (remainingRequests < 10) {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
             // parse entity
             if (response.hasEntity()) {
                 Page<T> page = response.readEntity(responseClass).getPage();
@@ -339,6 +331,13 @@ public abstract class OldRestClientImpl implements RestClient {
             // persist/merge request
             ((BargainHuntUI) UI.getCurrent()).getRequests().saveOrUpdate(new Request(Utils.getFullPathFromUri(requestUri), response.getEntityTag() != null ? response.getEntityTag().getValue() : null));
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            if (remainingRequests < 10) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + requestUri, e);
             throw e;
@@ -369,6 +368,13 @@ public abstract class OldRestClientImpl implements RestClient {
             //persist/merge request
             ((BargainHuntUI) UI.getCurrent()).getRequests().saveOrUpdate(new Request(Utils.getFullPathFromUri(requestUri), response.getEntityTag() != null ? response.getEntityTag().getValue() : null));
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            if (remainingRequests < 10) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + requestUri, e);
             throw e;

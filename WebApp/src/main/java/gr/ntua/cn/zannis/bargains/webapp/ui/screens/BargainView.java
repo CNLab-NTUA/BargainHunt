@@ -6,7 +6,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import gr.ntua.cn.zannis.bargains.webapp.algorithm.FilterStrength;
-import gr.ntua.cn.zannis.bargains.webapp.algorithm.OutlierFinder;
+import gr.ntua.cn.zannis.bargains.webapp.algorithm.SimpleOutlierFinder;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
 import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzOldRestClient;
@@ -40,7 +40,7 @@ public class BargainView extends VerticalLayout implements View {
     private void renderBargain(Sku sku) {
         Label label = new Label("Πληροφορίες για το προϊόν " + sku.getName());
         List<Float> prices = products.stream().map(Product::getPrice).collect(Collectors.toList());
-        OutlierFinder finder = new OutlierFinder(prices, FilterStrength.DEFAULT);
+        SimpleOutlierFinder finder = new SimpleOutlierFinder(prices, FilterStrength.DEFAULT);
         List<Float> results = finder.getLowOutliers();
         Label result;
         if (results.isEmpty()) {

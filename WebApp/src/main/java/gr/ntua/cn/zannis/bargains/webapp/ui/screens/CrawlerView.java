@@ -127,7 +127,6 @@ public class CrawlerView extends VerticalLayout implements View {
                 }
 
                 skuPage = SkroutzOldRestClient.getInstance().getNextPage(skuPage);
-                log.info("Κατέβηκαν " + skuPage.getPer() + " προϊόντα.");
             }
             log.info("To κατέβασμα ολοκληρώθηκε επιτυχώς.");
             crawlButton.setEnabled(true);

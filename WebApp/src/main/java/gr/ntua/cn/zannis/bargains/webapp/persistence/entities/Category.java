@@ -192,11 +192,11 @@ public class Category extends SkroutzEntity {
     }
 
     @OneToMany(mappedBy = "category")
-    public List<Sku> getSku() {
+    public List<Sku> getSkus() {
         return skus;
     }
 
-    public void setSku(List<Sku> skus) {
+    public void setSkus(List<Sku> skus) {
         this.skus = skus;
     }
 

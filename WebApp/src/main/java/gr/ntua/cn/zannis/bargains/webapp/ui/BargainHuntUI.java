@@ -68,6 +68,7 @@ public class BargainHuntUI extends UI {
         navigator.addView(ProductsView.NAME, ProductsView.class);
         navigator.addView(BargainView.NAME, BargainView.class);
         navigator.addView(CrawlerView.NAME, CrawlerView.class);
+        navigator.addView(TestView.NAME, TestView.class);
         navigator.navigateTo(getNavigator().getState());
     }
 

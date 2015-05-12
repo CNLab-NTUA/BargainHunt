@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * @see <a href="http://en.wikipedia.org/wiki/Outlier">Wikipedia: Outlier</a>
  * @author zannis <zannis.kal@gmail.com>
  */
-public class OutlierFinder {
+public class SimpleOutlierFinder {
 
     private final static FilterStrength DEFAULT_FILTER_STRENGTH = FilterStrength.NORMAL;
 
@@ -30,14 +30,15 @@ public class OutlierFinder {
      * @param strength The strength of the filtering function, determines the <code>k</code> parameter
      *                 in the calculation formula.
      */
-    public OutlierFinder(List<Float> floatValues, FilterStrength strength) {
+    public SimpleOutlierFinder(List<Float> floatValues, FilterStrength strength) {
         setFilterStrength(strength);
         this.values = floatValues;
         // sort the list to compute the quantiles
         Collections.sort(values);
         // compute the quantiles
-        this.q1 = StatUtils.percentile(floatListToDoubleArrayConverter(values), 25);
-        this.q3 = StatUtils.percentile(floatListToDoubleArrayConverter(values), 75);
+        double[] temp = Utils.floatListToDoubleArrayConverter(values);
+        this.q1 = StatUtils.percentile(temp, 25);
+        this.q3 = StatUtils.percentile(temp, 75);
         // compute the interquantile range
         IQR = Math.abs(q3 - q1);
     }
@@ -46,7 +47,7 @@ public class OutlierFinder {
      * Constructor for the <code>OutlierFinder</code> using the default filter strength.
      * @param floatValues The {@link List<Float>} to perform the calculations on.
      */
-    public OutlierFinder(List<Float> floatValues) {
+    public SimpleOutlierFinder(List<Float> floatValues) {
         this(floatValues, DEFAULT_FILTER_STRENGTH);
     }
 
@@ -92,19 +93,6 @@ public class OutlierFinder {
         return sum / floats.size();
     }
 
-    /**
-     * A simple {@link List<Float>} to <code>double[]</code> converter.
-     * @param list The list of floats to convert.
-     * @return The <code>double[]</code> with the results.
-     */
-    private double[] floatListToDoubleArrayConverter(List<Float> list) {
-        double[] doubles = new double[list.size()];
-        int i = 0;
-        for (Float f : list) {
-            doubles[i++] = (f != null ? (double) f : 0);
-        }
-        return doubles;
-    }
 // todo initialize values and check them before calculating them
     public Float getBargainPercentage() {
         if (!getLowOutliers().isEmpty()) {
