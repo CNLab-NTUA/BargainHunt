@@ -3,6 +3,7 @@ package gr.ntua.cn.zannis.bargains.webapp.persistence.entities;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -293,6 +294,14 @@ public class Sku extends SkroutzEntity {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("skroutzId", skroutzId)
+                .append("name", name)
+                .toString();
     }
 
     public static class Images implements Serializable {

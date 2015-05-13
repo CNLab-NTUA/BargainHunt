@@ -226,10 +226,8 @@ public class Product extends SkroutzEntity {
     @Override
     public String toString() {
         return "Product{" +
-                "name='" + name + '\'' +
-                ", checkedAt=" + checkedAt +
-                ", availability=" + availability +
-                ", skroutzId=" + skroutzId +
+                "skroutzId=" + skroutzId +
+                ", name='" + name + '\'' +
                 '}';
     }
 

@@ -15,6 +15,10 @@ public class GrubbsOutlierFinder {
     private final List<Float> values;
     private final double stdDev;
     private final double mean;
+    private final double G;
+    private final double[] criticalValues = new double[]{
+
+    };
 
     public GrubbsOutlierFinder(List<Float> values, FilterStrength filterStrength) {
 
@@ -24,5 +28,7 @@ public class GrubbsOutlierFinder {
         this.mean = StatUtils.mean(temp);
         this.stdDev = Math.sqrt(StatUtils.variance(temp));
 
+
+        this.G = 0;
     }
 }

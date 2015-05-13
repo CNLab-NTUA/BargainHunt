@@ -35,13 +35,13 @@ send single item query
 
 -- version 0.6 --
 
-todo enable prices table
+done: enable prices table
 
 todo daily crawl app
 
--- version 0.7 --
+todo implement gruubs, chauvenet
 
-todo refactor: split client from db agent
+-- version 0.7 --
 
 todo vaadin graphs
 

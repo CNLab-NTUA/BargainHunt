@@ -17,6 +17,8 @@
             <property name="eclipselink.logging.level" value="INFO"/>
             <property name="eclipselink.target-database" value="PostgreSQL"/>
             <property name="eclipselink.target-server" value="JBoss"/>
+            <property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
+            <property name="eclipselink.jdbc.batch-writing.size" value="25"/>
         </properties>
     </persistence-unit>
 </persistence>
