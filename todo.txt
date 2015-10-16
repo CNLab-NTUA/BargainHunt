@@ -13,18 +13,15 @@
 
 * Implement filtering - done
 * Add table to database with : unique request - etag to perform conditional requests - done
-
-** we are here **
-
 * webapp: create skroutz entity manager - done
-
 * webapp: save all requests to database if they are successful - done
-
 * server: add eclipselink to remote wildfly - done
-
 * webapp: stopped implementing resteasy client cause the api lacks basic functionality - done
-
 * persistence: properly map entities so that they include their relation id and object - done
+
+-------------we are here----------
+
+todo offer table
 
 todo single item query logic to implement
 
