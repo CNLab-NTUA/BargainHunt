@@ -12,13 +12,14 @@ CREATE SEQUENCE public.sku_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
 CREATE SEQUENCE public.manufacturer_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
 /* create requests table sequence */
 CREATE SEQUENCE public.request_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
-
+/* create offer table sequence */
+CREATE SEQUENCE public.offer_seq START 1 INCREMENT 1 NO MAXVALUE CACHE 1;
 
 /* categories table */
 CREATE TABLE IF NOT EXISTS public.categories
 (
   id          INT PRIMARY KEY       NOT NULL DEFAULT nextval('category_seq'),
-  skroutz_id  INT UNIQUE            NOT NULL, -- the sku id we get from a request to the Skroutz API
+  skroutz_id  INT UNIQUE            NOT NULL, -- the category id we get from a request to the Skroutz API
   name        VARCHAR(300)          NOT NULL, -- the category name
   image_url   VARCHAR(300), -- the category's image url
   parent_id   INT REFERENCES categories (skroutz_id), -- the parent id
@@ -115,6 +116,14 @@ CREATE TABLE IF NOT EXISTS public.requests
   checked_at TIMESTAMP     -- the timestamp when we last hit the selected request
 );
 
+CREATE TABLE IF NOT EXISTS public.offers
+(
+  id                INT PRIMARY KEY       NOT NULL, DEFAULT nextval('offer_seq'),
+  product_id        INT                   NOT NULL REFERENCES products (id), -- the product id
+  price_id          INT                   NOT NULL REFERENCES prices (id), -- the price id
+  inserted_at       TIMESTAMP            NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
+  finished_at       TIMESTAMP, -- the timestamp when the item was last modified
+  checked_at        TIMESTAMP      -- the timestamp when we last queried the given
 -- match sequences to their tables
 ALTER SEQUENCE public.prod_seq OWNED BY products.id;
 ALTER SEQUENCE public.shop_seq OWNED BY shops.id;
@@ -123,6 +132,7 @@ ALTER SEQUENCE public.price_seq OWNED BY prices.id;
 ALTER SEQUENCE public.sku_seq OWNED BY skus.id;
 ALTER SEQUENCE public.manufacturer_seq OWNED BY manufacturers.id;
 ALTER SEQUENCE public.request_seq OWNED BY requests.id;
+ALTER SEQUENCE public.offer_seq OWNED BY offers.id;
 
 -- create indexes on skroutz_id on all entity tables
 CREATE INDEX skroutz_index_category ON categories (skroutz_id);

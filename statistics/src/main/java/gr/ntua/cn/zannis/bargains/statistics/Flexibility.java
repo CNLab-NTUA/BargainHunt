@@ -1,9 +1,9 @@
-package gr.ntua.cn.zannis.bargains.algorithm;
+package gr.ntua.cn.zannis.bargains.statistics;
 
 /**
  * @author zannis <zannis.kal@gmail.com>
  */
-public enum FilterStrength {
+public enum Flexibility {
     STRONG,
     NORMAL,
     RELAXED,

@@ -12,7 +12,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>7.4.4</vaadin.version>
+        <vaadin.version>7.5.8</vaadin.version>
         <wildfly.bom.version>8.2.0.Final</wildfly.bom.version>
         <wildfly.plugin.version>1.0.2.Final</wildfly.plugin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>

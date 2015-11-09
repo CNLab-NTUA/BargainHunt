@@ -1,7 +1,7 @@
 package gr.ntua.cn.zannis.bargains;
 
 import gr.ntua.cn.zannis.bargains.algorithm.FilterStrength;
-import gr.ntua.cn.zannis.bargains.algorithm.OutlierFinder;
+import gr.ntua.cn.zannis.bargains.algorithm.impl.BaseTester;
 import gr.ntua.cn.zannis.bargains.client.exceptions.UnexpectedInputException;
 import gr.ntua.cn.zannis.bargains.client.impl.SkroutzRestClient;
 import gr.ntua.cn.zannis.bargains.client.persistence.entities.Category;
@@ -74,7 +74,7 @@ public class Main {
                     Page<Product> productsPage = SkroutzRestClient.getInstance().getProductsFromSku(skuList.get(skuId));
                     List<Product> productList = SkroutzRestClient.getInstance().getAllResultsAsList(productsPage);
                     List<Float> prices = productList.stream().map(Product::getPrice).collect(Collectors.toList());
-                    OutlierFinder finder = new OutlierFinder(prices, strength);
+                    BaseTester finder = new BaseTester(prices, strength);
                     if (finder.getLowOutliers().isEmpty()) {
                         System.out.println("Δυστυχώς το προϊόν δεν βρίσκεται σε προσφορά. Δοκιμάστε ξανά στο μέλλον!");
                         System.out.println("Βρέθηκαν " + prices.size() + " προϊόντα:");

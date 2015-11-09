@@ -66,6 +66,7 @@
     <modules>
         <module>Client</module>
         <module>WebApp</module>
+        <module>statistics</module>
     </modules>
 
 </project>

@@ -37,16 +37,12 @@ public class BargainHuntUI extends UI {
     @Inject
     CDIViewProvider viewProvider;
 
-    /* Internationalization
-    ResourceBundle i18nBundle;
-    public static ResourceBundle MESSAGES = ResourceBundle.getBundle(, Locale.getDefault()); */
     private Navigator navigator;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         Responsive.makeResponsive(this);
         setLocale(vaadinRequest.getLocale());
-//        final ResourceBundle i18n = ResourceBundle.getBundle("gr.ntua.cn.zannis.bargains.webapp.i18n.Messages", getLocale());
 
         getPage().setTitle("BargainHunt");
         initNavigator();
@@ -55,7 +51,6 @@ public class BargainHuntUI extends UI {
     @Override
     public void setLocale(Locale locale) {
         super.setLocale(locale);
-//        i18nBundle = ResourceBundle.getBundle("gr.ntua.cn.zannis.bargains.webapp.i18n.Messages", getLocale());
     }
 
     private void initNavigator() {

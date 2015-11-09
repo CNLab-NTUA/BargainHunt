@@ -23,32 +23,19 @@ public class OutlierFinder {
     private final double IQR;
     private float kappa;
 
-
     /**
      * Main constructor that computes all the needed values to perform the calculations.
-     * @param floatValues The {@link List<Float>} with the values to calculate outliers.
      * @param strength The strength of the filtering function, determines the <code>k</code> parameter
      *                 in the calculation formula.
      */
-    public OutlierFinder(List<Float> floatValues, FilterStrength strength) {
-        setFilterStrength(strength);
-        this.values = floatValues;
-        // sort the list to compute the quantiles
-        Collections.sort(values);
-        // compute the quantiles
-        this.q1 = StatUtils.percentile(floatListToDoubleArrayConverter(values), 25);
-        this.q3 = StatUtils.percentile(floatListToDoubleArrayConverter(values), 75);
-        // compute the interquantile range
-        IQR = Math.abs(q3 - q1);
+    public OutlierFinder(FilterStrength strength) {
+        super(strength);
     }
 
-    /**
-     * Constructor for the <code>OutlierFinder</code> using the default filter strength.
-     * @param floatValues The {@link List<Float>} to perform the calculations on.
-     */
-    public OutlierFinder(List<Float> floatValues) {
-        this(floatValues, DEFAULT_FILTER_STRENGTH);
+    public OutlierFinder() {
+        setFilterStrength(DEFAULT_FILTER_STRENGTH);
     }
+
 
     public Float getMin() {
         return Collections.min(this.values);
