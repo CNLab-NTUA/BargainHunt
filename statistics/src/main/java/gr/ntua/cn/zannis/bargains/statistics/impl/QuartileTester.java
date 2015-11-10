@@ -113,33 +113,16 @@ public class QuartileTester extends BaseTester {
 
     @Override
     public Float getMinimumOutlier(List<Float> sample, Flexibility strength) {
-        // backup old values
-        // todo implement test for this
-        Flexibility oldFlexibility = this.flexibility;
-        List<Float> oldValues = new ArrayList<>();
-        oldValues.addAll(this.values);
-        // replace values and calculate outlier
         setFlexibility(flexibility);
         setValues(sample);
-        Float result;
-        result = !getLowOutliers().isEmpty() ? getLowOutliers().get(0) : null;
-        //revert state
-        setFlexibility(oldFlexibility);
-        setValues(oldValues);
-        return result;
+        return !getLowOutliers().isEmpty() ? getLowOutliers().get(0) : null;
     }
 
     @Override
     public Float getMinimumOutlier(List<Float> sample) {
-        List<Float> oldValues = new ArrayList<>();
-        oldValues.addAll(this.values);
-        // replace values and calculate outlier
         setValues(sample);
-        Float result;
-        result = !getLowOutliers().isEmpty() ? getLowOutliers().get(0) : null;
-        //revert state
-        setValues(oldValues);
-        return result;
+        return  !getLowOutliers().isEmpty() ? getLowOutliers().get(0) : null;
+
     }
 
     @Override
