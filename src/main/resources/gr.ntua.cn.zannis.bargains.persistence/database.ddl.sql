@@ -118,12 +118,16 @@ CREATE TABLE IF NOT EXISTS public.requests
 
 CREATE TABLE IF NOT EXISTS public.offers
 (
-  id                INT PRIMARY KEY       NOT NULL, DEFAULT nextval('offer_seq'),
+  id                INT PRIMARY KEY       NOT NULL DEFAULT nextval('offer_seq'),
   product_id        INT                   NOT NULL REFERENCES products (id), -- the product id
   price_id          INT                   NOT NULL REFERENCES prices (id), -- the price id
-  inserted_at       TIMESTAMP            NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
-  finished_at       TIMESTAMP, -- the timestamp when the item was last modified
-  checked_at        TIMESTAMP      -- the timestamp when we last queried the given
+  accepted_by       SMALLINT              NOT NULL, -- GRUBBS = 1, CHAUVENET = 2, QUARTILES = 3, GRUBBS + CHAUVE = 4,
+                                                    -- GRUBBS + QUARTILES = 5, CHAUVE + QUARTILES = 6, ALL 3 = 7
+  inserted_at       TIMESTAMP             NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
+  finished_at       TIMESTAMP,            -- the timestamp when the item was last modified
+  checked_at        TIMESTAMP             -- the timestamp when we last queried the given
+);
+
 -- match sequences to their tables
 ALTER SEQUENCE public.prod_seq OWNED BY products.id;
 ALTER SEQUENCE public.shop_seq OWNED BY shops.id;
@@ -141,3 +145,5 @@ CREATE INDEX skroutz_index_shop ON shops (skroutz_id);
 CREATE INDEX skroutz_index_sku ON skus (skroutz_id);
 CREATE INDEX skroutz_index_product ON products (skroutz_id);
 
+-- and one for offers on its primary id
+CREATE INDEX index_offer ON offers (id);
