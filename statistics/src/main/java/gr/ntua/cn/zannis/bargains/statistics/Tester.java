@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * The interface that the implemented Outlier Testers should
  * provide.
- * @author zannis <zannis.kal@gmail.com
+ * @author zannis <zannis.kal@gmail.com>
  */
 public interface Tester {
 
@@ -33,7 +33,7 @@ public interface Tester {
     void setFlexibility(Flexibility strength);
 
     /**
-     * Method to get the current flexibility of the test
+     * Method to get the current flexibility of the test.
      */
     Flexibility getFlexibility();
 

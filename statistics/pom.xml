@@ -16,19 +16,19 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
-            <version>3.5</version>
+            <version>LATEST</version>
         </dependency>
         <!--Library to integrate SLF4J with java.util.Logging-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
-            <version>1.7.12</version>
+            <version>LATEST</version>
         </dependency>
         <!-- JUnit Tests -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.10</version>
+            <version>LATEST</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

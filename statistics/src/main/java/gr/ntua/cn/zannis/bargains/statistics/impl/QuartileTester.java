@@ -1,21 +1,23 @@
 package gr.ntua.cn.zannis.bargains.statistics.impl;
 
 import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
-import gr.ntua.cn.zannis.bargains.statistics.Tester;
 import org.apache.commons.math3.stat.StatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author zannis <zannis.kal@gmail.com
+ * The class that finds the outliers in a given float list using the interquantile range method.
+ * The <code>k</code> in the formula is based on the {@link Flexibility} parameter.
+ *
+ * @see <a href="http://en.wikipedia.org/wiki/Outlier">Wikipedia: Outlier</a>
+ * @author zannis zannis.kal@gmail.com
  */
 public class QuartileTester extends BaseTester {
 
-    public static final Logger log = LoggerFactory.getLogger(QuartileTester.class);
+    private static final Logger log = LoggerFactory.getLogger(QuartileTester.class);
     
     private float kappa;
     private double q1;
@@ -23,13 +25,22 @@ public class QuartileTester extends BaseTester {
     private double IQR;
 
 
+    /**
+     * Constructor for a Tester using the interquartile method with a custom flexibility
+     * parameter.
+     * @param flexibility The flexibility value to use.
+     */
     public QuartileTester(Flexibility flexibility) {
         super(flexibility);
         log.info("Created new QuartileTester with " + flexibility.name() + " flexibility.");
     }
 
+    /**
+     * Constructor for a Tester using the interquartile method using the default flexibility
+     * parameter of 1.5.
+     */
     public QuartileTester() {
-        this(DEFAULT_FILTER_STRENGTH);
+        this(DEFAULT_FLEXIBILITY);
     }
 
     /**
@@ -46,8 +57,7 @@ public class QuartileTester extends BaseTester {
      * Method to extract the outliers that are lower than the median value.
      * @return The {@link List<Float>} containing the results or empty list.
      */
-    public List<Float> getLowOutliers() {
-        // return
+    private List<Float> getLowOutliers() {
         return values.stream().filter(aFloat -> aFloat < q1 - kappa * Math.abs(q3 - q1)).collect(Collectors.toList());
     }
 
@@ -55,7 +65,7 @@ public class QuartileTester extends BaseTester {
      * Method to extract the outliers that are higher than the median value.
      * @return The {@link List<Float>} containing the results or empty list.
      */
-    public List<Float> getHighOutliers() {
+    private List<Float> getHighOutliers() {
         return values.stream().filter(aFloat -> aFloat > q3 + kappa * IQR).collect(Collectors.toList());
     }
 
@@ -68,7 +78,11 @@ public class QuartileTester extends BaseTester {
                 .collect(Collectors.toList());
     }
 
-    // todo initialize values and check them before calculating them
+    /**
+     * Method to get the percentage that the minimum outlier differs from the normalized
+     * mean value of the sample.
+     * @return The bargain percentage. A number between 0 - 100 or NaN if there are no low outliers.
+     */
     public Float getBargainPercentage() {
         if (!getLowOutliers().isEmpty()) {
             return (getNormalizedMean() - getLowOutliers().get(0))/getNormalizedMean()*100;
@@ -113,15 +127,14 @@ public class QuartileTester extends BaseTester {
 
     @Override
     public Float getMinimumOutlier(List<Float> sample, Flexibility strength) {
-        setFlexibility(flexibility);
-        setValues(sample);
-        return !getLowOutliers().isEmpty() ? getLowOutliers().get(0) : null;
+        setFlexibility(strength);
+        return getMinimumOutlier(sample);
     }
 
     @Override
     public Float getMinimumOutlier(List<Float> sample) {
         setValues(sample);
-        return  !getLowOutliers().isEmpty() ? getLowOutliers().get(0) : null;
+        return  !getLowOutliers().isEmpty() ? getLowOutliers().get(0) : Float.NaN;
 
     }
 
