@@ -1,6 +1,5 @@
 package gr.ntua.cn.zannis.bargains.statistics.impl;
 
-import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
 import org.apache.commons.math3.stat.StatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +82,7 @@ public class QuartileTester extends BaseTester {
      * mean value of the sample.
      * @return The bargain percentage. A number between 0 - 100 or NaN if there are no low outliers.
      */
+    @Override
     public Float getBargainPercentage() {
         if (!getLowOutliers().isEmpty()) {
             return (getNormalizedMean() - getLowOutliers().get(0))/getNormalizedMean()*100;
@@ -95,7 +95,7 @@ public class QuartileTester extends BaseTester {
      * Method to set the kappa paramether based on the {@link Flexibility} parameter.
      * @param strength The {@link Flexibility} parameter to use.
      */
-    public void setKappa(Flexibility strength) {
+    private void setKappa(Flexibility strength) {
         switch (strength) {
             case NORMAL:
                 this.kappa = 1.5f;
@@ -116,7 +116,7 @@ public class QuartileTester extends BaseTester {
      * Method to retrieve the mean value from the interquantile values in the collection.
      * @return The {@link Float} mean value.
      */
-    public Float getNormalizedMean() {
+    private Float getNormalizedMean() {
         Float sum = (float) 0;
         List<Float> floats = getPricesInRange();
         for (Float f : floats) {
@@ -134,8 +134,15 @@ public class QuartileTester extends BaseTester {
     @Override
     public Float getMinimumOutlier(List<Float> sample) {
         setValues(sample);
-        return  !getLowOutliers().isEmpty() ? getLowOutliers().get(0) : Float.NaN;
+        List<Float> outliers = getLowOutliers();
+        if (!outliers.isEmpty()) return outliers.get(0);
+        else return Float.NaN;
 
+    }
+
+    @Override
+    public TestType getType() {
+        return TestType.QUARTILE;
     }
 
     @Override

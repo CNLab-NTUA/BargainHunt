@@ -17,11 +17,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.*;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.nio.file.Files;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static gr.ntua.cn.zannis.bargains.webapp.rest.misc.Const.*;
 
@@ -354,5 +352,37 @@ public class Utils {
             sb.append("?").append(requestUri.getQuery());
         }
         return sb.toString();
+    }
+
+
+    /**
+     * Extract query parameters from a given URL
+     *
+     * @param url The url as a string
+     * @return A HashMap with parameters and values
+     */
+    public static Map<String, List<String>> getQueryParams(String url) {
+        try {
+            Map<String, List<String>> params = new HashMap<>();
+            String[] urlParts = url.split("\\?");
+            if (urlParts.length > 1) {
+                String query = urlParts[1];
+                for (String param : query.split("&")) {
+                    String[] pair = param.split("=");
+                    String key = URLDecoder.decode(pair[0], "UTF-8");
+                    String value = "";
+                    if (pair.length > 1) {
+                        value = URLDecoder.decode(pair[1], "UTF-8");
+                    }
+
+                    List<String> values = params.computeIfAbsent(key, k -> new ArrayList<>());
+                    values.add(value);
+                }
+            }
+
+            return params;
+        } catch (UnsupportedEncodingException ex) {
+            throw new AssertionError(ex);
+        }
     }
 }

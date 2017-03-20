@@ -1,9 +1,10 @@
 package gr.ntua.cn.zannis.bargains.webapp.ui.components;
 
+import com.vaadin.data.Binder;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
@@ -23,6 +24,7 @@ public class SearchField extends HorizontalLayout {
 
     private TextField queryField = new TextField();
     private Button searchButton = new Button();
+    private Binder<String> binder = new Binder<>();
 
 //    private ResourceBundle messages;
 
@@ -34,25 +36,16 @@ public class SearchField extends HorizontalLayout {
     }
 
     private void buildButton() {
-        searchButton.setIcon(FontAwesome.SEARCH, "Αναζήτηση");
+        searchButton.setIcon(VaadinIcons.SEARCH, "Αναζήτηση");
         searchButton.addClickListener(clickEvent -> search(queryField.getValue()));
         addComponent(searchButton);
     }
 
-    private void buildI18n() {
-//        messages = ResourceBundle.getBundle("gr.ntua.cn.zannis.bargains.webapp.i18n.MessagesBundle", getUI().getLocale());
-    }
-
     private void buildTextField() {
-        queryField.setBuffered(true);
-        queryField.setNullRepresentation("");
-//        searchField.setInputPrompt(messages.getString("searchPrompt"));
-        queryField.setInputPrompt("Αναζήτηση...");
+        queryField.setPlaceholder("Αναζήτηση...");
         setStyleName(ValoTheme.TEXTFIELD_HUGE);
         queryField.setWidth("300px");
-        queryField.addValidator(new StringLengthValidator("Πρέπει να εισάγετε τουλάχιστον 3 χαρακτήρες.", 3, 200, false));
-        queryField.setValidationVisible(false);
-        queryField.setImmediate(false);
+        binder.forField(queryField).withValidator(new StringLengthValidator("Πρέπει να εισάγετε τουλάχιστον 3 χαρακτήρες.", 3, 200));
         queryField.addShortcutListener(new ShortcutListener("", ShortcutAction.KeyCode.ENTER, new int[]{}) {
             @Override
             public void handleAction(Object sender, Object target) {
@@ -65,8 +58,8 @@ public class SearchField extends HorizontalLayout {
 
     private void search(String query) {
         try {
-            queryField.validate();
-            if (queryField.isValid()) {
+            binder.validate();
+            if (binder.isValid()) {
                 getUI().getNavigator().navigateTo(SearchView.NAME + "/" + URLEncoder.encode(query, "utf-8"));
             }
         } catch (UnsupportedEncodingException e) {

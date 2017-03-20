@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS public.categories
   skroutz_id  INT UNIQUE            NOT NULL, -- the category id we get from a request to the Skroutz API
   name        VARCHAR(300)          NOT NULL, -- the category name
   image_url   VARCHAR(300), -- the category's image url
+--   web_uri     VARCHAR(300), -- the category's web url
   parent_id   INT REFERENCES categories (skroutz_id), -- the parent id
   etag        VARCHAR(32), -- a tag used for conditional http requests
   inserted_at TIMESTAMP             NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
@@ -123,6 +124,7 @@ CREATE TABLE IF NOT EXISTS public.offers
   price_id          INT                   NOT NULL REFERENCES prices (id), -- the price id
   accepted_by       SMALLINT              NOT NULL, -- GRUBBS = 1, CHAUVENET = 2, QUARTILES = 3, GRUBBS + CHAUVE = 4,
                                                     -- GRUBBS + QUARTILES = 5, CHAUVE + QUARTILES = 6, ALL 3 = 7
+  flexibility       SMALLINT              NOT NULL, -- NORMAL = 1, STRONG = 2, RELAXED = 3, DEFAULT = 1
   inserted_at       TIMESTAMP             NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   finished_at       TIMESTAMP,            -- the timestamp when the item was last modified
   checked_at        TIMESTAMP             -- the timestamp when we last queried the given

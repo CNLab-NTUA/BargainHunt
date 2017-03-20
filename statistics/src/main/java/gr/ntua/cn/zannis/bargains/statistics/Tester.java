@@ -10,12 +10,12 @@ import java.util.List;
 public interface Tester {
 
     /**
-    * Get the minimum outlier from a list of values, given the specified flexibility.
-    * Does not change the state of the <code>gr.ntua.cn.zannis.bargains.statistics.Tester</code>.
-    * @param sample The {@link List<Float>} with the values to calculate outliers.
-    * @param strength The flexibility of the filtering function, determines the <code>k</code> parameter
-    *                in the calculation formula.
-    */
+     * Get the minimum outlier from a list of values, given the specified flexibility.
+     * Does not change the state of the <code>gr.ntua.cn.zannis.bargains.statistics.Tester</code>.
+     * @param sample The {@link List<Float>} with the values to calculate outliers.
+     * @param strength The flexibility of the filtering function, determines the <code>k</code> parameter
+     *                in the calculation formula.
+     */
     Float getMinimumOutlier(List<Float> sample, Flexibility strength);
 
     /**
@@ -37,4 +37,34 @@ public interface Tester {
      */
     Flexibility getFlexibility();
 
+    /**
+     * @return Returns the type of the current Tester.
+     */
+    TestType getType();
+
+    /**
+     * Enumeration that defines the available statistical tests for outlier deteection.
+     */
+    enum TestType {
+        GRUBBS,
+        CHAUVENET,
+        QUARTILE
+    }
+
+    enum Flexibility {
+        RELAXED(3),
+        NORMAL(2),
+        STRONG(1),
+        DEFAULT(4);
+
+        private final int number;
+
+        Flexibility(int number) {
+            this.number = number;
+        }
+
+        public short getNumber() {
+            return (short) number;
+        }
+    }
 }

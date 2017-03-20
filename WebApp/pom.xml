@@ -12,10 +12,10 @@
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>7.5.8</vaadin.version>
-        <wildfly.bom.version>8.2.0.Final</wildfly.bom.version>
-        <wildfly.plugin.version>1.0.2.Final</wildfly.plugin.version>
-        <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+        <!--<vaadin.version>7.5.8</vaadin.version>-->
+        <!--<wildfly.bom.version>8.2.0.Final</wildfly.bom.version>-->
+        <!--<wildfly.plugin.version>1.0.2.Final</wildfly.plugin.version>-->
+        <!--<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>-->
         <jetty.plugin.version>9.2.3.v20140905</jetty.plugin.version>
         <project.source.version>1.8</project.source.version>
         <project.target.version>1.8</project.target.version>
@@ -45,7 +45,7 @@
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-bom</artifactId>
-                <version>${vaadin.version}</version>
+                <version>8.0.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -54,7 +54,7 @@
             <dependency>
                 <groupId>org.wildfly.bom</groupId>
                 <artifactId>jboss-javaee-7.0-with-logging</artifactId>
-                <version>${wildfly.bom.version}</version>
+                <version>8.2.2.Final</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -63,11 +63,18 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>com.vaadin.addon</groupId>
+            <artifactId>jpacontainer</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+
         <!--Postgres JDBC driver-->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.3-1103-jdbc41</version>
+            <version>42.0.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -75,21 +82,21 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>2.16</version>
+            <version>2.25.1</version>
         </dependency>
 
         <!-- Jackson for JSON parsing -->
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
-            <version>2.16</version>
+            <version>2.25.1</version>
         </dependency>
 
         <!--Library to integrate SLF4J with java.util.Logging-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
-            <version>1.7.12</version>
+            <version>1.7.25</version>
         </dependency>
 
         <!--WildFly Java EE dependencies-->
@@ -118,7 +125,7 @@
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>eclipselink</artifactId>
-            <version>2.6.0</version>
+            <version>2.6.4</version>
             <scope>provided</scope>
         </dependency>
 
@@ -139,7 +146,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-cdi</artifactId>
-            <version>1.0.2</version>
+            <version>2.0.0</version>
         </dependency>
 
         <!--Vaadin dependencies-->
@@ -186,14 +193,21 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
+            <version>3.5</version>
         </dependency>
 
         <!--Apache Commons Math 3-->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
-            <version>3.5</version>
+            <version>3.6.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>gr.ntua.cn.zannis.bargains</groupId>
+            <artifactId>statistics</artifactId>
+            <version>0.5</version>
+            <!--<scope>compile</scope>-->
         </dependency>
     </dependencies>
 
@@ -202,7 +216,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.0</version>
+                <version>3.6.1</version>
                 <configuration>
                     <encoding>${project.encoding}</encoding>
                     <source>${project.source.version}</source>
@@ -216,7 +230,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.0.2</version>
                 <configuration>
                     <encoding>${project.encoding}</encoding>
                 </configuration>
@@ -224,7 +238,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.3</version>
+                <version>3.0.0</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <!-- Exclude some unnecessary files generated by the GWT compiler. -->
@@ -236,14 +250,13 @@
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
-                <version>${vaadin.plugin.version}</version>
+                <version>8.0.2</version>
                 <configuration>
                     <extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
                     <webappDirectory>${basedir}/target/classes/VAADIN/widgetsets</webappDirectory>
                     <draftCompile>false</draftCompile>
                     <compileReport>false</compileReport>
                     <style>OBF</style>
-                    <strict>true</strict>
                 </configuration>
                 <executions>
                     <execution>
@@ -259,12 +272,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.4</version>
+                <version>3.0.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>2.6.1</version>
+                <version>3.0.0</version>
                 <!-- Clean up also any pre-compiled themes -->
                 <configuration>
                     <filesets>
@@ -295,10 +308,13 @@
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
-                <version>${wildfly.plugin.version}</version>
+                <version>1.1.0.Beta1</version>
                 <configuration>
-                    <jboss-home>/opt/wildfly/</jboss-home>
-                    <!--<server-config>standalone.xml</server-config>-->
+                    <jbossHome>/opt/wildfly/</jbossHome>
+                    <serverConfig>standalone.xml</serverConfig>
+                    <!--<javaOpts>-->
+                    <!--<javaOpt>-agentlib:jdwp=transport=dt_socket,suspend=y,server=n,address=127.0.0.1:41987</javaOpt>-->
+                    <!--</javaOpts>-->
                 </configuration>
             </plugin>
 

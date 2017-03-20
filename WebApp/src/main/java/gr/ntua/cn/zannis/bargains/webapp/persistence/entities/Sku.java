@@ -1,8 +1,10 @@
 package gr.ntua.cn.zannis.bargains.webapp.persistence.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -17,11 +19,14 @@ import java.util.List;
  * @author zannis <zannis.kal@gmail.com
  */
 @JsonRootName("sku")
+@JsonIgnoreProperties({"web_uri", "comparable"})
 @Entity
 @Table(name = "skus", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
         @NamedQuery(name = "Sku.findBySkroutzId", query = "select s from Sku s where s.skroutzId = :skroutzId"),
-        @NamedQuery(name = "Sku.findAll", query = "select s from Sku s")
+        @NamedQuery(name = "Sku.findAll", query = "select s from Sku s"),
+        @NamedQuery(name = "Sku.findAllCheckedBy", query = "select s from Sku s where s.checkedAt >= :date"),
+        @NamedQuery(name = "Sku.findAllByCategory", query = "select s from Sku s where s.categoryId = :categ_id")
 })
 public class Sku extends SkroutzEntity {
 
@@ -70,8 +75,8 @@ public class Sku extends SkroutzEntity {
         this.skroutzId = id;
         this.ean = ean;
         this.pn = pn;
-        this.name = name;
-        this.displayName = displayName;
+        this.name = StringEscapeUtils.unescapeJson(name);
+        this.displayName = StringEscapeUtils.unescapeJson(displayName);
         this.categoryId = categoryId;
         this.firstProductShopInfo = firstProductShopInfo;
         this.clickUrl = clickUrl;
@@ -133,7 +138,7 @@ public class Sku extends SkroutzEntity {
     }
 
     @NotNull
-    @Size(max = 100)
+    @Size(max = 300)
     @Column(name = "name")
     public String getName() {
         return name;
@@ -144,7 +149,7 @@ public class Sku extends SkroutzEntity {
     }
 
     @NotNull
-    @Size(max = 100)
+    @Size(max = 300)
     @Column(name = "display_name")
     public String getDisplayName() {
         return displayName;
@@ -284,7 +289,6 @@ public class Sku extends SkroutzEntity {
         this.products = products;
     }
 
-    @NotNull
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
     public Category getCategory() {

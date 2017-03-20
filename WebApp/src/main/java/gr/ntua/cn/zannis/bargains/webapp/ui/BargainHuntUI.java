@@ -8,13 +8,11 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
+import gr.ntua.cn.zannis.bargains.webapp.ejb.OfferEntityManager;
 import gr.ntua.cn.zannis.bargains.webapp.ejb.SkroutzEntityManager;
 import gr.ntua.cn.zannis.bargains.webapp.ejb.dao.RequestDAO;
 import gr.ntua.cn.zannis.bargains.webapp.ejb.dao.impl.RequestDAOImpl;
-import gr.ntua.cn.zannis.bargains.webapp.ui.screens.BargainView;
-import gr.ntua.cn.zannis.bargains.webapp.ui.screens.MainView;
-import gr.ntua.cn.zannis.bargains.webapp.ui.screens.ProductsView;
-import gr.ntua.cn.zannis.bargains.webapp.ui.screens.SearchView;
+import gr.ntua.cn.zannis.bargains.webapp.ui.screens.*;
 
 import javax.inject.Inject;
 import java.util.Locale;
@@ -30,6 +28,9 @@ public class BargainHuntUI extends UI {
 
     @Inject
     SkroutzEntityManager skroutzEm;
+
+    @Inject
+    OfferEntityManager offerEm;
 
     @Inject
     RequestDAOImpl requests;
@@ -60,6 +61,7 @@ public class BargainHuntUI extends UI {
         navigator.addView(SearchView.NAME, SearchView.class);
         navigator.addView(ProductsView.NAME, ProductsView.class);
         navigator.addView(BargainView.NAME, BargainView.class);
+        navigator.addView(CrawlerView.NAME, CrawlerView.class);
         navigator.navigateTo(getNavigator().getState());
     }
 
@@ -75,6 +77,10 @@ public class BargainHuntUI extends UI {
 
     public SkroutzEntityManager getSkroutzEm() {
         return skroutzEm;
+    }
+
+    public OfferEntityManager getOfferEm() {
+        return offerEm;
     }
 
     public RequestDAO getRequests() {
