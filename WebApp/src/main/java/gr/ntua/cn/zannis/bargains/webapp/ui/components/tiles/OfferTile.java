@@ -2,10 +2,14 @@ package gr.ntua.cn.zannis.bargains.webapp.ui.components.tiles;
 
 import com.vaadin.event.MouseEvents;
 import com.vaadin.server.ExternalResource;
+import com.vaadin.server.Page;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.*;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Offer;
-import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Price;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
+import gr.ntua.cn.zannis.bargains.webapp.ui.BargainHuntUI;
+import org.apache.commons.math3.stat.StatUtils;
 
 /**
  * A tile class for the Offer object, a reference to a product that is
@@ -47,19 +51,20 @@ public class OfferTile extends Panel {
 
         image.setHeight("160px");
 
-        productName.setWidthUndefined();
-        offerPercentage.setWidthUndefined();
-        shopName.setWidthUndefined();
+        productName.setWidth("200px");
+        offerPercentage.setWidth("200px");
+        shopName.setWidth("200px");
 
         layout.addComponent(image);
         layout.addComponent(productName);
-        layout.addComponent(shopName);
+//        layout.addComponent(shopName);
         layout.addComponent(offerPercentage);
         layout.setComponentAlignment(image, Alignment.MIDDLE_CENTER);
         layout.setComponentAlignment(productName, Alignment.MIDDLE_CENTER);
-        layout.setComponentAlignment(shopName, Alignment.MIDDLE_CENTER);
+//        layout.setComponentAlignment(shopName, Alignment.MIDDLE_CENTER);
         layout.setComponentAlignment(offerPercentage, Alignment.BOTTOM_RIGHT);
 
+        addClickListener(event -> Page.getCurrent().open(this.entity.getProduct().getClickUrl(), null));
         setContent(layout);
     }
 
@@ -68,22 +73,29 @@ public class OfferTile extends Panel {
     }
 
     private void renderComponents() {
+        Sku sku = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().find(Sku.class, this.entity.getProduct().getSkuId());
         if (this.entity.getProduct() == null || this.entity.getProduct().getSku() == null) {
             image.setSource(new ThemeResource(DEFAULT_IMAGE_URL));
         } else {
-            image.setSource(new ExternalResource(this.entity.getProduct().getSku().getImages().getMain()));
+            if (sku.getImages() != null) {
+                image.setSource(new ExternalResource(sku.getImages().getMain()));
+            } else {
+                image.setSource(new ExternalResource(sku.getCategory().getImageUrl()));
+            }
             if (this.entity.getProduct().getName() == null || this.entity.getProduct().getName().isEmpty()) {
                 productName.setValue(DEFAULT_NAME);
             } else {
                 productName.setValue(this.entity.getProduct().getName());
+            }
+            if (this.entity.getProduct().getShop() == null || this.entity.getProduct().getShop().getName().isEmpty()) {
                 shopName.setValue("στο " + this.entity.getProduct().getShop().getName());
             }
         }
         if (this.entity.getPrice() == null) {
             offerPercentage.setValue(DEFAULT_NAME);
         } else {
-            float averagePastPrice = (float) (entity.getProduct().getPrices().stream().mapToDouble(Price::getPrice).sum() / entity.getProduct().getPrices().size());
-            offerPercentage.setValue("Τιμή : " + this.entity.getPrice() + ", ποσοστό έκπτωσης : " + averagePastPrice);
+            double bargainPercentage = (1d - ((double) this.entity.getPrice().getPrice()) / StatUtils.mean(sku.getProducts().stream().mapToDouble(Product::getPrice).toArray())) * 100;
+            offerPercentage.setValue("Τιμή : " + this.entity.getPrice().getPrice() + "€, Έκπτωση : " + String.format("%,.2f", bargainPercentage) + "%");
         }
 
     }

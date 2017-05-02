@@ -1,5 +1,6 @@
 package gr.ntua.cn.zannis.bargains.statistics.impl;
 
+import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
 import gr.ntua.cn.zannis.bargains.statistics.Tester;
 
 import java.util.Collections;
@@ -12,19 +13,19 @@ import java.util.List;
  */
 public abstract class BaseTester implements Tester {
 
-    protected final static Flexibility DEFAULT_FLEXIBILITY = Flexibility.NORMAL;
+    final static Flexibility DEFAULT_FLEXIBILITY = Flexibility.NORMAL;
     protected List<Float> values;
-    protected double[] doubleValues;
+    double[] doubleValues;
     protected Flexibility flexibility;
-    protected double significanceValue;
-    protected double[] criticalValues;
+    private double significanceValue;
+    double[] criticalValues;
 
 
     /**
      * Full constructor for <code>BaseTester</code> specifying the flexibility.
      * @param flexibility The value of flexibility to use.
      */
-    public BaseTester(Flexibility flexibility) {
+    BaseTester(Flexibility flexibility) {
         setFlexibility(flexibility);
     }
 
@@ -39,7 +40,7 @@ public abstract class BaseTester implements Tester {
      * Get the minimum value of the sample.
      * @return The minimum value.
      */
-    protected Float getMinimumValue() {
+    Float getMinimumValue() {
         if (!this.values.isEmpty()) {
             return Collections.min(values);
         } else {
@@ -94,9 +95,6 @@ public abstract class BaseTester implements Tester {
                 break;
             case STRONG:
                 this.significanceValue = 0.01;
-                break;
-            case DEFAULT:
-                this.significanceValue = 0.05;
                 break;
         }
     }

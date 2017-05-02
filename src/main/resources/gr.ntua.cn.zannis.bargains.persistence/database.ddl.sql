@@ -87,15 +87,15 @@ CREATE TABLE IF NOT EXISTS public.products
   sku_id             INT                  NOT NULL REFERENCES skus (skroutz_id), -- the product code given to match this product in other shops
   shop_id            INT                  NOT NULL REFERENCES shops (skroutz_id),
   shop_uid           VARCHAR(64), -- the unique uid given from the shop
-  category_id        INT                  NOT NULL REFERENCES categories (skroutz_id),
+  category_id        INT           NOT NULL REFERENCES categories (skroutz_id),
   etag               VARCHAR(32), -- a tag used for conditional http requests
   availability       VARCHAR(50), -- the current availability
   click_url          VARCHAR(300), -- the url given from Skroutz API
-  price              NUMERIC(7, 2)        NOT NULL, -- the current price
-  price_changes      INT                  NOT NULL DEFAULT 0, -- how many times the product's price has changed
-  average_past_price NUMERIC(7, 2)        NOT NULL, -- the average price we have calculated for the product in the past
+  price              NUMERIC(7, 2) NOT NULL, -- the current price
+  price_changes      INT           NOT NULL DEFAULT 0, -- how many times the product's price has changed
+  average_past_price NUMERIC(7, 2) NOT NULLconsole.sql, -- the average price we have calculated for the product in the past
   is_bargain         BOOL, -- true if the product is a bargain
-  inserted_at        TIMESTAMP            NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
+  inserted_at        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   modified_at        TIMESTAMP, -- the timestamp when the item was last modified
   checked_at         TIMESTAMP      -- the timestamp when we last queried the given product
 );
@@ -119,15 +119,17 @@ CREATE TABLE IF NOT EXISTS public.requests
 
 CREATE TABLE IF NOT EXISTS public.offers
 (
-  id                INT PRIMARY KEY       NOT NULL DEFAULT nextval('offer_seq'),
-  product_id        INT                   NOT NULL REFERENCES products (id), -- the product id
-  price_id          INT                   NOT NULL REFERENCES prices (id), -- the price id
-  accepted_by       SMALLINT              NOT NULL, -- GRUBBS = 1, CHAUVENET = 2, QUARTILES = 3, GRUBBS + CHAUVE = 4,
+  id                    INT PRIMARY KEY       NOT NULL DEFAULT nextval('offer_seq'),
+  product_id            INT                   NOT NULL REFERENCES products (id), -- the product id
+  price_id              INT                   NOT NULL REFERENCES prices (id), -- the price id
+  accepted_by           SMALLINT              NOT NULL, -- GRUBBS = 1, CHAUVENET = 2, QUARTILES = 3, GRUBBS + CHAUVE = 4,
                                                     -- GRUBBS + QUARTILES = 5, CHAUVE + QUARTILES = 6, ALL 3 = 7
-  flexibility       SMALLINT              NOT NULL, -- NORMAL = 1, STRONG = 2, RELAXED = 3, DEFAULT = 1
-  inserted_at       TIMESTAMP             NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
-  finished_at       TIMESTAMP,            -- the timestamp when the item was last modified
-  checked_at        TIMESTAMP             -- the timestamp when we last queried the given
+  grubbs_flexibility    VARCHAR(10)           NOT NULL, -- NORMAL = 1, STRONG = 2, RELAXED = 3, DEFAULT = 1
+  chauvenet_flexibility VARCHAR(10)           NOT NULL, -- NORMAL = 1, STRONG = 2, RELAXED = 3, DEFAULT = 1
+  quartile_flexibility  VARCHAR(10)           NOT NULL, -- NORMAL = 1, STRONG = 2, RELAXED = 3, DEFAULT = 1
+  inserted_at           TIMESTAMP             NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
+  finished_at           TIMESTAMP, -- the timestamp when the item was last modified
+  checked_at            TIMESTAMP             -- the timestamp when we last queried the given
 );
 
 -- match sequences to their tables

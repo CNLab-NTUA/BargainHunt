@@ -1,15 +1,22 @@
 package gr.ntua.cn.zannis.bargains.statistics.impl;
 
-import org.apache.commons.math3.analysis.function.Abs;
+import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
+import gr.ntua.cn.zannis.bargains.statistics.TestType;
+import org.apache.commons.math3.distribution.TDistribution;
 import org.apache.commons.math3.stat.StatUtils;
-import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
-import org.apache.commons.math3.stat.inference.TestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 /**
+ * Implementation of the Grubb's test for outliers. This is based on the one-sided iteration of the test.
+ * <p>
+ * Grubbs' test detects one outlier at a time. This outlier is expunged from the dataset and the test is
+ * iterated until no outliers are detected. However, multiple iterations change the probabilities of detection,
+ * and the test should not be used for sample sizes of six or fewer since it frequently tags most of the points
+ * as outliers.
+ *
  * @author zannis <zannis.kal@gmail.com
  */
 public class GrubbsTester extends BaseTester {
@@ -19,6 +26,7 @@ public class GrubbsTester extends BaseTester {
     /**
      * Constructor for a Tester using the Grubbs outlier test with a custom flexibility
      * parameter.
+     *
      * @param flexibility The flexibility value to use.
      */
     public GrubbsTester(Flexibility flexibility) {
@@ -47,20 +55,6 @@ public class GrubbsTester extends BaseTester {
     private void init() {
         setTCriticalValues();
     }
-
-    /**
-     * Method to calculate Grubbs criterion for the value at the given index of the
-     * sorted array.
-     * @param index The position of the value in the array. 0 for the standard procedure.
-     * @return The value T_n as described by the Grubbs criterion
-     */
-    private double calculateGrubbsTestCriterion(int index) {
-        double mean = StatUtils.mean(this.doubleValues);
-        double s    = new StandardDeviation().evaluate(this.doubleValues, mean);
-        double x    = this.doubleValues[index];
-        return new Abs().value(mean - x)/s;
-    }
-
 
     /**
      * Helper method to set the critical values for a T-distribution given a flexibility level.
@@ -131,15 +125,61 @@ public class GrubbsTester extends BaseTester {
         return getMinimumOutlier(sample);
     }
 
+    /**
+     * Method to calculate Grubbs criterion for the value at the given index of the
+     * sorted array.
+     *
+     * @return The value T_n as described by the Grubbs criterion
+     */
+    private double getGrubbsTestStatistic() {
+        double mean = StatUtils.mean(this.doubleValues);
+        double stdDev = Math.sqrt(StatUtils.variance(this.doubleValues));
+        if (stdDev == 0) return Float.NaN; // early exit for std deviation 0
+
+        // doubleValues are already sorted
+        double maxDev = Math.abs(mean - this.doubleValues[0]);
+
+        //        System.out.println("mean/stddev/maxDev/grubbs: " + mereportan + " - " + stddev + " - " + maxDev + " - " + grubbs);
+        return maxDev / stdDev;
+    }
+
     @Override
     public Float getMinimumOutlier(List<Float> sample) {
         setValues(sample);
+
+        double alpha;
+        double grubbs = getGrubbsTestStatistic();
         int N = this.doubleValues.length;
-        double criticalValue = TestUtils.tTest(this.getMinimumValue(), this.doubleValues) / 2;
-        double testValue = (N - 1)/Math.sqrt(N)
-                * Math.sqrt((criticalValue*criticalValue)/(N - 2 + criticalValue*criticalValue));
-        double grubbsValue = calculateGrubbsTestCriterion(0);
-        return grubbsValue > testValue ? (float) this.doubleValues[0] : Float.NaN;
+
+        // set alpha
+        switch (flexibility) {
+            case RELAXED:
+                alpha = 0.1;
+                break;
+            case STRONG:
+                alpha = 0.01;
+                break;
+            case NORMAL:
+                alpha = 0.05;
+                break;
+            default:
+                alpha = 0.05;
+        }
+        // grubbs implementation
+        TDistribution t = new TDistribution(N - 2.0);
+//            double criticalValue = t.inverseCumulativeProbability(alpha / (2.0 * N));
+
+        // using significance level of alpha / N for the one-sided test
+        double criticalValue = t.inverseCumulativeProbability(alpha / N);
+        double criticalValueSquare = criticalValue * criticalValue;
+        double grubbsCompareValue = ((N - 1) / Math.sqrt(N)) *
+                Math.sqrt((criticalValueSquare) / (N - 2.0 + criticalValueSquare));
+        System.out.println("critical value: " + grubbs + " - " + grubbsCompareValue);
+        if (grubbs > grubbsCompareValue) {
+            return getMinimumValue();
+        } else {
+            return Float.NaN;
+        }
     }
 
     @Override

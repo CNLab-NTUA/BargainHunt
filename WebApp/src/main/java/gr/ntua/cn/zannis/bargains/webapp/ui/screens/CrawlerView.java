@@ -5,8 +5,8 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import gr.ntua.cn.zannis.bargains.statistics.Tester;
-import gr.ntua.cn.zannis.bargains.statistics.Tester.Flexibility;
+import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
+import gr.ntua.cn.zannis.bargains.statistics.TestType;
 import gr.ntua.cn.zannis.bargains.statistics.impl.ChauvenetTester;
 import gr.ntua.cn.zannis.bargains.statistics.impl.GrubbsTester;
 import gr.ntua.cn.zannis.bargains.statistics.impl.QuartileTester;
@@ -17,13 +17,14 @@ import gr.ntua.cn.zannis.bargains.webapp.ui.BargainHuntUI;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.TesterPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vaadin.captionpositions.CaptionPositions;
+import org.vaadin.captionpositions.client.CaptionPosition;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -37,28 +38,31 @@ public class CrawlerView extends VerticalLayout implements View {
     public static final String NAME = "crawler";
 
     public static final Logger log = LoggerFactory.getLogger(CrawlerView.class);
-    private List<Category> categories;
+    private Set<Category> cachedCategories;
     private Button crawlButton;
     private TextArea logArea;
-    //    private List<Category> availableCategories;
-    FileWriter fw;
-    BufferedWriter bw;
-
+    private BufferedWriter bw;
+    private Set<Sku> cachedSkus;
+    private Set<Product> cachedProducts;
 
     public CrawlerView() throws IOException {
 
-        try {
-            fw = new FileWriter(new File(System.getenv("HOME") + File.separator +
-                    "offers.txt"));
-            bw = new BufferedWriter(fw);
-        } catch (Exception e) {
-            throw e;
-        }
+        initCache();
+        FileWriter fw = new FileWriter(new File(System.getenv("HOME") + File.separator +
+                "offers.txt"));
+        bw = new BufferedWriter(fw);
         buildUI();
+    }
+
+    private void initCache() {
+        cachedCategories = new HashSet<>(((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findParsed(Category.class));
+        cachedSkus = new HashSet<>();
+        cachedProducts = new HashSet<>();
     }
 
     private void buildUI() throws IOException {
         setSizeFull();
+        setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         setMargin(true);
         // build logo
         Label logo = new Label("Skroutz Crawler");
@@ -87,42 +91,43 @@ public class CrawlerView extends VerticalLayout implements View {
         content.addComponent(testerLayout);
         content.addComponent(logArea);
         content.setExpandRatio(categoryLayout, 0.1f);
-        content.setExpandRatio(testerLayout, 0.3f);
-        content.setExpandRatio(logArea, 0.6f);
+        content.setExpandRatio(testerLayout, 0.4f);
+        content.setExpandRatio(logArea, 0.5f);
         content.setSizeFull();
         // add to ui
         addComponent(logo);
         addComponent(content);
         setComponentAlignment(logo, Alignment.MIDDLE_CENTER);
         setComponentAlignment(content, Alignment.MIDDLE_CENTER);
-        setExpandRatio(logo, 0.2f);
-        setExpandRatio(content, 0.8f);
+        setExpandRatio(logo, 0.05f);
+        setExpandRatio(content, 0.95f);
     }
 
     private HorizontalLayout buildTesterPanel() {
 
         HorizontalLayout panelLayout = new HorizontalLayout();
         panelLayout.setSizeFull();
+        panelLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
 
         VerticalLayout testersLayout = new VerticalLayout();
         TesterPanel[] testerPanels = new TesterPanel[3];
 
         int i = 0;
-        for (Tester.TestType type : Tester.TestType.values()) {
+        for (TestType type : TestType.values()) {
             testerPanels[i] = (new TesterPanel(type));
             testersLayout.addComponent(testerPanels[i++]);
         }
 
-        categories = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findParsedCategories(Category.class);
         VerticalLayout categoriesLayout = new VerticalLayout();
         Label categories = new Label("Αναζήτηση σε");
         CheckBox allCategories = new CheckBox("Όλες τις κατηγορίες");
-        allCategories.setValue(true);
-        ComboBox<Category> categorySelect = new ComboBox<>("Επιλογή", this.categories);
+        new CaptionPositions(categoriesLayout).setCaptionPosition(allCategories, CaptionPosition.LEFT);
+        allCategories.setValue(false);
+        ComboBox<Category> categorySelect = new ComboBox<>("Επιλογή", this.cachedCategories);
+        new CaptionPositions(panelLayout).setCaptionPosition(categorySelect, CaptionPosition.LEFT);
+        categorySelect.setItemCaptionGenerator(Category::getName);
         categoriesLayout.addComponents(categories, allCategories, categorySelect);
-        categoriesLayout.setWidth("30%");
         testersLayout.addComponents(testerPanels);
-        testersLayout.setWidth("100%");
         testersLayout.setSizeFull();
         Button crawlButton = new Button("Αναζήτηση");
         final List<Object> selectedCategories = new ArrayList<>();
@@ -138,10 +143,10 @@ public class CrawlerView extends VerticalLayout implements View {
 
             for (TesterPanel panel : testerPanels) {
                 if (panel.getTester() != null) {
-                    if (panel.getTester().getType() == Tester.TestType.GRUBBS) {
+                    if (panel.getTester().getType() == TestType.GRUBBS) {
                         grubbsTester = ((GrubbsTester) panel.getTester());
                         grubbsFlexibility = panel.getFlexibility();
-                    } else if (panel.getTester().getType() == Tester.TestType.CHAUVENET) {
+                    } else if (panel.getTester().getType() == TestType.CHAUVENET) {
                         chauvenetTester = ((ChauvenetTester) panel.getTester());
                         chauvenetFlexibility = panel.getFlexibility();
                     } else {
@@ -152,22 +157,40 @@ public class CrawlerView extends VerticalLayout implements View {
             }
 
             if (allCategories.getValue()) {
-                selectedCategories.addAll(this.categories);
+                selectedCategories.addAll(this.cachedCategories);
             } else {
                 selectedCategories.add(categorySelect.getValue());
             }
 
 
-            Flexibility chosenFlexibility = quartileTester.getFlexibility();
             for (Object c : selectedCategories) {
-                for (Sku s : ((Category) c).getSkus().stream().filter((Sku sku) -> sku.getProducts().size() > 2).collect(Collectors.toList())) {
-                    List<Float> prices = s.getProducts().stream().map(Product::getPrice).collect(Collectors.toList());
+                if (cachedSkus.isEmpty()) {
+                    Collection<Sku> skus = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findParsed(Sku.class, ((Category) c).getSkroutzId());
+                    cachedSkus.addAll(skus);
+                }
+                for (Sku s : cachedSkus) {
+                    if (cachedProducts.stream().noneMatch(p -> p.getSkuId() == s.getSkroutzId())) {
+                        cachedProducts.addAll(((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findProductsForSku(s.getSkroutzId()));
+                    }
+                    List<Float> prices = cachedProducts.stream().filter(p -> p.getSkuId() == s.getSkroutzId()).map(Product::getPrice).collect(Collectors.toList());
                     if (prices != null && prices.size() >= 3) {
 
                         // make the outlier tests
                         Float grubbsOutlier = grubbsTester != null ? grubbsTester.getMinimumOutlier(prices) : Float.NaN;
+                        while (grubbsTester != null && grubbsOutlier.equals(Float.NaN) && grubbsTester.getFlexibility().getMoreFlexible() != null) {
+                            grubbsTester.setFlexibility(grubbsTester.getFlexibility().getMoreFlexible());
+                            grubbsOutlier = grubbsTester.getMinimumOutlier(prices);
+                        }
                         Float chauvenetOutlier = chauvenetTester != null ? chauvenetTester.getMinimumOutlier(prices) : Float.NaN;
+                        while (chauvenetTester != null && chauvenetOutlier.equals(Float.NaN) && chauvenetTester.getFlexibility().getMoreFlexible() != null) {
+                            chauvenetTester.setFlexibility(chauvenetTester.getFlexibility().getMoreFlexible());
+                            chauvenetOutlier = chauvenetTester.getMinimumOutlier(prices);
+                        }
                         Float quartileOutlier = quartileTester != null ? quartileTester.getMinimumOutlier(prices) : Float.NaN;
+                        while (quartileTester != null && quartileOutlier.equals(Float.NaN) && quartileTester.getFlexibility().getMoreFlexible() != null) {
+                            quartileTester.setFlexibility(quartileTester.getFlexibility().getMoreFlexible());
+                            quartileOutlier = quartileTester.getMinimumOutlier(prices);
+                        }
 
                         boolean grubbsResult = !grubbsOutlier.equals(Float.NaN);
                         boolean chauvenetResult = !chauvenetOutlier.equals(Float.NaN);
@@ -213,22 +236,25 @@ public class CrawlerView extends VerticalLayout implements View {
                         } else if (quartileResult) {
                             lowestPrice = quartileOutlier;
                         }
-                        if (acceptedBy != -1) {
+                        if (acceptedBy != 0) {
                             // some outlier check confirmed an offer
                             Product product = Product.getCheapest(s.getProducts());
                             Offer offer;
                             if (product.getPrices() != null && !product.getPrices().isEmpty()) {
-                                offer = new Offer(product, product.getPrices().stream().filter(p -> p.getPrice() == product.getPrice()).findFirst().get(), acceptedBy, grubbsFlexibility, chauvenetFlexibility, quartileFlexibility);
+                                offer = new Offer(product, product.getPrices().stream()
+                                        .filter(p -> p.getPrice() == product.getPrice()).findFirst().get(), acceptedBy,
+                                        grubbsFlexibility, chauvenetFlexibility, quartileFlexibility);
                             } else {
-                                offer = new Offer(product, Price.fromProduct(product), acceptedBy, grubbsFlexibility, chauvenetFlexibility, quartileFlexibility);
+                                offer = new Offer(product, Price.fromProduct(product), acceptedBy, grubbsTester.getFlexibility(),
+                                        chauvenetTester.getFlexibility(), quartileTester.getFlexibility());
                             }
 
-//                            ((BargainHuntUI) UI.getCurrent()).getOfferEm().persist(offer);
+                            ((BargainHuntUI) UI.getCurrent()).getOfferEm().persist(offer);
                             String bargainFound = "Το προϊόν " + s.getName() + " βρίσκεται σε προσφορά στα " + lowestPrice + " ευρώ.";
                             log.info(bargainFound);
                             if (bw != null) {
                                 try {
-                                    bw.append(offer.toString());
+                                    bw.append(offer.toString()).append(System.lineSeparator());
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -240,22 +266,26 @@ public class CrawlerView extends VerticalLayout implements View {
             }
         });
         panelLayout.addComponents(testersLayout, categoriesLayout, crawlButton);
+        panelLayout.setExpandRatio(testersLayout, 0.50f);
+        panelLayout.setExpandRatio(categoriesLayout, 0.25f);
+        panelLayout.setExpandRatio(crawlButton, 0.25f);
         return panelLayout;
     }
 
     private HorizontalLayout buildPanel() throws IOException {
         HorizontalLayout categoryLayout = new HorizontalLayout();
         categoryLayout.setSizeFull();
+        categoryLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
 
-//        fetch categories from db
-//        not needed, categories already exist in the JPAContainer
-//        categories = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findAll(Category.class);
+//        fetch cachedCategories from db
+//        not needed, cachedCategories already exist in the JPAContainer
+//        cachedCategories = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findAll(Category.class);
 
         // build panel ui
         NativeSelect<String> flexibilitySelect = new NativeSelect<>("Εύρος εμπιστοσύνης :");
+        new CaptionPositions(categoryLayout).setCaptionPosition(flexibilitySelect, CaptionPosition.LEFT);
 
-        ComboBox<Category> categorySelect = new ComboBox<>(null, new ArrayList<>());
-        categorySelect.setWidth("90%");
+        ComboBox<Category> categorySelect = new ComboBox<>(null, this.cachedCategories);
         categorySelect.setEmptySelectionAllowed(false);
         categorySelect.setEmptySelectionCaption("Επιλέξτε κατηγορία :");
         categorySelect.setItemCaptionGenerator(Category::getName);
@@ -280,22 +310,15 @@ public class CrawlerView extends VerticalLayout implements View {
         crawlButton.setDisableOnClick(true);
         crawlButton.setEnabled(false);
         crawlButton.addClickListener(clickEvent -> {
-//            Flexibility chosenFlexibility = null;
             switch (flexibilitySelect.getValue()) {
                 case "Χαμηλό":
-//                    chosenFlexibility = Flexibility.RELAXED;
                     break;
                 case "Κανονικό":
-//                    chosenFlexibility = Flexibility.NORMAL;
                     break;
                 case "Υψηλό":
-//                    chosenFlexibility = Flexibility.STRONG;
                     break;
             }
-//            GrubbsTester grubbsTester = new GrubbsTester(chosenFlexibility);
-//            ChauvenetTester chauvenetTester = new ChauvenetTester(chosenFlexibility);
-//            QuartileTester quartileTester = new QuartileTester(chosenFlexibility);
-            String logCategory = "Κατέβασμα προϊόντων της κατηγορίας " + categories.stream().map(Category::getName);
+            String logCategory = "Κατέβασμα προϊόντων της κατηγορίας " + cachedCategories.stream().map(Category::getName);
             log.info(logCategory);
             logArea.setValue(logArea.getValue() + "\n" + logCategory);
             log.info("---------------------------------------------------------------------------------------");

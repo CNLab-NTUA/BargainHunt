@@ -4,38 +4,29 @@
     <parent>
         <artifactId>bargainhunt</artifactId>
         <groupId>gr.ntua.cn.zannis.bargains</groupId>
-        <version>0.5</version>
+        <version>0.9-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>webapp</artifactId>
+    <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
+    <artifactId>webapp</artifactId>
 
     <properties>
-        <!--<vaadin.version>7.5.8</vaadin.version>-->
-        <!--<wildfly.bom.version>8.2.0.Final</wildfly.bom.version>-->
-        <!--<wildfly.plugin.version>1.0.2.Final</wildfly.plugin.version>-->
-        <!--<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>-->
-        <jetty.plugin.version>9.2.3.v20140905</jetty.plugin.version>
+        <vaadin.version>8.0.3</vaadin.version>
+        <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+        <wildfly.bom.version>10.1.0.Final</wildfly.bom.version>
+        <wildfly.plugin.version>1.1.0.Final</wildfly.plugin.version>
         <project.source.version>1.8</project.source.version>
         <project.target.version>1.8</project.target.version>
         <project.encoding>UTF-8</project.encoding>
+        <vaadin.widgetset.mode>local</vaadin.widgetset.mode>
     </properties>
+
 
     <repositories>
         <repository>
             <id>vaadin-addons</id>
             <url>http://maven.vaadin.com/vaadin-addons</url>
-        </repository>
-        <repository>
-            <id>vaadin-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
         </repository>
     </repositories>
 
@@ -45,7 +36,7 @@
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-bom</artifactId>
-                <version>8.0.2</version>
+                <version>${vaadin.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -53,8 +44,8 @@
             <!--WildFly BOM-->
             <dependency>
                 <groupId>org.wildfly.bom</groupId>
-                <artifactId>jboss-javaee-7.0-with-logging</artifactId>
-                <version>8.2.2.Final</version>
+                <artifactId>wildfly-javaee7-with-tools</artifactId>
+                <version>${wildfly.bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -115,6 +106,7 @@
             <artifactId>jboss-annotations-api_1.2_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.jboss.spec.javax.servlet</groupId>
             <artifactId>jboss-servlet-api_3.1_spec</artifactId>
@@ -138,24 +130,27 @@
         </dependency>
 
         <!--Vaadin Addons-->
+        <!--<dependency>-->
+        <!--<groupId>org.vaadin.addons</groupId>-->
+        <!--<artifactId>restrain</artifactId>-->
+        <!--<version>0.1</version>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>org.vaadin.addons</groupId>
-            <artifactId>restrain</artifactId>
-            <version>0.1</version>
+            <groupId>org.vaadin.captionpositions</groupId>
+            <artifactId>CaptionPositions</artifactId>
+            <version>2.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-cdi</artifactId>
             <version>2.0.0</version>
         </dependency>
-
-        <!--Vaadin dependencies-->
-        <!--<dependency> commented because wildfly provides this-->
-        <!--<groupId>javax.servlet</groupId>-->
-        <!--<artifactId>javax.servlet-api</artifactId>-->
-        <!--<version>3.0.1</version>-->
-        <!--<scope>provided</scope>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-server</artifactId>
@@ -166,23 +161,8 @@
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-client</artifactId>
-            <scope>provided</scope>
+            <artifactId>vaadin-client-compiled</artifactId>
         </dependency>
-        <!--
-		  Needed when using the widgetset optimizer (custom ConnectorBundleLoaderFactory).
-
-		  For widgetset compilation, vaadin-rest-compiler is automatically added on the
-		  compilation classpath by vaadin-maven-plugin so normally there is no need for an
-		  explicit dependency.
-		-->
-        <!--
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-rest-compiler</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		-->
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-themes</artifactId>
@@ -206,8 +186,7 @@
         <dependency>
             <groupId>gr.ntua.cn.zannis.bargains</groupId>
             <artifactId>statistics</artifactId>
-            <version>0.5</version>
-            <!--<scope>compile</scope>-->
+            <version>0.9-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -215,64 +194,29 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
-                <configuration>
-                    <encoding>${project.encoding}</encoding>
-                    <source>${project.source.version}</source>
-                    <target>${project.target.version}</target>
-                    <excludes>
-                        <!--<exclude>**/rest/*</exclude>-->
-                        <!--<exclude>**/persistence/*</exclude>-->
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <encoding>${project.encoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.0.0</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <!-- Exclude some unnecessary files generated by the GWT compiler. -->
-                    <packagingExcludes>WEB-INF/classes/VAADIN/gwt-unitCache/**,
-                        WEB-INF/classes/VAADIN/widgetsets/WEB-INF/**
-                    </packagingExcludes>
+                    <!-- Exclude an unnecessary file generated by the GWT compiler. -->
+                    <packagingExcludes>WEB-INF/classes/VAADIN/widgetsets/WEB-INF/**</packagingExcludes>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
-                <version>8.0.2</version>
-                <configuration>
-                    <extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
-                    <webappDirectory>${basedir}/target/classes/VAADIN/widgetsets</webappDirectory>
-                    <draftCompile>false</draftCompile>
-                    <compileReport>false</compileReport>
-                    <style>OBF</style>
-                </configuration>
+                <version>${vaadin.plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
+                            <goal>update-theme</goal>
                             <goal>update-widgetset</goal>
                             <goal>compile</goal>
-                            <!-- disabled by default to use on-the-fly theme compilation -->
-                            <!-- <goal>compile-theme</goal> -->
+                            <!-- Comment out compile-theme goal to use on-the-fly theme compilation -->
+                            <goal>compile-theme</goal>
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -292,33 +236,60 @@
                 </configuration>
             </plugin>
 
-            <!-- The Jetty plugin allows us to easily test the development build by
-				running jetty:run on the command line. -->
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>${jetty.plugin.version}</version>
-                <configuration>
-                    <scanIntervalSeconds>2</scanIntervalSeconds>
-                    <stopKey/>
-                    <stopPort/>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
-                <version>1.1.0.Beta1</version>
+                <version>${wildfly.plugin.version}</version>
                 <configuration>
                     <jbossHome>/opt/wildfly/</jbossHome>
                     <serverConfig>standalone.xml</serverConfig>
-                    <!--<javaOpts>-->
-                    <!--<javaOpt>-agentlib:jdwp=transport=dt_socket,suspend=y,server=n,address=127.0.0.1:41987</javaOpt>-->
-                    <!--</javaOpts>-->
                 </configuration>
             </plugin>
 
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <!-- Vaadin pre-release repositories -->
+            <id>vaadin-prerelease</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <repositories>
+                <repository>
+                    <id>vaadin-prereleases</id>
+                    <url>http://maven.vaadin.com/vaadin-prereleases</url>
+                </repository>
+                <repository>
+                    <id>vaadin-snapshots</id>
+                    <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>vaadin-prereleases</id>
+                    <url>http://maven.vaadin.com/vaadin-prereleases</url>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>vaadin-snapshots</id>
+                    <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
 
 </project>

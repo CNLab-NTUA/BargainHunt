@@ -42,29 +42,5 @@ public interface Tester {
      */
     TestType getType();
 
-    /**
-     * Enumeration that defines the available statistical tests for outlier deteection.
-     */
-    enum TestType {
-        GRUBBS,
-        CHAUVENET,
-        QUARTILE
-    }
 
-    enum Flexibility {
-        RELAXED(3),
-        NORMAL(2),
-        STRONG(1),
-        DEFAULT(4);
-
-        private final int number;
-
-        Flexibility(int number) {
-            this.number = number;
-        }
-
-        public short getNumber() {
-            return (short) number;
-        }
-    }
 }

@@ -1,7 +1,6 @@
 package gr.ntua.cn.zannis.bargains.webapp.ui;
 
 import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.Widgetset;
 import com.vaadin.cdi.CDIUI;
 import com.vaadin.cdi.CDIViewProvider;
 import com.vaadin.navigator.Navigator;
@@ -23,7 +22,6 @@ import java.util.Locale;
  */
 @CDIUI("")
 @Theme("bargainhunt")
-@Widgetset("gr.ntua.cn.zannis.bargains.webapp.BargainHuntWidgetset")
 public class BargainHuntUI extends UI {
 
     @Inject

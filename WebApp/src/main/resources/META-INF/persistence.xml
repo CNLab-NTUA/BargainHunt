@@ -13,8 +13,9 @@
         <class>gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Price</class>
         <class>gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Request</class>
         <class>gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Offer</class>
+        <shared-cache-mode>ALL</shared-cache-mode>
         <properties>
-            <property name="eclipselink.logging.level" value="FINE"/>
+            <property name="eclipselink.logging.level" value="INFO"/>
             <property name="eclipselink.persistence-context.flush-mode" value="auto"/>
             <property name="eclipselink.target-database" value="PostgreSQL"/>
             <property name="eclipselink.target-server" value="JBoss"/>

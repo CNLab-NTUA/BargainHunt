@@ -1,5 +1,7 @@
 package gr.ntua.cn.zannis.bargains.statistics.impl;
 
+import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
+import gr.ntua.cn.zannis.bargains.statistics.TestType;
 import org.apache.commons.math3.stat.StatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,9 +108,6 @@ public class QuartileTester extends BaseTester {
             case STRONG:
                 this.kappa = 1.8f;
                 break;
-            case DEFAULT:
-                this.kappa = 1.5f;
-                break;
         }
     }
 
@@ -134,9 +133,9 @@ public class QuartileTester extends BaseTester {
     @Override
     public Float getMinimumOutlier(List<Float> sample) {
         setValues(sample);
+        if (StatUtils.variance(this.doubleValues) == 0) return Float.NaN;
         List<Float> outliers = getLowOutliers();
-        if (!outliers.isEmpty()) return outliers.get(0);
-        else return Float.NaN;
+        return !outliers.isEmpty() ? outliers.get(0) : Float.NaN;
 
     }
 

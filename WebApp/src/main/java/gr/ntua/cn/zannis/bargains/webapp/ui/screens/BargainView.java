@@ -6,7 +6,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import gr.ntua.cn.zannis.bargains.statistics.Tester.Flexibility;
+import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
 import gr.ntua.cn.zannis.bargains.statistics.impl.GrubbsTester;
 import gr.ntua.cn.zannis.bargains.statistics.impl.QuartileTester;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
@@ -43,8 +43,8 @@ public class BargainView extends VerticalLayout implements View {
     private void renderBargain(Sku sku) {
         Label label = new Label("Πληροφορίες για το προϊόν " + sku.getName());
         List<Float> prices = products.stream().map(Product::getPrice).collect(Collectors.toList());
-        QuartileTester quartileTester = new QuartileTester(Flexibility.DEFAULT);
-        GrubbsTester grubbsTester = new GrubbsTester(Flexibility.DEFAULT);
+        QuartileTester quartileTester = new QuartileTester(Flexibility.NORMAL);
+        GrubbsTester grubbsTester = new GrubbsTester(Flexibility.NORMAL);
 
         Float grubbsResult = grubbsTester.getMinimumOutlier(prices);
         Float quartileResult = quartileTester.getMinimumOutlier(prices);

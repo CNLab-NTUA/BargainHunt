@@ -32,7 +32,7 @@ public class OfferEntityManager {
 
         TypedQuery<Offer> q = em.createNamedQuery(Offer.class.getSimpleName() + ".findActive", Offer.class);
         q.setMaxResults(offersToReturn);
-        q.setParameter("someDate", Date.from(Instant.now().minus(5, ChronoUnit.DAYS)), TemporalType.DATE);
+        q.setParameter("someDate", Date.from(Instant.now().minus(60, ChronoUnit.DAYS)), TemporalType.DATE);
         try {
             results = q.getResultList();
         } catch (NoResultException e) {

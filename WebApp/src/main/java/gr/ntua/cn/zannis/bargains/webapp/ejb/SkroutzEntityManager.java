@@ -17,6 +17,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -92,9 +93,12 @@ public class SkroutzEntityManager {
         return result;
     }
 
-    public <T extends SkroutzEntity> List<T> findParsedCategories(Class<T> tClass) throws RuntimeException {
+    public <T extends SkroutzEntity> List<T> findParsed(Class<T> tClass, int... ids) throws RuntimeException {
         List<T> result;
         TypedQuery<T> q = createNamedQuery(tClass.getSimpleName() + ".findCrawled", tClass);
+        if (ids.length == 1) {
+            q.setParameter("categ_id", ids[0]);
+        }
         try {
             result = q.getResultList();
         } catch (Exception e) {
@@ -104,12 +108,8 @@ public class SkroutzEntityManager {
         return result;
     }
 
-    public <T extends SkroutzEntity> TypedQuery<T> createNamedQuery(String namedQuery, Class<T> tClass) {
-//        if (em.isOpen()) {
+    private <T extends SkroutzEntity> TypedQuery<T> createNamedQuery(String namedQuery, Class<T> tClass) {
         return em.createNamedQuery(namedQuery, tClass);
-//        } else {
-//            em.
-//        }
     }
 
     public <T extends SkroutzEntity> void persistOrMerge(Class<T> tClass, List<T> objects) {
@@ -200,4 +200,25 @@ public class SkroutzEntityManager {
     public void flush() {
         em.flush();
     }
+
+    public Collection<Product> findProductsForSku(int skroutzId) {
+        TypedQuery<Product> q = em.createNamedQuery("Product.findAllBySku", Product.class);
+        q.setParameter("sku", skroutzId);
+        return q.getResultList();
+    }
+
+//    public void initMissingPrices() {
+//        TypedQuery<Sku> q = em.createNamedQuery("Sku.findAllByCategory", Sku.class);
+//        q.setParameter("categ_id", 1705);
+//        for (Sku s : q.getResultList()) {
+//            for (Product p : s.getProducts()) {
+//                if (p.getPrice() > 0 && p.getPrices().isEmpty()) {
+//                    p.getPrices().add(Price.fromProduct(p));
+//                    em.merge(p);
+//                } else {
+//                    log.info("price 0! -> " + p.toString());
+//                }
+//            }
+//        }
+//    }
 }

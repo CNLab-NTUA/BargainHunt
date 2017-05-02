@@ -36,6 +36,9 @@ public class MainView extends VerticalLayout implements View {
         // build searchbar
         SearchField searchField = new SearchField();
         // build latest offers
+        Label offerLogo = new Label("Οι τελευταίες προσφορές");
+        offerLogo.setSizeUndefined();
+        offerLogo.setStyleName(ValoTheme.LABEL_LARGE);
         HorizontalLayout offerBar = new HorizontalLayout();
 
         int numberOfOffers = 5;
@@ -55,8 +58,14 @@ public class MainView extends VerticalLayout implements View {
         setComponentAlignment(logo, Alignment.MIDDLE_CENTER);
         addComponent(searchField);
         setComponentAlignment(searchField, Alignment.MIDDLE_CENTER);
+        addComponent(offerLogo);
+        setComponentAlignment(offerLogo, Alignment.MIDDLE_CENTER);
         addComponent(offerBar);
         setComponentAlignment(offerBar, Alignment.MIDDLE_CENTER);
+        setExpandRatio(logo, .1f);
+        setExpandRatio(searchField, .2f);
+        setExpandRatio(offerLogo, .05f);
+        setExpandRatio(offerBar, .65f);
         offerBar.setMargin(new MarginInfo(true));
         offerBar.setSpacing(true);
 

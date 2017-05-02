@@ -23,6 +23,18 @@ public class Price {
     private Product product;
     private int productId;
 
+
+    @PrePersist
+    private void prePersist() {
+        this.checkedAt = new Date();
+    }
+
+
+    @PreUpdate
+    private void preUpdate() {
+        this.checkedAt = new Date();
+    }
+
     @Id
     @GeneratedValue(generator = "PriceSequence")
     @SequenceGenerator(name = "PriceSequence", sequenceName = "price_seq", allocationSize = 1)
@@ -74,11 +86,6 @@ public class Price {
 
     public void setProductId(int product_id) {
         this.productId = product_id;
-    }
-
-    @PrePersist
-    private void prePersist() {
-        this.checkedAt = new Date();
     }
 
     @Override

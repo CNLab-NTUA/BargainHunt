@@ -7,14 +7,19 @@
     <groupId>gr.ntua.cn.zannis.bargains</groupId>
     <artifactId>bargainhunt</artifactId>
     <packaging>pom</packaging>
-    <version>0.5</version>
-    <name>BargainHunt</name>
+    <version>0.9-SNAPSHOT</version>
+    <name>bargainhunt</name>
+
+    <prerequisites>
+        <maven>3</maven>
+    </prerequisites>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdk.version>1.8</jdk.version>
+        <vaadin.widgetset.mode>local</vaadin.widgetset.mode>
     </properties>
 
     <repositories>
@@ -24,7 +29,6 @@
             <url>http://repository.jboss.org/maven2</url>
         </repository>
     </repositories>
-
 
     <dependencies>
         <!-- Logback -->

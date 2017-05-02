@@ -21,14 +21,14 @@ import java.util.Objects;
  * @author zannis <zannis.kal@gmail.com
  */
 @JsonRootName("product")
-@JsonIgnoreProperties({"web_uri", "sizes", "immediate_pickup"})
+@JsonIgnoreProperties({"web_uri", "expenses", "sizes", "immediate_pickup"})
 @Entity
 @Table(name = "products", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
-        @NamedQuery(name = "Product.findAll", query = "select p from Product p"),
-        @NamedQuery(name = "Product.findBySkroutzId", query = "select p from Product p where p.skroutzId = :skroutzId"),
-        @NamedQuery(name = "Product.findAllByShop", query = "select p from Product p where p.shop = :shop"),
-        @NamedQuery(name = "Product.findAllBySku", query = "select p from Product p where p.sku = :sku")
+        @NamedQuery(name = "Product.findAll", query = "select p from Product p join fetch p.prices"),
+        @NamedQuery(name = "Product.findBySkroutzId", query = "select p from Product p join fetch p.prices where p.skroutzId = :skroutzId"),
+        @NamedQuery(name = "Product.findAllByShop", query = "select p from Product p join fetch p.prices where p.shopId = :shop"),
+        @NamedQuery(name = "Product.findAllBySku", query = "select p from Product p join fetch p.prices where p.skuId = :sku")
 })
 public class Product extends SkroutzEntity {
 
@@ -45,7 +45,6 @@ public class Product extends SkroutzEntity {
     private String clickUrl;
     private String shopUid;
     private float price;
-    private String expenses;
     private boolean bargain;
     private Sku sku;
     private Shop shop;
@@ -62,8 +61,7 @@ public class Product extends SkroutzEntity {
                    @JsonProperty("availability") String availability,
                    @JsonProperty("click_url") String clickUrl,
                    @JsonProperty("shop_uid") String shopUid,
-                   @JsonProperty("price") float price,
-                   @JsonProperty("expenses") String expenses) {
+                   @JsonProperty("price") float price) {
         super();
         this.skroutzId = skroutzId;
         this.name = StringEscapeUtils.unescapeJson(name);
@@ -74,7 +72,6 @@ public class Product extends SkroutzEntity {
         this.clickUrl = clickUrl;
         this.shopUid = shopUid;
         this.price = price;
-        this.expenses = expenses;
     }
 
     public Product() {
@@ -96,7 +93,7 @@ public class Product extends SkroutzEntity {
         if (this.prices == null) {
             this.prices = new ArrayList<>();
         }
-        if (!this.prices.stream().anyMatch(p -> p.getPrice() == this.price)) {
+        if (this.prices.stream().noneMatch(p -> p.getPrice() == this.price)) {
             Price price = Price.fromProduct(this);
             this.prices.add(price);
         }
@@ -222,15 +219,6 @@ public class Product extends SkroutzEntity {
 
     public void setBargain(boolean bargain) {
         this.bargain = bargain;
-    }
-
-    @Transient
-    public String getExpenses() {
-        return expenses;
-    }
-
-    public void setExpenses(String expenses) {
-        this.expenses = expenses;
     }
 
     @Override

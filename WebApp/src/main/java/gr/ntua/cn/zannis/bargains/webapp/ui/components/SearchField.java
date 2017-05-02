@@ -10,7 +10,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 import gr.ntua.cn.zannis.bargains.webapp.ui.screens.SearchView;
-import org.vaadin.jouni.restrain.Restrain;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -26,13 +25,11 @@ public class SearchField extends HorizontalLayout {
     private Button searchButton = new Button();
     private Binder<String> binder = new Binder<>();
 
-//    private ResourceBundle messages;
-
     public SearchField() {
 //        buildI18n();
         buildTextField();
         buildButton();
-        new Restrain(this).setMinWidth("200px").setMaxWidth("400px");
+//        new Restrain(this).setMinWidth("200px").setMaxWidth("400px");
     }
 
     private void buildButton() {

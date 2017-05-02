@@ -1,5 +1,6 @@
 package gr.ntua.cn.zannis.bargains.webapp.persistence.entities;
 
+import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -9,16 +10,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static gr.ntua.cn.zannis.bargains.statistics.Tester.Flexibility;
-
 /**
  * @author zannis <zannis.kal@gmail.com
  */
 @Entity
 @Table(name = "offers", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
-        @NamedQuery(name = "Offer.findAll", query = "select o from Offer o"),
-        @NamedQuery(name = "Offer.findActive", query = "select o from Offer o where " +
+        @NamedQuery(name = "Offer.findAll", query = "select o from Offer o join fetch o.product join fetch o.price"),
+        @NamedQuery(name = "Offer.findActive", query = "select o from Offer o join fetch o.product join fetch o.price where " +
                 "o.insertedAt > :someDate and " +
                 "o.finishedAt is null")
 })
@@ -44,13 +43,16 @@ public class Offer implements Serializable {
 
     @Override
     public String toString() {
-        return "Offer{" + id +
-                ", product=" + product.getName() +
+        return "Offer{" +
+                "id=" + id +
                 ", price=" + price.getPrice() +
+                ", product=" + product.getName() +
                 ", acceptedBy=" + acceptedBy +
                 ", grubbsFlexibility=" + grubbsFlexibility +
                 ", chauvenetFlexibility=" + chauvenetFlexibility +
                 ", quartileFlexibility=" + quartileFlexibility +
+                ", productId=" + productId +
+                ", priceId=" + priceId +
                 '}';
     }
 
@@ -61,11 +63,19 @@ public class Offer implements Serializable {
             this.product.setOffers(new ArrayList<>());
         }
         this.product.getOffers().add(this);
+        this.productId = this.product.getId();
         this.price = price;
+        this.priceId = this.price.getId();
         this.acceptedBy = acceptedBy;
-        this.grubbsFlexibility = grubbs;
-        this.chauvenetFlexibility = chauvenet;
-        this.quartileFlexibility = quartile;
+        if (acceptedBy == 1 || acceptedBy == 4 || acceptedBy == 5 || acceptedBy == 7) {
+            this.grubbsFlexibility = grubbs;
+        }
+        if (acceptedBy == 2 || acceptedBy == 4 || acceptedBy == 6 || acceptedBy == 7) {
+            this.chauvenetFlexibility = chauvenet;
+        }
+        if (acceptedBy == 3 || acceptedBy == 5 || acceptedBy == 6 || acceptedBy == 7) {
+            this.quartileFlexibility = quartile;
+        }
     }
 
     @PrePersist
@@ -123,8 +133,8 @@ public class Offer implements Serializable {
         this.acceptedBy = acceptedBy;
     }
 
-    @NotNull
-    @Column(name = "flexibility")
+    @Column(name = "grubbs_flexibility")
+    @Enumerated(EnumType.ORDINAL)
     public Flexibility getGrubbsFlexibility() {
         return grubbsFlexibility;
     }
@@ -250,6 +260,7 @@ public class Offer implements Serializable {
         }
     }
 
+    @Column(name = "chauvenet_flexibility")
     public Flexibility getChauvenetFlexibility() {
         return chauvenetFlexibility;
     }
@@ -258,6 +269,7 @@ public class Offer implements Serializable {
         this.chauvenetFlexibility = chauvenetFlexibility;
     }
 
+    @Column(name = "quartile_flexibility")
     public Flexibility getQuartileFlexibility() {
         return quartileFlexibility;
     }

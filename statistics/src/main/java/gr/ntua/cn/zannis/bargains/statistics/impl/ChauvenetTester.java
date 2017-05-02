@@ -1,6 +1,9 @@
 package gr.ntua.cn.zannis.bargains.statistics.impl;
 
+import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
+import gr.ntua.cn.zannis.bargains.statistics.TestType;
 import org.apache.commons.math3.analysis.function.Abs;
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.slf4j.Logger;
@@ -21,7 +24,7 @@ public class ChauvenetTester extends BaseTester {
      *
      * @param flexibility The flexibility value to use.
      */
-    public ChauvenetTester(Flexibility flexibility) {
+    ChauvenetTester(Flexibility flexibility) {
         super(flexibility);
         setSignificanceValue(flexibility);
         log.info("Created new ChauvenetTester with " + flexibility.name() + " flexibility.");
@@ -66,13 +69,42 @@ public class ChauvenetTester extends BaseTester {
     @Override
     public Float getMinimumOutlier(List<Float> sample) {
         setValues(sample);
-        double chauvenetValue = selectChauvenetValue(this.doubleValues.length);
+
+        // calculate D_max or maximum allowable deviation for sample
         double mean = StatUtils.mean(this.doubleValues);
-        double s = new StandardDeviation().evaluate(this.doubleValues, mean);
+        double stdDev = new StandardDeviation().evaluate(this.doubleValues, mean);
+        if (stdDev == 0) return Float.NaN; // early exit for std deviation 0
         double x = this.doubleValues[0];
-        double standardisedDeviation = new Abs().value(mean - x) / s;
-        if (standardisedDeviation > chauvenetValue) return getMinimumValue();
-        else return Float.NaN;
+        double maxAllowableDeviation = new Abs().value(mean - x) / stdDev;
+
+        // calculate confidence band for one tail of the sample distribution
+        double confidenceBand = 1d - (1d / (4 * sample.size()));
+
+        // calculate probability based on normal distribution with the same sample size and mean
+        double X;
+        switch (flexibility) {
+            case NORMAL:
+                X = 1d - confidenceBand;
+                break;
+            case STRONG:
+                X = (1d - confidenceBand) / 2d;
+                break;
+            case RELAXED:
+                X = (1d - confidenceBand) * 2d;
+                break;
+            default:
+                X = 1d - confidenceBand;
+        }
+        double zScore = Float.NaN;
+        try {
+            zScore = new NormalDistribution(mean, stdDev).cumulativeProbability(x);
+            // calculate Chauvenet criterion
+            return (zScore * sample.size() < 0.5) ? getMinimumValue() : Float.valueOf(Float.NaN);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            return Float.NaN;
+        }
     }
 
     @Override
