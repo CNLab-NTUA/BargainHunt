@@ -174,7 +174,7 @@ public class GrubbsTester extends BaseTester {
         double criticalValueSquare = criticalValue * criticalValue;
         double grubbsCompareValue = ((N - 1) / Math.sqrt(N)) *
                 Math.sqrt((criticalValueSquare) / (N - 2.0 + criticalValueSquare));
-        System.out.println("critical value: " + grubbs + " - " + grubbsCompareValue);
+//        System.out.println("critical value: " + grubbs + " - " + grubbsCompareValue);
         if (grubbs > grubbsCompareValue) {
             return getMinimumValue();
         } else {

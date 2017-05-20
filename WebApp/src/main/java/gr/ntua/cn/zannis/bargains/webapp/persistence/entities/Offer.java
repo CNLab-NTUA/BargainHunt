@@ -19,7 +19,12 @@ import java.util.Date;
         @NamedQuery(name = "Offer.findAll", query = "select o from Offer o join fetch o.product join fetch o.price"),
         @NamedQuery(name = "Offer.findActive", query = "select o from Offer o join fetch o.product join fetch o.price where " +
                 "o.insertedAt > :someDate and " +
-                "o.finishedAt is null")
+                "o.finishedAt is null " +
+                "order by o.checkedAt desc"),
+        @NamedQuery(name = "Offer.findByProduct", query = "select o from Offer o join fetch o.product join fetch o.price where " +
+                "o.productId = :product and " +
+                "o.finishedAt is null " +
+                "order by o.checkedAt desc")
 })
 public class Offer implements Serializable {
 
@@ -87,6 +92,7 @@ public class Offer implements Serializable {
 
     @PreUpdate
     private void preUpdate() {
+
         this.checkedAt = new Date();
     }
 

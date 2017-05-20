@@ -1,6 +1,7 @@
 package gr.ntua.cn.zannis.bargains.webapp.ejb;
 
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Offer;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +43,25 @@ public class OfferEntityManager {
             results = Collections.emptyList();
             Notifier.error("Υπήρξε κάποιο πρόβλημα", e);
         }
+
+        for (Offer o : results) {
+
+        }
         return results;
     }
 
     public Offer persist(Offer offer) {
         em.persist(offer);
         return offer;
+    }
+
+    public Offer findByProduct(Product product) {
+        TypedQuery<Offer> q = em.createNamedQuery("Offer.findByProduct", Offer.class);
+        q.setParameter("product", product.getId());
+        q.setMaxResults(1);
+        if (q.getResultList().isEmpty()) {
+            return null;
+        }
+        return q.getResultList().get(0);
     }
 }

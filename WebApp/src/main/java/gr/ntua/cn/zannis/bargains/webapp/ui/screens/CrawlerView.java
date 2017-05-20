@@ -24,6 +24,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,8 @@ public class CrawlerView extends VerticalLayout implements View {
     private BufferedWriter bw;
     private Set<Sku> cachedSkus;
     private Set<Product> cachedProducts;
+    private ComboBox<Category> categorySelect;
+
 
     public CrawlerView() throws IOException {
 
@@ -72,8 +75,8 @@ public class CrawlerView extends VerticalLayout implements View {
         VerticalLayout content = new VerticalLayout();
 
         // build category chooser panel
-        HorizontalLayout categoryLayout = buildPanel();
-        categoryLayout.setSizeFull();
+//        HorizontalLayout categoryLayout = buildPanel();
+//        categoryLayout.setSizeFull();
         HorizontalLayout testerLayout = buildTesterPanel();
         testerLayout.setSizeFull();
 
@@ -87,11 +90,11 @@ public class CrawlerView extends VerticalLayout implements View {
         logArea.setSizeFull();
 
         // add to content pane
-        content.addComponent(categoryLayout);
+//        content.addComponent(categoryLayout);
         content.addComponent(testerLayout);
         content.addComponent(logArea);
-        content.setExpandRatio(categoryLayout, 0.1f);
-        content.setExpandRatio(testerLayout, 0.4f);
+//        content.setExpandRatio(categoryLayout, 0.3f);
+        content.setExpandRatio(testerLayout, 0.5f);
         content.setExpandRatio(logArea, 0.5f);
         content.setSizeFull();
         // add to ui
@@ -123,10 +126,11 @@ public class CrawlerView extends VerticalLayout implements View {
         CheckBox allCategories = new CheckBox("Όλες τις κατηγορίες");
         new CaptionPositions(categoriesLayout).setCaptionPosition(allCategories, CaptionPosition.LEFT);
         allCategories.setValue(false);
-        ComboBox<Category> categorySelect = new ComboBox<>("Επιλογή", this.cachedCategories);
+        categorySelect = new ComboBox<>("Επιλογή", this.cachedCategories);
         new CaptionPositions(panelLayout).setCaptionPosition(categorySelect, CaptionPosition.LEFT);
         categorySelect.setItemCaptionGenerator(Category::getName);
-        categoriesLayout.addComponents(categories, allCategories, categorySelect);
+        TextField resultsToRetrieve = new TextField("Σύνολο αποτελεσμάτων", "250");
+        categoriesLayout.addComponents(categories, allCategories, categorySelect, resultsToRetrieve);
         testersLayout.addComponents(testerPanels);
         testersLayout.setSizeFull();
         Button crawlButton = new Button("Αναζήτηση");
@@ -156,113 +160,238 @@ public class CrawlerView extends VerticalLayout implements View {
                 }
             }
 
+            selectedCategories.clear();
             if (allCategories.getValue()) {
                 selectedCategories.addAll(this.cachedCategories);
             } else {
                 selectedCategories.add(categorySelect.getValue());
             }
 
+            int pages = 10;
+            try {
+                if (Integer.parseInt(resultsToRetrieve.getValue()) % 25 == 0) {
+                    pages = Integer.parseInt(resultsToRetrieve.getValue()) / 25;
+                }
+            } catch (NumberFormatException e) {
+                logInfo("Λάθος όριο αποτελεσμάτων, χρησιμοποιείται το default : 250");
+            }
+
 
             for (Object c : selectedCategories) {
-                if (cachedSkus.isEmpty()) {
-                    Collection<Sku> skus = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findParsed(Sku.class, ((Category) c).getSkroutzId());
-                    cachedSkus.addAll(skus);
-                }
-                for (Sku s : cachedSkus) {
-                    if (cachedProducts.stream().noneMatch(p -> p.getSkuId() == s.getSkroutzId())) {
-                        cachedProducts.addAll(((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findProductsForSku(s.getSkroutzId()));
-                    }
-                    List<Float> prices = cachedProducts.stream().filter(p -> p.getSkuId() == s.getSkroutzId()).map(Product::getPrice).collect(Collectors.toList());
-                    if (prices != null && prices.size() >= 3) {
-
-                        // make the outlier tests
-                        Float grubbsOutlier = grubbsTester != null ? grubbsTester.getMinimumOutlier(prices) : Float.NaN;
-                        while (grubbsTester != null && grubbsOutlier.equals(Float.NaN) && grubbsTester.getFlexibility().getMoreFlexible() != null) {
-                            grubbsTester.setFlexibility(grubbsTester.getFlexibility().getMoreFlexible());
-                            grubbsOutlier = grubbsTester.getMinimumOutlier(prices);
+                String logCategory = "Κατέβασμα προϊόντων της κατηγορίας " + ((Category) c).getName();
+                logInfo(logCategory);
+                logInfo("---------------------------------------------------------------------------------------");
+                cachedSkus = new HashSet<>();
+                cachedProducts = new HashSet<>();
+                try {
+                    Page<Sku> skuPage = SkroutzClient.getInstance().getNested(((Category) c), Sku.class);
+                    while (skuPage != null && skuPage.getCurrentPage() <= pages && (skuPage.hasNext() || skuPage.isLastPage())) {
+                        logInfo("Κατέβηκαν " + skuPage.getPer() + " μοναδικά προϊόντα.");
+                        if (skuPage.getCurrentPage() != 1) {
+                            cachedSkus.addAll(((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(Sku.class, skuPage.getItems()));
                         }
-                        Float chauvenetOutlier = chauvenetTester != null ? chauvenetTester.getMinimumOutlier(prices) : Float.NaN;
-                        while (chauvenetTester != null && chauvenetOutlier.equals(Float.NaN) && chauvenetTester.getFlexibility().getMoreFlexible() != null) {
-                            chauvenetTester.setFlexibility(chauvenetTester.getFlexibility().getMoreFlexible());
-                            chauvenetOutlier = chauvenetTester.getMinimumOutlier(prices);
-                        }
-                        Float quartileOutlier = quartileTester != null ? quartileTester.getMinimumOutlier(prices) : Float.NaN;
-                        while (quartileTester != null && quartileOutlier.equals(Float.NaN) && quartileTester.getFlexibility().getMoreFlexible() != null) {
-                            quartileTester.setFlexibility(quartileTester.getFlexibility().getMoreFlexible());
-                            quartileOutlier = quartileTester.getMinimumOutlier(prices);
-                        }
+                        for (Sku sku : skuPage.getItems()) {
+                            // this should always exist since it was just persisted/merged
+                            Sku dbSku = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().find(Sku.class, sku.getSkroutzId());
+                            List<Product> products = SkroutzClient.getInstance().getNestedAsList(dbSku, Product.class);
+                            cachedProducts.addAll(products);
+                            if (products != null) {
+                                for (Product p : products) {
+                                    Price price = Price.fromProduct(p);
+                                    if (p.getPrices() == null) {
+                                        p.setPrices(new ArrayList<>());
+                                    }
+                                    if (p.getPrices().stream().noneMatch(tp -> tp.getPrice() == price.getPrice())) {
+                                        p.getPrices().add(price);
+                                    }
 
-                        boolean grubbsResult = !grubbsOutlier.equals(Float.NaN);
-                        boolean chauvenetResult = !chauvenetOutlier.equals(Float.NaN);
-                        boolean quartileResult = !quartileOutlier.equals(Float.NaN);
-
-                        short acceptedBy = Offer.calculateAcceptedBy(grubbsResult, chauvenetResult, quartileResult);
-
-                        if (acceptedBy != 0) {
-                            String bargainFound = "Το προϊόν " + s.getName() + " βρίσκεται σε προσφορά σύμφωνα με τους ελέγχους: ";
-                            switch (acceptedBy) {
-                                case 1:
-                                    bargainFound += "Grubbs";
-                                    break;
-                                case 2:
-                                    bargainFound += "Chauvenet";
-                                    break;
-                                case 3:
-                                    bargainFound += "Τεταρτημορία";
-                                    break;
-                                case 4:
-                                    bargainFound += "Grubbs, Chauvenet";
-                                    break;
-                                case 5:
-                                    bargainFound += "Grubbs, Τεταρτημόρια";
-                                    break;
-                                case 6:
-                                    bargainFound += "Chauvenet, Τεταρτημόρια";
-                                    break;
-                                case 7:
-                                    bargainFound += "Grubbs, Chauvenet, Τεταρτημόρια";
-                                    break;
-                            }
-                            log.info(bargainFound);
-                            logArea.setValue(logArea.getValue() + "\n" + bargainFound);
-                        }
-
-
-                        Float lowestPrice = null;
-                        if (grubbsResult) {
-                            lowestPrice = grubbsOutlier;
-                        } else if (chauvenetResult) {
-                            lowestPrice = chauvenetOutlier;
-                        } else if (quartileResult) {
-                            lowestPrice = quartileOutlier;
-                        }
-                        if (acceptedBy != 0) {
-                            // some outlier check confirmed an offer
-                            Product product = Product.getCheapest(s.getProducts());
-                            Offer offer;
-                            if (product.getPrices() != null && !product.getPrices().isEmpty()) {
-                                offer = new Offer(product, product.getPrices().stream()
-                                        .filter(p -> p.getPrice() == product.getPrice()).findFirst().get(), acceptedBy,
-                                        grubbsFlexibility, chauvenetFlexibility, quartileFlexibility);
-                            } else {
-                                offer = new Offer(product, Price.fromProduct(product), acceptedBy, grubbsTester.getFlexibility(),
-                                        chauvenetTester.getFlexibility(), quartileTester.getFlexibility());
-                            }
-
-                            ((BargainHuntUI) UI.getCurrent()).getOfferEm().persist(offer);
-                            String bargainFound = "Το προϊόν " + s.getName() + " βρίσκεται σε προσφορά στα " + lowestPrice + " ευρώ.";
-                            log.info(bargainFound);
-                            if (bw != null) {
-                                try {
-                                    bw.append(offer.toString()).append(System.lineSeparator());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
                                 }
+                                List<Float> prices = products.stream().filter(pr -> pr.getSkuId() == dbSku.getSkroutzId()).map(Product::getPrice).collect(Collectors.toList());
+                                if (prices != null && prices.size() >= 3) {
+
+                                    // make the outlier tests
+                                    Float grubbsOutlier = grubbsTester != null ? grubbsTester.getMinimumOutlier(prices) : Float.NaN;
+                                    while (grubbsTester != null && grubbsOutlier.equals(Float.NaN) && grubbsTester.getFlexibility().getMoreFlexible() != null) {
+                                        grubbsTester.setFlexibility(grubbsTester.getFlexibility().getMoreFlexible());
+                                        grubbsOutlier = grubbsTester.getMinimumOutlier(prices);
+                                    }
+                                    Float chauvenetOutlier = chauvenetTester != null ? chauvenetTester.getMinimumOutlier(prices) : Float.NaN;
+                                    while (chauvenetTester != null && chauvenetOutlier.equals(Float.NaN) && chauvenetTester.getFlexibility().getMoreFlexible() != null) {
+                                        chauvenetTester.setFlexibility(chauvenetTester.getFlexibility().getMoreFlexible());
+                                        chauvenetOutlier = chauvenetTester.getMinimumOutlier(prices);
+                                    }
+                                    Float quartileOutlier = quartileTester != null ? quartileTester.getMinimumOutlier(prices) : Float.NaN;
+                                    while (quartileTester != null && quartileOutlier.equals(Float.NaN) && quartileTester.getFlexibility().getMoreFlexible() != null) {
+                                        quartileTester.setFlexibility(quartileTester.getFlexibility().getMoreFlexible());
+                                        quartileOutlier = quartileTester.getMinimumOutlier(prices);
+                                    }
+
+                                    boolean grubbsResult = !grubbsOutlier.equals(Float.NaN);
+                                    boolean chauvenetResult = !chauvenetOutlier.equals(Float.NaN);
+                                    boolean quartileResult = !quartileOutlier.equals(Float.NaN);
+
+                                    short acceptedBy = Offer.calculateAcceptedBy(grubbsResult, chauvenetResult, quartileResult);
+
+                                    if (acceptedBy != 0) {
+                                        String bargainFound = "Το προϊόν " + dbSku.getName() + " βρίσκεται σε προσφορά σύμφωνα με τους ελέγχους: ";
+                                        switch (acceptedBy) {
+                                            case 1:
+                                                bargainFound += "Grubbs";
+                                                break;
+                                            case 2:
+                                                bargainFound += "Chauvenet";
+                                                break;
+                                            case 3:
+                                                bargainFound += "Τεταρτημορία";
+                                                break;
+                                            case 4:
+                                                bargainFound += "Grubbs, Chauvenet";
+                                                break;
+                                            case 5:
+                                                bargainFound += "Grubbs, Τεταρτημόρια";
+                                                break;
+                                            case 6:
+                                                bargainFound += "Chauvenet, Τεταρτημόρια";
+                                                break;
+                                            case 7:
+                                                bargainFound += "Grubbs, Chauvenet, Τεταρτημόρια";
+                                                break;
+                                        }
+                                        logInfo(bargainFound);
+                                    }
+
+
+                                    Float lowestPrice = null;
+                                    if (grubbsResult) {
+                                        lowestPrice = grubbsOutlier;
+                                    } else if (chauvenetResult) {
+                                        lowestPrice = chauvenetOutlier;
+                                    } else if (quartileResult) {
+                                        lowestPrice = quartileOutlier;
+                                    }
+                                    if (acceptedBy != 0) {
+                                        // some outlier check confirmed an offer
+                                        Product product = Product.getCheapest(products);
+                                        Offer offer;
+                                        Offer dbOffer = ((BargainHuntUI) UI.getCurrent()).getOfferEm().findByProduct(product);
+                                        if (dbOffer != null) {
+                                            dbOffer.setFinishedAt(Date.from(Instant.now()));
+                                        }
+                                        if (product.getPrices() != null && !product.getPrices().isEmpty()) {
+                                            offer = new Offer(product, product.getPrices().stream()
+                                                    .filter(pr -> pr.getPrice() == product.getPrice()).findFirst().get(), acceptedBy,
+                                                    grubbsFlexibility, chauvenetFlexibility, quartileFlexibility);
+                                        } else {
+                                            offer = new Offer(product, Price.fromProduct(product), acceptedBy, grubbsTester.getFlexibility(),
+                                                    chauvenetTester.getFlexibility(), quartileTester.getFlexibility());
+                                        }
+
+                                        ((BargainHuntUI) UI.getCurrent()).getOfferEm().persist(offer);
+                                        logInfo("Το προϊόν " + dbSku.getName() + " βρίσκεται σε προσφορά στα " + lowestPrice + " ευρώ.");
+                                    }
+                                }
+
+                                logInfo("Κατέβηκαν " + products.size() + " τιμές για το προϊόν " + sku.getName() + ".");
                             }
-                            logArea.setValue(logArea.getValue() + "\n" + bargainFound);
                         }
+
+                        skuPage = SkroutzClient.getInstance().getNextPage(skuPage);
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logInfo("Υπήρξε πρόβλημα: " + e.getMessage());
                 }
+
+//                if (cachedSkus.isEmpty()) {
+//                    Collection<Sku> skus = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findParsed(Sku.class, ((Category) c).getSkroutzId());
+//                    cachedSkus.addAll(skus);
+//                }
+//                for (Sku s : cachedSkus) {
+//                    if (cachedProducts.stream().noneMatch(p -> p.getSkuId() == s.getSkroutzId())) {
+//                        cachedProducts.addAll(((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findProductsForSku(s.getSkroutzId()));
+//                    }
+//                    List<Float> prices = cachedProducts.stream().filter(p -> p.getSkuId() == s.getSkroutzId()).map(Product::getPrice).collect(Collectors.toList());
+//                    if (prices != null && prices.size() >= 3) {
+//
+//                        // make the outlier tests
+//                        Float grubbsOutlier = grubbsTester != null ? grubbsTester.getMinimumOutlier(prices) : Float.NaN;
+//                        while (grubbsTester != null && grubbsOutlier.equals(Float.NaN) && grubbsTester.getFlexibility().getMoreFlexible() != null) {
+//                            grubbsTester.setFlexibility(grubbsTester.getFlexibility().getMoreFlexible());
+//                            grubbsOutlier = grubbsTester.getMinimumOutlier(prices);
+//                        }
+//                        Float chauvenetOutlier = chauvenetTester != null ? chauvenetTester.getMinimumOutlier(prices) : Float.NaN;
+//                        while (chauvenetTester != null && chauvenetOutlier.equals(Float.NaN) && chauvenetTester.getFlexibility().getMoreFlexible() != null) {
+//                            chauvenetTester.setFlexibility(chauvenetTester.getFlexibility().getMoreFlexible());
+//                            chauvenetOutlier = chauvenetTester.getMinimumOutlier(prices);
+//                        }
+//                        Float quartileOutlier = quartileTester != null ? quartileTester.getMinimumOutlier(prices) : Float.NaN;
+//                        while (quartileTester != null && quartileOutlier.equals(Float.NaN) && quartileTester.getFlexibility().getMoreFlexible() != null) {
+//                            quartileTester.setFlexibility(quartileTester.getFlexibility().getMoreFlexible());
+//                            quartileOutlier = quartileTester.getMinimumOutlier(prices);
+//                        }
+//
+//                        boolean grubbsResult = !grubbsOutlier.equals(Float.NaN);
+//                        boolean chauvenetResult = !chauvenetOutlier.equals(Float.NaN);
+//                        boolean quartileResult = !quartileOutlier.equals(Float.NaN);
+//
+//                        short acceptedBy = Offer.calculateAcceptedBy(grubbsResult, chauvenetResult, quartileResult);
+//
+//                        if (acceptedBy != 0) {
+//                            String bargainFound = "Το προϊόν " + s.getName() + " βρίσκεται σε προσφορά σύμφωνα με τους ελέγχους: ";
+//                            switch (acceptedBy) {
+//                                case 1:
+//                                    bargainFound += "Grubbs";
+//                                    break;
+//                                case 2:
+//                                    bargainFound += "Chauvenet";
+//                                    break;
+//                                case 3:
+//                                    bargainFound += "Τεταρτημορία";
+//                                    break;
+//                                case 4:
+//                                    bargainFound += "Grubbs, Chauvenet";
+//                                    break;
+//                                case 5:
+//                                    bargainFound += "Grubbs, Τεταρτημόρια";
+//                                    break;
+//                                case 6:
+//                                    bargainFound += "Chauvenet, Τεταρτημόρια";
+//                                    break;
+//                                case 7:
+//                                    bargainFound += "Grubbs, Chauvenet, Τεταρτημόρια";
+//                                    break;
+//                            }
+//                            logInfo(bargainFound);
+//                        }
+//
+//
+//                        Float lowestPrice = null;
+//                        if (grubbsResult) {
+//                            lowestPrice = grubbsOutlier;
+//                        } else if (chauvenetResult) {
+//                            lowestPrice = chauvenetOutlier;
+//                        } else if (quartileResult) {
+//                            lowestPrice = quartileOutlier;
+//                        }
+//                        if (acceptedBy != 0) {
+//                            // some outlier check confirmed an offer
+//                            Product product = Product.getCheapest(s.getProducts());
+//                            Offer offer;
+//                            if (product.getPrices() != null && !product.getPrices().isEmpty()) {
+//                                offer = new Offer(product, product.getPrices().stream()
+//                                        .filter(p -> p.getPrice() == product.getPrice()).findFirst().get(), acceptedBy,
+//                                        grubbsFlexibility, chauvenetFlexibility, quartileFlexibility);
+//                            } else {
+//                                offer = new Offer(product, Price.fromProduct(product), acceptedBy, grubbsTester.getFlexibility(),
+//                                        chauvenetTester.getFlexibility(), quartileTester.getFlexibility());
+//                            }
+//
+//                            ((BargainHuntUI) UI.getCurrent()).getOfferEm().persist(offer);
+//                            String bargainFound = "Το προϊόν " + s.getName() + " βρίσκεται σε προσφορά στα " + lowestPrice + " ευρώ.";
+//                            logInfo(bargainFound);
+//                        }
+//                    }
+//                }
             }
         });
         panelLayout.addComponents(testersLayout, categoriesLayout, crawlButton);
@@ -272,119 +401,115 @@ public class CrawlerView extends VerticalLayout implements View {
         return panelLayout;
     }
 
-    private HorizontalLayout buildPanel() throws IOException {
-        HorizontalLayout categoryLayout = new HorizontalLayout();
-        categoryLayout.setSizeFull();
-        categoryLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-
-//        fetch cachedCategories from db
-//        not needed, cachedCategories already exist in the JPAContainer
-//        cachedCategories = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findAll(Category.class);
-
-        // build panel ui
-        NativeSelect<String> flexibilitySelect = new NativeSelect<>("Εύρος εμπιστοσύνης :");
-        new CaptionPositions(categoryLayout).setCaptionPosition(flexibilitySelect, CaptionPosition.LEFT);
-
-        ComboBox<Category> categorySelect = new ComboBox<>(null, this.cachedCategories);
-        categorySelect.setEmptySelectionAllowed(false);
-        categorySelect.setEmptySelectionCaption("Επιλέξτε κατηγορία :");
-        categorySelect.setItemCaptionGenerator(Category::getName);
-        categorySelect.addValueChangeListener(valueChangeEvent -> {
-            if (flexibilitySelect.getValue() != null && categorySelect.getValue() != null) {
-                crawlButton.setEnabled(true);
-            } else {
-                crawlButton.setEnabled(false);
-            }
-        });
-
-        flexibilitySelect.setItems("Χαμηλό", "Κανονικό", "Υψηλό");
-        flexibilitySelect.addValueChangeListener(valueChangeEvent -> {
-            if (flexibilitySelect.getValue() != null && categorySelect.getValue() != null) {
-                crawlButton.setEnabled(true);
-            } else {
-                crawlButton.setEnabled(false);
-            }
-        });
-
-        crawlButton = new Button("Λήψη προϊόντων");
-        crawlButton.setDisableOnClick(true);
-        crawlButton.setEnabled(false);
-        crawlButton.addClickListener(clickEvent -> {
-            switch (flexibilitySelect.getValue()) {
-                case "Χαμηλό":
-                    break;
-                case "Κανονικό":
-                    break;
-                case "Υψηλό":
-                    break;
-            }
-            String logCategory = "Κατέβασμα προϊόντων της κατηγορίας " + cachedCategories.stream().map(Category::getName);
-            log.info(logCategory);
-            logArea.setValue(logArea.getValue() + "\n" + logCategory);
-            log.info("---------------------------------------------------------------------------------------");
-            try {
-                Page<Sku> skuPage = SkroutzClient.getInstance().getNested(categorySelect.getValue(), Sku.class);
-                while (skuPage != null && skuPage.getCurrentPage() < 10 && (skuPage.hasNext() || skuPage.isLastPage())) {
-//                while (skuPage != null && (skuPage.hasNext() || skuPage.isLastPage())) {
-                    String logSku = "Κατέβηκαν " + skuPage.getPer() + " μοναδικά προϊόντα.";
-                    log.info(logSku);
-                    logArea.setValue(logArea.getValue() + "\n" + logSku);
-                    ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(Sku.class, skuPage.getItems());
-                    for (Sku sku : skuPage.getItems()) {
-                        Sku dbSku = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().find(Sku.class, sku.getSkroutzId());
-                        if (dbSku == null || dbSku.getProducts() == null || dbSku.getProducts().isEmpty()) {
-                            List<Product> products = SkroutzClient.getInstance().getNestedAsList(sku, Product.class);
-                            if (products != null) {
-                                ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(Product.class, products);
-                                for (Product p :
-                                        products) {
-                                    Price price = Price.fromProduct(p);
-                                    if (p.getPrices() == null) {
-                                        p.setPrices(new ArrayList<>());
-                                    }
-                                    if (p.getPrices().stream().noneMatch(tp -> tp.getPrice() == price.getPrice())) {
-                                        p.getPrices().add(price);
-                                    }
-                                }
-
-
-                                String logProducts = "Κατέβηκαν " + products.size() + " τιμές για το προϊόν " + sku.getName() + ".";
-                                log.info(logProducts);
-                                logArea.setValue(logArea.getValue() + "\n" + logProducts);
-                            }
-                        }
-                    }
-                    if (!skuPage.isLastPage()) {
-                        skuPage = SkroutzClient.getInstance().getNextPage(skuPage);
-                    }
-                }
-                String logComplete = "To κατέβασμα ολοκληρώθηκε.";
-                log.info(logComplete);
-                logArea.setValue(logArea.getValue() + "\n" + logComplete);
-                crawlButton.setEnabled(true);
-                bw.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                String exception = "Παρουσιάστηκε exception.";
-                logArea.setValue(logArea.getValue() + "\n" + exception);
-
-            }
-
-        });
-
-        Button clearButton = new Button("Καθαρισμός log");
-        clearButton.addClickListener(clickEvent -> logArea.clear());
-
-
-        categoryLayout.addComponent(categorySelect);
-        categoryLayout.addComponent(flexibilitySelect);
-        categoryLayout.addComponent(crawlButton);
-        categoryLayout.addComponent(clearButton);
-        return categoryLayout;
-
-    }
+//    private HorizontalLayout buildPanel() throws IOException {
+//        HorizontalLayout categoryLayout = new HorizontalLayout();
+//        categoryLayout.setSizeFull();
+//        categoryLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+//
+////        fetch cachedCategories from db
+////        not needed, cachedCategories already exist in the JPAContainer
+////        cachedCategories = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().findAll(Category.class);
+//
+//        // build panel ui
+//        NativeSelect<String> flexibilitySelect = new NativeSelect<>("Εύρος εμπιστοσύνης :");
+//        new CaptionPositions(categoryLayout).setCaptionPosition(flexibilitySelect, CaptionPosition.LEFT);
+//
+//        ComboBox<Category> categorySelect = new ComboBox<>(null, this.cachedCategories);
+//        categorySelect.setEmptySelectionAllowed(false);
+//        categorySelect.setEmptySelectionCaption("Επιλέξτε κατηγορία :");
+//        categorySelect.setItemCaptionGenerator(Category::getName);
+//        categorySelect.addValueChangeListener(valueChangeEvent -> {
+//            if (flexibilitySelect.getValue() != null && categorySelect.getValue() != null) {
+//                crawlButton.setEnabled(true);
+//            } else {
+//                crawlButton.setEnabled(false);
+//            }
+//        });
+//
+//        flexibilitySelect.setItems("Χαμηλό", "Κανονικό", "Υψηλό");
+//        flexibilitySelect.addValueChangeListener(valueChangeEvent -> {
+//            if (flexibilitySelect.getValue() != null && categorySelect.getValue() != null) {
+//                crawlButton.setEnabled(true);
+//            } else {
+//                crawlButton.setEnabled(false);
+//            }
+//        });
+//
+//        crawlButton = new Button("Λήψη προϊόντων");
+//        crawlButton.setDisableOnClick(true);
+//        crawlButton.setEnabled(false);
+//        crawlButton.addClickListener(clickEvent -> );
+//
+//        Button clearButton = new Button("Καθαρισμός log");
+//        clearButton.addClickListener(clickEvent -> logArea.clear());
+//
+//
+//        categoryLayout.addComponent(categorySelect);
+//        categoryLayout.addComponent(flexibilitySelect);
+//        categoryLayout.addComponent(crawlButton);
+////        categoryLayout.addComponent(clearButton);
+//        return categoryLayout;
+//
+//    }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {
+    }
+
+//    private void crawl() {
+//        String logCategory = "Κατέβασμα προϊόντων της κατηγορίας " + cachedCategories.stream().map(Category::getName);
+//        logInfo(logCategory);
+//        logInfo("---------------------------------------------------------------------------------------");
+//        try {
+//            Page<Sku> skuPage = SkroutzClient.getInstance().getNested(categorySelect.getValue(), Sku.class);
+//            while (skuPage != null && skuPage.getCurrentPage() < 10 && (skuPage.hasNext() || skuPage.isLastPage())) {
+////                while (skuPage != null && (skuPage.hasNext() || skuPage.isLastPage())) {
+//                String logSku = "Κατέβηκαν " + skuPage.getPer() + " μοναδικά προϊόντα.";
+//                logInfo(logSku);
+//                ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(Sku.class, skuPage.getItems());
+//                for (Sku sku : skuPage.getItems()) {
+//                    Sku dbSku = ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().find(Sku.class, sku.getSkroutzId());
+//                    if (dbSku == null || dbSku.getProducts() == null || dbSku.getProducts().isEmpty()) {
+//                        List<Product> products = SkroutzClient.getInstance().getNestedAsList(sku, Product.class);
+//                        if (products != null) {
+//                            ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(Product.class, products);
+//                            for (Product p :
+//                                    products) {
+//                                Price price = Price.fromProduct(p);
+//                                if (p.getPrices() == null) {
+//                                    p.setPrices(new ArrayList<>());
+//                                }
+//                                if (p.getPrices().stream().noneMatch(tp -> tp.getPrice() == price.getPrice())) {
+//                                    p.getPrices().add(price);
+//                                }
+//                            }
+//
+//
+//                            String logProducts = "Κατέβηκαν " + products.size() + " τιμές για το προϊόν " + sku.getName() + ".";
+//                            logInfo(logProducts);
+//                        }
+//                    }
+//                }
+//                if (!skuPage.isLastPage()) {
+//                    skuPage = SkroutzClient.getInstance().getNextPage(skuPage);
+//                }
+//            }
+//            String logComplete = "To κατέβασμα ολοκληρώθηκε.";
+//            logInfo(logComplete);
+//            crawlButton.setEnabled(true);
+//            bw.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            String exception = "Παρουσιάστηκε exception.";
+//            logArea.setValue(logArea.getValue() + "\n" + exception);
+//
+//        }
+//
+//    }
+
+    private void logInfo(String message) {
+        log.info(message);
+        logArea.setValue(logArea.getValue() + "\n" + message);
+        UI.getCurrent().push();
     }
 }

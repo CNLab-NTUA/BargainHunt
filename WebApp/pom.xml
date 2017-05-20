@@ -12,7 +12,7 @@
     <artifactId>webapp</artifactId>
 
     <properties>
-        <vaadin.version>8.0.3</vaadin.version>
+        <vaadin.version>8.0.6</vaadin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
         <wildfly.bom.version>10.1.0.Final</wildfly.bom.version>
         <wildfly.plugin.version>1.1.0.Final</wildfly.plugin.version>
@@ -241,8 +241,12 @@
                 <artifactId>wildfly-maven-plugin</artifactId>
                 <version>${wildfly.plugin.version}</version>
                 <configuration>
-                    <jbossHome>/opt/wildfly/</jbossHome>
+                    <!--<jbossHome>/opt/wildfly/</jbossHome>-->
                     <serverConfig>standalone.xml</serverConfig>
+                    <hostname>http://snf-652909.vm.okeanos.grnet.gr</hostname>
+                    <port>9990</port>
+                    <username>zannis</username>
+                    <password>omgwtfbbq</password>
                 </configuration>
             </plugin>
 

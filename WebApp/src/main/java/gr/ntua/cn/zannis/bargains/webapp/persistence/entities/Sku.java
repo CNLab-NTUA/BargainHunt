@@ -50,7 +50,7 @@ public class Sku extends SkroutzEntity {
     private boolean future;
     private int reviewsCount;
     private boolean virtual;
-    private Images images;
+    private String image;
     private List<Product> products;
     private Category category;
 
@@ -90,7 +90,7 @@ public class Sku extends SkroutzEntity {
         this.future = future;
         this.reviewsCount = reviewsCount;
         this.virtual = virtual;
-        this.images = images;
+        this.image = images.main;
     }
 
     public Sku() {
@@ -272,13 +272,14 @@ public class Sku extends SkroutzEntity {
         this.virtual = virtual;
     }
 
-    @Transient
-    public Images getImages() {
-        return images;
+    @Column(name = "image_url")
+    @Size(max = 300)
+    public String getImage() {
+        return image;
     }
 
-    public void setImages(Images images) {
-        this.images = images;
+    public void setImage(String image) {
+        this.image = image;
     }
 
     @OneToMany(mappedBy = "sku")

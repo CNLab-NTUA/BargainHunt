@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS public.skus
   display_name VARCHAR(300)    NOT NULL, -- the sku display name
   category_id  INT             NOT NULL REFERENCES categories (skroutz_id), -- the category id
   click_url    VARCHAR(300), -- the sku's url
+  image_url    VARCHAR(300), -- the sku's image
   price_max    NUMERIC(7, 2)   NOT NULL, -- the max price the sku had at the last check
   price_min    NUMERIC(7, 2)   NOT NULL, -- the min price the sku had at the last check
   etag         VARCHAR(32), -- a tag used for conditional http requests
@@ -93,7 +94,7 @@ CREATE TABLE IF NOT EXISTS public.products
   click_url          VARCHAR(300), -- the url given from Skroutz API
   price              NUMERIC(7, 2) NOT NULL, -- the current price
   price_changes      INT           NOT NULL DEFAULT 0, -- how many times the product's price has changed
-  average_past_price NUMERIC(7, 2) NOT NULLconsole.sql, -- the average price we have calculated for the product in the past
+  average_past_price NUMERIC(7, 2) NOT NULL, -- the average price we have calculated for the product in the past
   is_bargain         BOOL, -- true if the product is a bargain
   inserted_at        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP, -- the timestamp when the item was inserted
   modified_at        TIMESTAMP, -- the timestamp when the item was last modified
@@ -151,3 +152,6 @@ CREATE INDEX skroutz_index_product ON products (skroutz_id);
 
 -- and one for offers on its primary id
 CREATE INDEX index_offer ON offers (id);
+CREATE INDEX index_offer_product
+  ON offers (product_id);
+

@@ -20,10 +20,10 @@ public class SkuTile extends EntityTile<Sku> {
 
     @Override
     protected void renderComponents() {
-        if (this.entity.getImages() == null || this.entity.getImages().getMain().isEmpty()) {
+        if (this.entity.getImage() == null) {
             image.setSource(new ThemeResource(DEFAULT_IMAGE_URL));
         } else {
-            image.setSource(new ExternalResource(this.entity.getImages().getMain()));
+            image.setSource(new ExternalResource(this.entity.getImage()));
         }
         if (this.entity.getName() == null || this.entity.getName().isEmpty()) {
             caption.setValue(DEFAULT_NAME);

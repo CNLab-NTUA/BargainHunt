@@ -12,13 +12,9 @@ import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author zannis <zannis.kal@gmail.com>
@@ -38,7 +34,7 @@ public class SkroutzEntityManager {
 
         try {
             em.persist(object);
-            log.info(object.toString() + " persisted successfully.");
+            log.info(object.getClass().getSimpleName() + " " + object.getSkroutzId() + " persisted successfully.");
         } catch (Exception e) {
             Notifier.error("Υπήρξε πρόβλημα στο persist στο " + object.toString(), e);
         }
@@ -48,7 +44,7 @@ public class SkroutzEntityManager {
     public <T extends SkroutzEntity> T merge(T object) throws RuntimeException {
         try {
             em.merge(object);
-            log.info("Object " + object.toString() + " merged successfully.");
+            log.info(object.getClass().getSimpleName() + " " + object.getSkroutzId() + " merged successfully.");
         } catch (Exception e) {
             Notifier.error("Υπήρξε πρόβλημα στο merge στο " + object.toString(), e);
         }
@@ -69,11 +65,13 @@ public class SkroutzEntityManager {
         // finds an object by its skroutzId
         TypedQuery<T> q = em.createNamedQuery(tClass.getSimpleName() + ".findBySkroutzId", tClass);
         q.setParameter("skroutzId", skroutzId);
+        q.setMaxResults(1);
         try {
-            result = q.getSingleResult();
-        } catch (NoResultException e) {
-            // swallow and return null
-            result = null;
+            if (!q.getResultList().isEmpty()) {
+                result = q.getResultList().get(0);
+            } else {
+                result = null;
+            }
         } catch (Exception e) {
             Notifier.error("Υπήρξε πρόβλημα στο find" + tClass.getSimpleName() + " με skroutzId " + skroutzId, e);
             result = null;
@@ -112,12 +110,14 @@ public class SkroutzEntityManager {
         return em.createNamedQuery(namedQuery, tClass);
     }
 
-    public <T extends SkroutzEntity> void persistOrMerge(Class<T> tClass, List<T> objects) {
+    public <T extends SkroutzEntity> List<T> persistOrMerge(Class<T> tClass, List<T> objects) {
+        List<T> results = new LinkedList<>();
         if (objects != null) {
             for (T object : objects) {
-                persistOrMerge(tClass, object);
+                results.add(persistOrMerge(tClass, object));
             }
         }
+        return results;
     }
 
     public <T extends SkroutzEntity> T persistOrMerge(Class<T> tClass, T transientObject) {
@@ -140,7 +140,7 @@ public class SkroutzEntityManager {
                     }
                     shop.getProducts().add(transientProduct);
                     transientProduct.setShop(shop);
-                    em.persist(transientProduct);
+//                    em.persist(transientProduct);
                     em.flush();
                     Price price = Price.fromProduct(transientProduct);
                     List<Price> list = new ArrayList<>();

@@ -101,7 +101,7 @@ public class SkroutzClient implements RestClient {
             if (token == null) {
                 try {
                     Utils.initClientPropertyFiles();
-                    token = Utils.requestAccessToken();
+                    token = Utils.updateAccessToken();
                     instance = new SkroutzClient(token);
                 } catch (IOException e) {
                     log.error("Authentication error", e);
@@ -204,7 +204,7 @@ public class SkroutzClient implements RestClient {
             Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(childClass);
             result = extractPage(response, responseClass);
             if (result != null && result.getItems() != null && result.getItems().size() > 0) {
-                ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(childClass, result.getItems());
+                result.setItems(((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(childClass, result.getItems()));
             }
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + uri, e);
@@ -295,7 +295,7 @@ public class SkroutzClient implements RestClient {
         if (status == UNAUTHORIZED.getStatusCode()) {
             Notifier.error("Το αίτημα απέτυχε. Το Skroutz access_token ανανεώνεται...", true);
             try {
-                Utils.requestAccessToken();
+                Utils.updateAccessToken();
                 Notifier.info("Το access_token ανανεώθηκε. Παρακαλώ ξαναπροσπαθήστε!");
             } catch (IOException e) {
                 Notifier.error("Υπήρξε πρόβλημα στην ανανέωση του access_token.", true);

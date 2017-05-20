@@ -981,7 +981,7 @@
  */
 
 .v-vaadin-version:after {
-    content: "8.0.3";
+    content: "8.0.6";
 }
 
 .v-widget {
@@ -11613,6 +11613,9 @@ div.v-layout.v-horizontal.v-widget {
     font-weight: 400;
     -webkit-box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.25);
     box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.25);
+    padding-right: 59px;
+    overflow: hidden !important;
+    cursor: pointer;
 }
 
 .bargainhunt .v-Notification.error .v-Notification-caption {
@@ -11621,6 +11624,55 @@ div.v-layout.v-horizontal.v-widget {
 
 .bargainhunt .v-Notification.error .v-Notification-description {
     color: #f4e0df;
+}
+
+.bargainhunt .v-Notification.error:after {
+    content: "\00d7";
+    font-size: 1.5em;
+    position: absolute;
+    top: 50%;
+    margin-top: -12px;
+    right: 12px;
+    width: 25px;
+    height: 25px;
+    line-height: 24px;
+    cursor: pointer;
+    color: #000;
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+    text-align: center;
+    border: 1px solid #000;
+    border-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    -webkit-transition: opacity 200ms;
+    -moz-transition: opacity 200ms;
+    transition: opacity 200ms;
+}
+
+.bargainhunt .v-Notification.error:hover:after {
+    opacity: 1;
+    filter: none;
+}
+
+.bargainhunt .v-Notification.error:active:after {
+    background-color: #000;
+    color: #fff;
+    opacity: 0.3;
+    filter: alpha(opacity=30.0);
+    -webkit-transition: none 200ms;
+    -moz-transition: none 200ms;
+    transition: none 200ms;
+}
+
+.bargainhunt .v-Notification.error:after {
+    color: #fff;
+    border-color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.bargainhunt .v-Notification.error:active:after {
+    background-color: #fff;
+    color: #000;
 }
 
 .bargainhunt .v-Notification.dark {
@@ -11698,6 +11750,21 @@ div.v-layout.v-horizontal.v-widget {
     font-size: 14px;
 }
 
+.bargainhunt .v-Notification.critical-error {
+    background: #ed473b;
+    font-weight: 400;
+    -webkit-box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.25);
+}
+
+.bargainhunt .v-Notification.critical-error .v-Notification-caption {
+    color: white;
+}
+
+.bargainhunt .v-Notification.critical-error .v-Notification-description {
+    color: #f4e0df;
+}
+
 .bargainhunt .v-Notification.closable {
     padding-right: 59px;
     overflow: hidden !important;
@@ -11742,13 +11809,13 @@ div.v-layout.v-horizontal.v-widget {
     transition: none 200ms;
 }
 
-.bargainhunt .v-Notification.closable.dark:after, .bargainhunt .v-Notification.closable.error:after, .bargainhunt .v-Notification.closable.system:after {
+.bargainhunt .v-Notification.closable.dark:after, .bargainhunt .v-Notification.closable.critical-error:after, .bargainhunt .v-Notification.closable.system:after {
     color: #fff;
     border-color: #fff;
     border-color: rgba(255, 255, 255, 0.3);
 }
 
-.bargainhunt .v-Notification.closable.dark:active:after, .bargainhunt .v-Notification.closable.error:active:after, .bargainhunt .v-Notification.closable.system:active:after {
+.bargainhunt .v-Notification.closable.dark:active:after, .bargainhunt .v-Notification.closable.critical-error:active:after, .bargainhunt .v-Notification.closable.system:active:after {
     background-color: #fff;
     color: #000;
 }

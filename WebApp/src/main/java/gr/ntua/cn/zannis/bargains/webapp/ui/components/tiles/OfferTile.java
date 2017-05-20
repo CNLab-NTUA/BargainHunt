@@ -77,8 +77,8 @@ public class OfferTile extends Panel {
         if (this.entity.getProduct() == null || this.entity.getProduct().getSku() == null) {
             image.setSource(new ThemeResource(DEFAULT_IMAGE_URL));
         } else {
-            if (sku.getImages() != null) {
-                image.setSource(new ExternalResource(sku.getImages().getMain()));
+            if (sku.getImage() != null) {
+                image.setSource(new ExternalResource(sku.getImage()));
             } else {
                 image.setSource(new ExternalResource(sku.getCategory().getImageUrl()));
             }

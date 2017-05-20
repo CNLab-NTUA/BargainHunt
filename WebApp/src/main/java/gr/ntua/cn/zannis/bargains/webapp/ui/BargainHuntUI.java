@@ -1,11 +1,13 @@
 package gr.ntua.cn.zannis.bargains.webapp.ui;
 
+import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.cdi.CDIUI;
 import com.vaadin.cdi.CDIViewProvider;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.UI;
 import gr.ntua.cn.zannis.bargains.webapp.ejb.OfferEntityManager;
 import gr.ntua.cn.zannis.bargains.webapp.ejb.SkroutzEntityManager;
@@ -21,6 +23,7 @@ import java.util.Locale;
  * we are using inside the project.
  */
 @CDIUI("")
+@Push(PushMode.MANUAL)
 @Theme("bargainhunt")
 public class BargainHuntUI extends UI {
 

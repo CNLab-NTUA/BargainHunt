@@ -159,9 +159,9 @@ public class Utils {
 
     /**
      * Attempts to get a new OAuth 2.0 access token and writes it to the config file.
-     * @return True on success, false on fail.
+     * @return The access_token on success, null on fail.
      */
-    public static String requestAccessToken() throws IOException {
+    public static String updateAccessToken() throws IOException {
         log.debug("Requesting access token...");
 
         Properties config = Utils.getPropertiesFromFile(Const.CONFIG_FILENAME);
@@ -178,6 +178,8 @@ public class Utils {
             try {
                 AccessTokenResponse response = ClientBuilder.newClient().target(builder).request()
                         .post(null, AccessTokenResponse.class);
+                config.setProperty("access_token", response.getToken());
+                savePropertiesToFile(config, TOKEN_FILENAME);
                 return response.getToken();
             } catch (ProcessingException e) {
                 log.error("Error requesting a new access token", e);
@@ -303,6 +305,10 @@ public class Utils {
                 .path(PATH_MAP.get(parent.getClass()))
                 .path(ID)
                 .path(PATH_MAP.get(childClass));
+        if (childClass == Sku.class) {
+            builder.queryParam("order_by", "popularity")
+                    .queryParam("order_dir", "desc");
+        }
         return builder.build(parent.getSkroutzId());
     }
 

@@ -4,7 +4,6 @@ import com.vaadin.cdi.CDIView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
 import gr.ntua.cn.zannis.bargains.statistics.impl.GrubbsTester;
@@ -13,7 +12,6 @@ import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
 import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzClient;
 import gr.ntua.cn.zannis.bargains.webapp.rest.responses.meta.Page;
-import gr.ntua.cn.zannis.bargains.webapp.ui.BargainHuntUI;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 
 import java.util.List;
@@ -45,7 +43,6 @@ public class BargainView extends VerticalLayout implements View {
         List<Float> prices = products.stream().map(Product::getPrice).collect(Collectors.toList());
         QuartileTester quartileTester = new QuartileTester(Flexibility.NORMAL);
         GrubbsTester grubbsTester = new GrubbsTester(Flexibility.NORMAL);
-
         Float grubbsResult = grubbsTester.getMinimumOutlier(prices);
         Float quartileResult = quartileTester.getMinimumOutlier(prices);
         Label resultLabel;
@@ -68,7 +65,6 @@ public class BargainView extends VerticalLayout implements View {
                 this.sku = SkroutzClient.getInstance().get(Sku.class, Integer.valueOf(splitParameters[0]));
                 Page<Product> firstPage = SkroutzClient.getInstance().getNested(sku, Product.class);
                 this.products = SkroutzClient.getInstance().getAllResultsAsList(firstPage);
-                ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(Product.class, products);
             } catch (NumberFormatException e) {
                 Notifier.error("Δεν δώσατε κατάλληλο αναγνωριστικό προϊόντος.", true);
             }
