@@ -1,6 +1,7 @@
 package gr.ntua.cn.zannis.bargains.webapp.rest.responses.meta;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
@@ -15,6 +16,7 @@ import java.util.List;
  *
  * @author zannis <zannis.kal@gmail.com>
  */
+@JsonIgnoreProperties({"ordered_by"})
 @JsonRootName("meta")
 public class Meta {
     private String query;

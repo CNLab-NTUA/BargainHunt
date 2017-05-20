@@ -35,7 +35,6 @@ public abstract class EntityTile<T extends SkroutzEntity> extends Panel {
         image = new Embedded();
         renderComponents();
 
-        // only set height, width will be adjusted accordingly
         image.setHeight("160px");
 
         caption.setWidthUndefined();

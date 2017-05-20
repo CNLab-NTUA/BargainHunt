@@ -1,8 +1,10 @@
 package gr.ntua.cn.zannis.bargains.webapp.persistence.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -17,11 +19,15 @@ import java.util.List;
  * @author zannis <zannis.kal@gmail.com
  */
 @JsonRootName("sku")
+@JsonIgnoreProperties({"web_uri", "comparable"})
 @Entity
 @Table(name = "skus", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
         @NamedQuery(name = "Sku.findBySkroutzId", query = "select s from Sku s where s.skroutzId = :skroutzId"),
-        @NamedQuery(name = "Sku.findAll", query = "select s from Sku s")
+        @NamedQuery(name = "Sku.findAll", query = "select s from Sku s"),
+        @NamedQuery(name = "Sku.findAllCheckedBy", query = "select s from Sku s where s.checkedAt >= :date"),
+        @NamedQuery(name = "Sku.findAllByCategory", query = "select s from Sku s where s.categoryId = :categ_id"),
+        @NamedQuery(name = "Sku.findCrawled", query = "select s from Sku s where s.categoryId = :categ_id and size(s.products) > 2")
 })
 public class Sku extends SkroutzEntity {
 
@@ -44,7 +50,7 @@ public class Sku extends SkroutzEntity {
     private boolean future;
     private int reviewsCount;
     private boolean virtual;
-    private Images images;
+    private String image;
     private List<Product> products;
     private Category category;
 
@@ -70,8 +76,8 @@ public class Sku extends SkroutzEntity {
         this.skroutzId = id;
         this.ean = ean;
         this.pn = pn;
-        this.name = name;
-        this.displayName = displayName;
+        this.name = StringEscapeUtils.unescapeJson(name);
+        this.displayName = StringEscapeUtils.unescapeJson(displayName);
         this.categoryId = categoryId;
         this.firstProductShopInfo = firstProductShopInfo;
         this.clickUrl = clickUrl;
@@ -84,7 +90,7 @@ public class Sku extends SkroutzEntity {
         this.future = future;
         this.reviewsCount = reviewsCount;
         this.virtual = virtual;
-        this.images = images;
+        this.image = images.main;
     }
 
     public Sku() {
@@ -133,7 +139,7 @@ public class Sku extends SkroutzEntity {
     }
 
     @NotNull
-    @Size(max = 100)
+    @Size(max = 300)
     @Column(name = "name")
     public String getName() {
         return name;
@@ -144,7 +150,7 @@ public class Sku extends SkroutzEntity {
     }
 
     @NotNull
-    @Size(max = 100)
+    @Size(max = 300)
     @Column(name = "display_name")
     public String getDisplayName() {
         return displayName;
@@ -266,13 +272,14 @@ public class Sku extends SkroutzEntity {
         this.virtual = virtual;
     }
 
-    @Transient
-    public Images getImages() {
-        return images;
+    @Column(name = "image_url")
+    @Size(max = 300)
+    public String getImage() {
+        return image;
     }
 
-    public void setImages(Images images) {
-        this.images = images;
+    public void setImage(String image) {
+        this.image = image;
     }
 
     @OneToMany(mappedBy = "sku")
@@ -284,7 +291,6 @@ public class Sku extends SkroutzEntity {
         this.products = products;
     }
 
-    @NotNull
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
     public Category getCategory() {

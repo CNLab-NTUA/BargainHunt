@@ -12,13 +12,28 @@ import java.util.Objects;
 @Table(name = "prices", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
         @NamedQuery(name = "Price.findAll", query = "select p from Price p"),
-        @NamedQuery(name = "Price.findAllByProduct", query = "select p from Price p where p.product = :product")
+        @NamedQuery(name = "Price.findOrderedByProduct", query = "select p from Price p where p.product = :product order by p.checkedAt desc"),
+        @NamedQuery(name = "Price.findByProduct", query = "select p from Price p where p.product = :product"),
+        @NamedQuery(name = "Price.findBySku", query = "select p from Price p where p.product.sku = :sku")
 })
 public class Price {
     private int id;
     private float price;
     private Date checkedAt;
     private Product product;
+    private int productId;
+
+
+    @PrePersist
+    private void prePersist() {
+        this.checkedAt = new Date();
+    }
+
+
+    @PreUpdate
+    private void preUpdate() {
+        this.checkedAt = new Date();
+    }
 
     @Id
     @GeneratedValue(generator = "PriceSequence")
@@ -54,13 +69,23 @@ public class Price {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "skroutz_id")
+    @JoinColumn(name = "product_id", referencedColumnName = "id", insertable = false, updatable = false)
     public Product getProduct() {
         return product;
     }
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    @NotNull
+    @Column(name = "product_id")
+    public int getProductId() {
+        return productId;
+    }
+
+    public void setProductId(int product_id) {
+        this.productId = product_id;
     }
 
     @Override
@@ -78,4 +103,13 @@ public class Price {
     public int hashCode() {
         return Objects.hash(id, price, checkedAt, product);
     }
+
+    public static Price fromProduct(Product product) {
+        Price result = new Price();
+        result.setPrice(product.getPrice());
+        result.setProduct(product);
+        result.setProductId(product.getId());
+        return result;
+    }
+
 }

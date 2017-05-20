@@ -23,4 +23,6 @@ public interface RestResponse<T extends SkroutzEntity> {
     Meta getMeta();
 
     String getErrorMessage();
+
+    URI getUri();
 }

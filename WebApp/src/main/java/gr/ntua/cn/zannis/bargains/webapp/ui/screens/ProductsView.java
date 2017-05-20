@@ -8,7 +8,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
-import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzRestClient;
+import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzClient;
 import gr.ntua.cn.zannis.bargains.webapp.rest.requests.filters.QueryFilter;
 import gr.ntua.cn.zannis.bargains.webapp.ui.BargainHuntUI;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
@@ -65,9 +65,9 @@ public class ProductsView extends VerticalLayout implements View {
         String[] splitParameters = parameters.split("/");
         if (splitParameters.length == 2) {
             try {
-                this.category = SkroutzRestClient.getInstance().get(Category.class, Integer.valueOf(splitParameters[0]));
+                this.category = SkroutzClient.getInstance().get(Category.class, Integer.valueOf(splitParameters[0]));
                 this.query = URLDecoder.decode(splitParameters[1], "utf-8");
-                this.skus = SkroutzRestClient.getInstance().getNested(category, Sku.class, new QueryFilter(query)).getItems();
+                this.skus = SkroutzClient.getInstance().getNested(category, Sku.class, new QueryFilter(query)).getItems();
             } catch (UnsupportedEncodingException e) {
                 Notifier.error("Δεν ήταν δυνατό το διάβασμα του query", true);
             } catch (NumberFormatException e) {

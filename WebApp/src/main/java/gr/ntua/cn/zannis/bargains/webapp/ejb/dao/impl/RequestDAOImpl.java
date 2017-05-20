@@ -21,7 +21,7 @@ import java.util.List;
 @LocalBean
 public class RequestDAOImpl implements RequestDAO {
 
-    public static final Logger log = LoggerFactory.getLogger(RequestDAO.class.getSimpleName());
+    public static final Logger log = LoggerFactory.getLogger(RequestDAO.class);
 
     @PersistenceContext
     EntityManager em;
