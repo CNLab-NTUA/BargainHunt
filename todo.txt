@@ -21,6 +21,8 @@
 
 -------------we are here----------
 
+todo skroutz api crawler
+
 todo offer table
 
 todo single item query logic to implement
@@ -41,10 +43,4 @@ todo first version of vaadin app
 
 -- version 0.6 --
 
-todo i18n
-
-todo autocomplete while searching
-
-todo responsive uis
-
-todo enable ssl on postgres
+todo maven create script for crawler
