@@ -17,9 +17,9 @@ public abstract class SkroutzEntity implements Serializable {
     private static final long serialVersionUID = -1L;
 
     protected int skroutzId;
-    protected Date insertedAt;
+    private Date insertedAt;
     protected Date checkedAt;
-    protected Date modifiedAt;
+    private Date modifiedAt;
     protected String etag;
 
     public SkroutzEntity() {

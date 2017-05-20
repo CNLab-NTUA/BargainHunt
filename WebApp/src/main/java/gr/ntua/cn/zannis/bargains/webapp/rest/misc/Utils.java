@@ -17,11 +17,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.*;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.nio.file.Files;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static gr.ntua.cn.zannis.bargains.webapp.rest.misc.Const.*;
 
@@ -161,9 +159,9 @@ public class Utils {
 
     /**
      * Attempts to get a new OAuth 2.0 access token and writes it to the config file.
-     * @return True on success, false on fail.
+     * @return The access_token on success, null on fail.
      */
-    public static String requestAccessToken() throws IOException {
+    public static String updateAccessToken() throws IOException {
         log.debug("Requesting access token...");
 
         Properties config = Utils.getPropertiesFromFile(Const.CONFIG_FILENAME);
@@ -180,6 +178,8 @@ public class Utils {
             try {
                 AccessTokenResponse response = ClientBuilder.newClient().target(builder).request()
                         .post(null, AccessTokenResponse.class);
+                config.setProperty("access_token", response.getToken());
+                savePropertiesToFile(config, TOKEN_FILENAME);
                 return response.getToken();
             } catch (ProcessingException e) {
                 log.error("Error requesting a new access token", e);
@@ -305,6 +305,10 @@ public class Utils {
                 .path(PATH_MAP.get(parent.getClass()))
                 .path(ID)
                 .path(PATH_MAP.get(childClass));
+        if (childClass == Sku.class) {
+            builder.queryParam("order_by", "popularity")
+                    .queryParam("order_dir", "desc");
+        }
         return builder.build(parent.getSkroutzId());
     }
 
@@ -354,5 +358,37 @@ public class Utils {
             sb.append("?").append(requestUri.getQuery());
         }
         return sb.toString();
+    }
+
+
+    /**
+     * Extract query parameters from a given URL
+     *
+     * @param url The url as a string
+     * @return A HashMap with parameters and values
+     */
+    public static Map<String, List<String>> getQueryParams(String url) {
+        try {
+            Map<String, List<String>> params = new HashMap<>();
+            String[] urlParts = url.split("\\?");
+            if (urlParts.length > 1) {
+                String query = urlParts[1];
+                for (String param : query.split("&")) {
+                    String[] pair = param.split("=");
+                    String key = URLDecoder.decode(pair[0], "UTF-8");
+                    String value = "";
+                    if (pair.length > 1) {
+                        value = URLDecoder.decode(pair[1], "UTF-8");
+                    }
+
+                    List<String> values = params.computeIfAbsent(key, k -> new ArrayList<>());
+                    values.add(value);
+                }
+            }
+
+            return params;
+        } catch (UnsupportedEncodingException ex) {
+            throw new AssertionError(ex);
+        }
     }
 }

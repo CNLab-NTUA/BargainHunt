@@ -10,7 +10,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
-import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzRestClient;
+import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzClient;
 import gr.ntua.cn.zannis.bargains.webapp.rest.responses.impl.SearchResults;
 import gr.ntua.cn.zannis.bargains.webapp.rest.responses.meta.Meta;
 import gr.ntua.cn.zannis.bargains.webapp.ui.BargainHuntUI;
@@ -56,7 +56,7 @@ public class SearchView extends VerticalLayout implements View, MouseEvents.Clic
             Notifier.error("Πρέπει να εισάγετε από 3 χαρακτήρες και πάνω για να γίνει αναζήτηση.", true);
         } else {
             try {
-                searchResults = SkroutzRestClient.getInstance().search(query);
+                searchResults = SkroutzClient.getInstance().search(query);
                 // render results and persist them if needed
                 if (searchResults != null) {
                     if (searchResults.hasStrongMatches()) {

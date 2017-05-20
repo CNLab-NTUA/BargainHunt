@@ -1,6 +1,7 @@
 package gr.ntua.cn.zannis.bargains.webapp.persistence.entities;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
@@ -17,6 +18,7 @@ import java.util.Objects;
  * @author zannis <zannis.kal@gmail.com>
  */
 @JsonRootName("shop")
+@JsonIgnoreProperties({"latest_reviews_count", "web_uri", "extra_info", "top_positive_reasons"})
 @Entity
 @Table(name = "shops", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
@@ -169,7 +171,7 @@ public class Shop extends SkroutzEntity {
         this.paymentMethods = paymentMethods;
     }
 
-    @OneToMany(mappedBy = "shop")
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     public List<Product> getProducts() {
         return products;
     }
@@ -273,16 +275,19 @@ public class Shop extends SkroutzEntity {
         private boolean free;
         private int freeFrom;
         private String freeFromInfo;
+        private boolean shippingCostEnabled;
         private float minPrice;
 
         @JsonCreator
         public Shipping(@JsonProperty("free") boolean free,
                         @JsonProperty("free_from") int freeFrom,
                         @JsonProperty("free_from_info") String freeFromInfo,
+                        @JsonProperty("shipping_cost_enabled") boolean shippingCostEnabled,
                         @JsonProperty("min_price") float minPrice) {
             this.free = free;
             this.freeFrom = freeFrom;
             this.freeFromInfo = freeFromInfo;
+            this.shippingCostEnabled = shippingCostEnabled;
             this.minPrice = minPrice;
         }
 
@@ -316,6 +321,14 @@ public class Shop extends SkroutzEntity {
 
         public void setMinPrice(float minPrice) {
             this.minPrice = minPrice;
+        }
+
+        public boolean isShippingCostEnabled() {
+            return shippingCostEnabled;
+        }
+
+        public void setShippingCostEnabled(boolean shippingCostEnabled) {
+            this.shippingCostEnabled = shippingCostEnabled;
         }
     }
 

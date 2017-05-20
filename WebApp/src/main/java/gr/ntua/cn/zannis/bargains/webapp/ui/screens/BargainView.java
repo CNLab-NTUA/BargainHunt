@@ -5,11 +5,12 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import gr.ntua.cn.zannis.bargains.webapp.algorithm.FilterStrength;
-import gr.ntua.cn.zannis.bargains.webapp.algorithm.OutlierFinder;
+import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
+import gr.ntua.cn.zannis.bargains.statistics.impl.GrubbsTester;
+import gr.ntua.cn.zannis.bargains.statistics.impl.QuartileTester;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
-import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzRestClient;
+import gr.ntua.cn.zannis.bargains.webapp.rest.impl.SkroutzClient;
 import gr.ntua.cn.zannis.bargains.webapp.rest.responses.meta.Page;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 
@@ -40,17 +41,19 @@ public class BargainView extends VerticalLayout implements View {
     private void renderBargain(Sku sku) {
         Label label = new Label("Πληροφορίες για το προϊόν " + sku.getName());
         List<Float> prices = products.stream().map(Product::getPrice).collect(Collectors.toList());
-        OutlierFinder finder = new OutlierFinder(prices, FilterStrength.DEFAULT);
-        List<Float> results = finder.getLowOutliers();
-        Label result;
-        if (results.isEmpty()) {
-            result = new Label("Δυστυχώς το προϊόν δεν είναι σε προσφορά. Δοκιμάστε ξανά στο μέλλον.");
+        QuartileTester quartileTester = new QuartileTester(Flexibility.NORMAL);
+        GrubbsTester grubbsTester = new GrubbsTester(Flexibility.NORMAL);
+        Float grubbsResult = grubbsTester.getMinimumOutlier(prices);
+        Float quartileResult = quartileTester.getMinimumOutlier(prices);
+        Label resultLabel;
+        if (grubbsResult.equals(Float.NaN) || quartileResult.equals(Float.NaN)) {
+            resultLabel = new Label("Δυστυχώς το προϊόν δεν είναι σε προσφορά. Δοκιμάστε ξανά στο μέλλον.");
         } else {
-            result = new Label("Είστε τυχεροί! Το προϊόν είναι σε προσφορά στα " + results.get(0) + "€ !");
+            resultLabel = new Label("Είστε τυχεροί! Το προϊόν είναι σε προσφορά στα " + grubbsResult + "€ !");
         }
 
         bargainLayout.addComponent(label);
-        bargainLayout.addComponent(result);
+        bargainLayout.addComponent(resultLabel);
 
         addComponent(bargainLayout);
     }
@@ -59,9 +62,9 @@ public class BargainView extends VerticalLayout implements View {
         String[] splitParameters = parameters.split("/");
         if (splitParameters.length == 1) {
             try {
-                this.sku = SkroutzRestClient.getInstance().get(Sku.class, Integer.valueOf(splitParameters[0]));
-                Page<Product> firstPage = SkroutzRestClient.getInstance().getNested(sku, Product.class);
-                this.products = SkroutzRestClient.getInstance().getAllResultsAsList(firstPage);
+                this.sku = SkroutzClient.getInstance().get(Sku.class, Integer.valueOf(splitParameters[0]));
+                Page<Product> firstPage = SkroutzClient.getInstance().getNested(sku, Product.class);
+                this.products = SkroutzClient.getInstance().getAllResultsAsList(firstPage);
             } catch (NumberFormatException e) {
                 Notifier.error("Δεν δώσατε κατάλληλο αναγνωριστικό προϊόντος.", true);
             }

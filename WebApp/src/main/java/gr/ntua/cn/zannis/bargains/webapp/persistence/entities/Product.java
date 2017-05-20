@@ -1,6 +1,7 @@
 package gr.ntua.cn.zannis.bargains.webapp.persistence.entities;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
@@ -9,6 +10,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,13 +21,14 @@ import java.util.Objects;
  * @author zannis <zannis.kal@gmail.com
  */
 @JsonRootName("product")
+@JsonIgnoreProperties({"web_uri", "expenses", "sizes", "immediate_pickup"})
 @Entity
 @Table(name = "products", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
-        @NamedQuery(name = "Product.findAll", query = "select p from Product p"),
-        @NamedQuery(name = "Product.findBySkroutzId", query = "select p from Product p where p.skroutzId = :skroutzId"),
-        @NamedQuery(name = "Product.findAllByShop", query = "select p from Product p where p.shop = :shop"),
-        @NamedQuery(name = "Product.findAllBySku", query = "select p from Product p where p.sku = :sku")
+        @NamedQuery(name = "Product.findAll", query = "select p from Product p join fetch p.prices"),
+        @NamedQuery(name = "Product.findBySkroutzId", query = "select p from Product p join fetch p.prices where p.skroutzId = :skroutzId"),
+        @NamedQuery(name = "Product.findAllByShop", query = "select p from Product p join fetch p.prices where p.shopId = :shop"),
+        @NamedQuery(name = "Product.findAllBySku", query = "select p from Product p join fetch p.prices where p.skuId = :sku")
 })
 public class Product extends SkroutzEntity {
 
@@ -42,12 +45,12 @@ public class Product extends SkroutzEntity {
     private String clickUrl;
     private String shopUid;
     private float price;
-    private String expenses;
     private boolean bargain;
     private Sku sku;
     private Shop shop;
     private Category category;
     private List<Price> prices;
+    private List<Offer> offers;
 
     @JsonCreator
     public Product(@JsonProperty("id") int skroutzId,
@@ -58,8 +61,7 @@ public class Product extends SkroutzEntity {
                    @JsonProperty("availability") String availability,
                    @JsonProperty("click_url") String clickUrl,
                    @JsonProperty("shop_uid") String shopUid,
-                   @JsonProperty("price") float price,
-                   @JsonProperty("expenses") String expenses) {
+                   @JsonProperty("price") float price) {
         super();
         this.skroutzId = skroutzId;
         this.name = StringEscapeUtils.unescapeJson(name);
@@ -70,7 +72,6 @@ public class Product extends SkroutzEntity {
         this.clickUrl = clickUrl;
         this.shopUid = shopUid;
         this.price = price;
-        this.expenses = expenses;
     }
 
     public Product() {
@@ -81,13 +82,20 @@ public class Product extends SkroutzEntity {
         this.name = ((Product) restEntity).name;
         this.availability = ((Product) restEntity).availability;
         this.clickUrl = ((Product) restEntity).clickUrl;
-        this.shopUid = ((Product) restEntity).shopUid;
+        this.shopUid = ((Product) restEntity).shopUid.length() > 64 ? ((Product) restEntity).shopUid.substring(0, 64) : ((Product) restEntity).shopUid;
         this.price = ((Product) restEntity).price;
         this.skuId = ((Product) restEntity).skuId;
         this.categoryId = ((Product) restEntity).categoryId;
         this.shopId = ((Product) restEntity).shopId;
         if (restEntity.getEtag() != null) {
             this.etag = restEntity.getEtag();
+        }
+        if (this.prices == null) {
+            this.prices = new ArrayList<>();
+        }
+        if (this.prices.stream().noneMatch(p -> p.getPrice() == this.price)) {
+            Price price = Price.fromProduct(this);
+            this.prices.add(price);
         }
     }
 
@@ -104,7 +112,7 @@ public class Product extends SkroutzEntity {
     }
 
     @NotNull
-    @Size(min = 1, max = 100)
+    @Size(min = 1, max = 300)
     @Column(name = "name")
     public String getName() {
         return name;
@@ -154,7 +162,7 @@ public class Product extends SkroutzEntity {
         this.availability = availability;
     }
 
-    @Size(max = 200)
+    @Size(max = 300)
     @Column(name = "click_url")
     public String getClickUrl() {
         return clickUrl;
@@ -164,7 +172,7 @@ public class Product extends SkroutzEntity {
         this.clickUrl = clickUrl;
     }
 
-    @Size(max = 30)
+    @Size(max = 64)
     @Column(name = "shop_uid")
     public String getShopUid() {
         return shopUid;
@@ -213,15 +221,6 @@ public class Product extends SkroutzEntity {
         this.bargain = bargain;
     }
 
-    @Transient
-    public String getExpenses() {
-        return expenses;
-    }
-
-    public void setExpenses(String expenses) {
-        this.expenses = expenses;
-    }
-
     @Override
     public String toString() {
         return "Product{" +
@@ -232,7 +231,7 @@ public class Product extends SkroutzEntity {
                 '}';
     }
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     public List<Price> getPrices() {
         return prices;
     }
@@ -242,7 +241,6 @@ public class Product extends SkroutzEntity {
     }
 
     @ManyToOne
-    @NotNull
     @JoinColumn(name = "sku_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
     public Sku getSku() {
         return sku;
@@ -253,7 +251,6 @@ public class Product extends SkroutzEntity {
     }
 
     @ManyToOne
-    @NotNull
     @JoinColumn(name = "shop_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
     public Shop getShop() {
         return shop;
@@ -264,7 +261,6 @@ public class Product extends SkroutzEntity {
     }
 
     @ManyToOne
-    @NotNull
     @JoinColumn(name = "category_id", referencedColumnName = "skroutz_id", insertable = false, updatable = false)
     public Category getCategory() {
         return category;
@@ -279,22 +275,35 @@ public class Product extends SkroutzEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Product product = (Product) o;
-        return Objects.equals(id, product.id) &&
-                Objects.equals(skuId, product.skuId) &&
+        return Objects.equals(skuId, product.skuId) &&
                 Objects.equals(shopId, product.shopId) &&
                 Objects.equals(categoryId, product.categoryId) &&
-                Objects.equals(priceChanges, product.priceChanges) &&
-                Objects.equals(averagePastPrice, product.averagePastPrice) &&
-                Objects.equals(price, product.price) &&
-                Objects.equals(bargain, product.bargain) &&
-                Objects.equals(name, product.name) &&
-                Objects.equals(availability, product.availability) &&
-                Objects.equals(clickUrl, product.clickUrl) &&
-                Objects.equals(shopUid, product.shopUid);
+                Objects.equals(name, product.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, skuId, shopId, categoryId, priceChanges, averagePastPrice, availability, clickUrl, shopUid, price, bargain);
+        return Objects.hash(name, skuId, shopId, categoryId);
+    }
+
+    public static Product getCheapest(List<Product> products) {
+        return products.stream().min((product, t1) -> {
+            if (product.getPrice() > t1.getPrice()) {
+                return 1;
+            } else if (product.getPrice() == t1.getPrice()) {
+                return 0;
+            } else {
+                return -1;
+            }
+        }).orElse(null);
+    }
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product")
+    public List<Offer> getOffers() {
+        return offers;
+    }
+
+    public void setOffers(List<Offer> offers) {
+        this.offers = offers;
     }
 }
