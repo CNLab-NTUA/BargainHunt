@@ -19,13 +19,11 @@
 * webapp: stopped implementing resteasy client cause the api lacks basic functionality - done
 * persistence: properly map entities so that they include their relation id and object - done
 
--------------we are here----------
+-- version 0.6 --
 
-todo skroutz api crawler
-
-todo offer table
-
-todo single item query logic to implement
+skroutz api crawler
+offers
+single item query logic
 
 send single item query
 2. check db for entity
@@ -39,8 +37,11 @@ send single item query
     |- persist or merge entity in database
     |- return rest entity
 
-todo first version of vaadin app
+first version of vaadin app
 
--- version 0.6 --
+-- version 0.9 --
 
-todo maven create script for crawler
+implement all 3 statistical tests
+add offers at start page
+prettify bargainview
+refactor WebApp -> webapp

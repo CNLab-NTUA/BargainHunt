@@ -7,7 +7,7 @@
     <groupId>gr.ntua.cn.zannis.bargains</groupId>
     <artifactId>bargainhunt</artifactId>
     <packaging>pom</packaging>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9.1-SNAPSHOT</version>
     <name>bargainhunt</name>
 
     <prerequisites>
@@ -68,8 +68,7 @@
 
 
     <modules>
-        <!--<module>client</module>-->
-        <module>WebApp</module>
+        <module>webapp</module>
         <module>statistics</module>
     </modules>
 
