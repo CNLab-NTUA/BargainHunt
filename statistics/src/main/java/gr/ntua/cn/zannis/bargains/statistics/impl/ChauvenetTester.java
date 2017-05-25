@@ -23,7 +23,7 @@ public class ChauvenetTester extends BaseTester {
      *
      * @param flexibility The flexibility value to use.
      */
-    ChauvenetTester(Flexibility flexibility) {
+    public ChauvenetTester(Flexibility flexibility) {
         super(flexibility);
         setSignificanceValue(flexibility);
         log.info("Created new ChauvenetTester with " + flexibility.name() + " flexibility.");

@@ -9,19 +9,19 @@ import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
  */
 public abstract class EntityTile<T extends SkroutzEntity> extends Panel {
 
-    protected static final String DEFAULT_NAME = "Χωρίς όνομα";
-    protected static final String DEFAULT_IMAGE_URL = "img/default-image.jpg";
+    static final String DEFAULT_NAME = "Χωρίς όνομα";
+    static final String DEFAULT_IMAGE_URL = "img/default-image.jpg";
 
     protected final T entity;
-    protected Embedded image;
-    protected Label caption;
+    Embedded image;
+    Label caption;
     
-    public EntityTile(T entity) {
+    EntityTile(T entity) {
         this.entity = entity;
         buildUI();
     }
 
-    public EntityTile(T entity, MouseEvents.ClickListener listener) {
+    EntityTile(T entity, MouseEvents.ClickListener listener) {
         this.entity = entity;
         addClickListener(listener);
     }

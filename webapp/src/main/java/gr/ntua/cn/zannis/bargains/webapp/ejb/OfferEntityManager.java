@@ -2,6 +2,7 @@ package gr.ntua.cn.zannis.bargains.webapp.ejb;
 
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Offer;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +29,18 @@ public class OfferEntityManager {
     @PersistenceContext
     private EntityManager em;
 
-    public List<Offer> getTopActive(int offersToReturn) {
+    public List<Offer> getTopActive(int offersToReturn, Integer categorySkroutzId) {
         List<Offer> results;
 
-        TypedQuery<Offer> q = em.createNamedQuery(Offer.class.getSimpleName() + ".findActive", Offer.class);
-        q.setMaxResults(offersToReturn);
+        TypedQuery<Offer> q;
+        if (categorySkroutzId != null) {
+            q = em.createNamedQuery(Offer.class.getSimpleName() + ".findActiveByCategory", Offer.class);
+            q.setParameter("categ_id", categorySkroutzId);
+        } else {
+            q = em.createNamedQuery(Offer.class.getSimpleName() + ".findActive", Offer.class);
+        }
         q.setParameter("someDate", Date.from(Instant.now().minus(60, ChronoUnit.DAYS)), TemporalType.DATE);
+        q.setMaxResults(offersToReturn);
         try {
             results = q.getResultList();
         } catch (NoResultException e) {
@@ -44,24 +51,47 @@ public class OfferEntityManager {
             Notifier.error("Υπήρξε κάποιο πρόβλημα", e);
         }
 
-        for (Offer o : results) {
-
-        }
         return results;
     }
 
     public Offer persist(Offer offer) {
-        em.persist(offer);
+        try {
+            em.persist(offer);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            offer = em.merge(offer);
+        }
         return offer;
     }
 
     public Offer findByProduct(Product product) {
         TypedQuery<Offer> q = em.createNamedQuery("Offer.findByProduct", Offer.class);
-        q.setParameter("product", product.getId());
+        q.setParameter("product_id", product.getId());
         q.setMaxResults(1);
         if (q.getResultList().isEmpty()) {
             return null;
         }
         return q.getResultList().get(0);
+    }
+
+    public Offer findBySku(Sku sku) {
+        TypedQuery<Offer> q = em.createNamedQuery("Offer.findBySku", Offer.class);
+        q.setParameter("sku_id", sku.getSkroutzId());
+        q.setMaxResults(1);
+        if (q.getResultList().isEmpty()) {
+            return null;
+        }
+        return q.getResultList().get(0);
+    }
+
+
+    public Offer persistOrMerge(Offer offer) {
+        Offer dbOffer = findByProduct(offer.getProduct());
+        if (dbOffer != null) {
+            dbOffer.setFinishedAt(Date.from(Instant.now()));
+        }
+        em.persist(offer);
+        return offer;
     }
 }

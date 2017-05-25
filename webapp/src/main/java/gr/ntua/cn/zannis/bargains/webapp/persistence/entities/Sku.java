@@ -25,7 +25,7 @@ import java.util.List;
 @NamedQueries({
         @NamedQuery(name = "Sku.findBySkroutzId", query = "select s from Sku s where s.skroutzId = :skroutzId"),
         @NamedQuery(name = "Sku.findAll", query = "select s from Sku s"),
-        @NamedQuery(name = "Sku.findAllCheckedBy", query = "select s from Sku s where s.checkedAt >= :date"),
+        @NamedQuery(name = "Sku.findAllCheckedAt", query = "select s from Sku s where s.checkedAt >= :date"),
         @NamedQuery(name = "Sku.findAllByCategory", query = "select s from Sku s where s.categoryId = :categ_id"),
         @NamedQuery(name = "Sku.findCrawled", query = "select s from Sku s where s.categoryId = :categ_id and size(s.products) > 2")
 })
@@ -327,4 +327,6 @@ public class Sku extends SkroutzEntity {
             this.alternatives = alternatives;
         }
     }
+
+
 }

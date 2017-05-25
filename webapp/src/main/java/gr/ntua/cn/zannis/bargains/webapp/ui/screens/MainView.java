@@ -11,6 +11,7 @@ import gr.ntua.cn.zannis.bargains.webapp.ui.BargainHuntUI;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.SearchField;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.tiles.OfferTile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,9 +42,13 @@ public class MainView extends VerticalLayout implements View {
         offerLogo.setStyleName(ValoTheme.LABEL_LARGE);
         HorizontalLayout offerBar = new HorizontalLayout();
 
-        int numberOfOffers = 5;
-        List<Offer> offers = ((BargainHuntUI) UI.getCurrent()).getOfferEm().getTopActive(numberOfOffers);
-        for (int i = 0; i < numberOfOffers; i++) {
+        // hardcoded categories because why not
+        // getting cellphones, tablets, tvs -> 40, 1105, 12
+        ArrayList<Offer> offers = new ArrayList<>();
+        offers.addAll(((BargainHuntUI) UI.getCurrent()).getOfferEm().getTopActive(2, 40));
+        offers.addAll(((BargainHuntUI) UI.getCurrent()).getOfferEm().getTopActive(2, 1105));
+        offers.addAll(((BargainHuntUI) UI.getCurrent()).getOfferEm().getTopActive(1, 12));
+        for (int i = 0; i < offers.size(); i++) {
             OfferTile offerTile;
             if (offers.size() > i) {
                 offerTile = new OfferTile(offers.get(i));

@@ -305,10 +305,10 @@ public class Utils {
                 .path(PATH_MAP.get(parent.getClass()))
                 .path(ID)
                 .path(PATH_MAP.get(childClass));
-        if (childClass == Sku.class) {
-            builder.queryParam("order_by", "popularity")
-                    .queryParam("order_dir", "desc");
-        }
+//        if (childClass == Sku.class) {
+//            builder.queryParam("order_by", "popularity")
+//                    .queryParam("order_dir", "desc");
+//        }
         return builder.build(parent.getSkroutzId());
     }
 

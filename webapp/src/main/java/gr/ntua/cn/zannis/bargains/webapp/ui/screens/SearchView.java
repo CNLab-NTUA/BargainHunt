@@ -61,10 +61,10 @@ public class SearchView extends VerticalLayout implements View, MouseEvents.Clic
                 if (searchResults != null) {
                     if (searchResults.hasStrongMatches()) {
                         renderStrongMatches(searchResults.getStrongMatches());
-                        ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMergeStrongMatches(searchResults.getStrongMatches());
+//                        ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMergeStrongMatches(searchResults.getStrongMatches());
                     }
                     renderCategoryLayout(searchResults.getCategories()); // currently fetches only the first page of results
-                    ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(Category.class, searchResults.getCategories());
+//                    ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(Category.class, searchResults.getCategories());
 
                 }
             } catch (UnsupportedEncodingException e) {

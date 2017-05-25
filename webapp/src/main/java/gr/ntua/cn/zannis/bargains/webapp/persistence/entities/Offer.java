@@ -17,12 +17,21 @@ import java.util.Date;
 @Table(name = "offers", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
         @NamedQuery(name = "Offer.findAll", query = "select o from Offer o join fetch o.product join fetch o.price"),
-        @NamedQuery(name = "Offer.findActive", query = "select o from Offer o join fetch o.product join fetch o.price where " +
+        @NamedQuery(name = "Offer.findActive", query = "select o from Offer o join fetch o.product join fetch o.product.sku join fetch o.price where " +
                 "o.insertedAt > :someDate and " +
                 "o.finishedAt is null " +
                 "order by o.checkedAt desc"),
+        @NamedQuery(name = "Offer.findActiveByCategory", query = "select o from Offer o join fetch o.product join fetch o.product.sku join fetch o.price where " +
+                "o.insertedAt > :someDate and " +
+                "o.finishedAt is null and " +
+                "o.product.categoryId = :categ_id " +
+                "order by o.checkedAt desc"),
         @NamedQuery(name = "Offer.findByProduct", query = "select o from Offer o join fetch o.product join fetch o.price where " +
-                "o.productId = :product and " +
+                "o.productId = :product_id and " +
+                "o.finishedAt is null " +
+                "order by o.checkedAt desc"),
+        @NamedQuery(name = "Offer.findBySku", query = "select o from Offer o join fetch o.product as prod join fetch prod.sku join fetch o.price where " +
+                "prod.skuId = :sku_id and " +
                 "o.finishedAt is null " +
                 "order by o.checkedAt desc")
 })
@@ -214,7 +223,7 @@ public class Offer implements Serializable {
                 .toHashCode();
     }
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn(name = "price_id", referencedColumnName = "id")
     public Price getPrice() {
         return price;
@@ -282,5 +291,33 @@ public class Offer implements Serializable {
 
     public void setQuartileFlexibility(Flexibility quartileFlexibility) {
         this.quartileFlexibility = quartileFlexibility;
+    }
+
+    public static String acceptedByHumanReadable(int acceptedBy) {
+        String result = "";
+        switch (acceptedBy) {
+            case 1:
+                result += "Grubbs";
+                break;
+            case 2:
+                result += "Chauvenet";
+                break;
+            case 3:
+                result += "Τεταρτημορία";
+                break;
+            case 4:
+                result += "Grubbs, Chauvenet";
+                break;
+            case 5:
+                result += "Grubbs, Τεταρτημόρια";
+                break;
+            case 6:
+                result += "Chauvenet, Τεταρτημόρια";
+                break;
+            case 7:
+                result += "Grubbs, Chauvenet, Τεταρτημόρια";
+                break;
+        }
+        return result;
     }
 }

@@ -26,8 +26,6 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.HttpHeaders;
@@ -61,12 +59,9 @@ public class SkroutzClient implements RestClient {
     protected static final Logger log = LoggerFactory.getLogger(SkroutzClient.class);
     private String target;
     private String token;
-    final ClientConfig config = new ClientConfig();
+    private final ClientConfig config = new ClientConfig();
 
-    int remainingRequests;
-
-    @PersistenceContext
-    private EntityManager em;
+    private int remainingRequests;
 
     private SkroutzClient(String token) {
         this.target = API_HOST;
@@ -114,14 +109,13 @@ public class SkroutzClient implements RestClient {
         return instance;
     }
 
-    @Override
-    public <T extends SkroutzEntity> T get(Class<T> tClass, Integer skroutzId) {
+    public <T extends SkroutzEntity> T get(Class<T> tClass, Integer skroutzId, T instance) {
         T restEntity = null;
         URI uri = Utils.getMatchingUri(tClass, skroutzId);
         Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(tClass);
         try {
-            UriResponse response = sendGetRequest(uri);
-            if (response.getResponse().getStatus() == Response.Status.OK.getStatusCode()) {
+            UriResponse response = sendGetRequest(uri, instance);
+            if (response.getResponse() != null && response.getResponse().getStatus() == Response.Status.OK.getStatusCode()) {
                 String etag = response.getResponse().getEntityTag().getValue();
                 if (response.getResponse().hasEntity()) {
                     restEntity = response.getResponse().readEntity(responseClass).getItem();
@@ -129,6 +123,8 @@ public class SkroutzClient implements RestClient {
                 } else {
                     Notifier.warn("No entity in the response.");
                 }
+            } else if (response.getResponse() != null && response.getResponse().getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
+                return instance;
             } else {
                 Notifier.error("Request " + uri + " failed with status " + response.getResponse().getStatus(), true);
             }
@@ -136,6 +132,11 @@ public class SkroutzClient implements RestClient {
             e.printStackTrace();
         }
         return restEntity;
+    }
+
+    @Override
+    public <T extends SkroutzEntity> T get(Class<T> tClass, Integer skroutzId) {
+        return get(tClass, skroutzId, null);
     }
 
     @Override
@@ -187,6 +188,9 @@ public class SkroutzClient implements RestClient {
                     Class<? extends RestResponse<T>> responseClass = Utils.getMatchingResponse(page.getEntityType());
                     UriResponse response = sendGetRequest(nextUri);
                     result = extractPage(response, responseClass);
+                    if (result != null && result.getItems() != null && result.getItems().size() > 0) {
+                        result.setItems(((BargainHuntUI) UI.getCurrent()).getSkroutzEm().persistOrMerge(page.getEntityType(), result.getItems()));
+                    }
                 }
             }
         } catch (ProcessingException e) {
@@ -309,6 +313,13 @@ public class SkroutzClient implements RestClient {
             // parse useful headers
             Map<String, URI> links = Utils.getLinks(response);
             remainingRequests = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            if (remainingRequests <= 10) {
+                try {
+                    Thread.sleep(10 * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             // parse entity
             if (response.hasEntity()) {
                 RestResponse<T> parsedResponse = response.readEntity(responseClass);
@@ -363,15 +374,13 @@ public class SkroutzClient implements RestClient {
      * @param <T>        The {@link SkroutzEntity} type.
      * @return A list containing all the results that the web service returned or an empty list.
      */
-    public <T extends SkroutzEntity> List<T> getAllResultsAsList(Page<T> resultPage) {
+    private <T extends SkroutzEntity> List<T> getAllResultsAsList(Page<T> resultPage) {
         if (!resultPage.getItems().isEmpty()) {
             List<T> results = new LinkedList<>(resultPage.getItems());
-            if (resultPage.hasNext()) {
-                do {
-                    Page<T> nextPage = getNextPage(resultPage);
-                    results.addAll(nextPage.getItems());
-                    resultPage = nextPage;
-                } while (resultPage.hasNext());
+            while (resultPage.hasNext()) {
+                Page<T> nextPage = getNextPage(resultPage);
+                results.addAll(nextPage.getItems());
+                resultPage = nextPage;
             }
             return results;
         } else {
@@ -389,23 +398,7 @@ public class SkroutzClient implements RestClient {
      * @return A {@link Response} containing one or more entities or null.
      */
     private UriResponse sendGetRequest(URI requestUri) throws ProcessingException {
-        UriResponse response = new UriResponse();
-        try {
-            response.setResponse(ClientBuilder.newClient(config).target(requestUri)
-                    .property(ClientProperties.FOLLOW_REDIRECTS, true)
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                    .accept("application/vnd.skroutz+json; version=3")
-                    .get());
-            response.setUri(requestUri);
-            // persist/merge request
-            ((BargainHuntUI) UI.getCurrent()).getRequests().saveOrUpdate(new Request(Utils.getFullPathFromUri(requestUri), response.getResponse().getEntityTag() != null ? response.getResponse().getEntityTag().getValue() : null));
-            remainingRequests = Integer.parseInt(response.getResponse().getHeaderString("X-RateLimit-Remaining"));
-        } catch (ProcessingException e) {
-            log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + requestUri, e);
-            throw e;
-        }
-        return response;
+        return sendGetRequest(requestUri, null);
     }
 
     /**
@@ -418,19 +411,29 @@ public class SkroutzClient implements RestClient {
      * @param requestUri The target URI.
      * @return A {@link Response} containing one or more entities.
      */
-    private UriResponse sendGetRequest(URI requestUri, String eTag) throws ProcessingException {
+    private <T extends SkroutzEntity> UriResponse sendGetRequest(URI requestUri, T object) throws ProcessingException {
         UriResponse response = new UriResponse();
+        response.setUri(requestUri);
         try {
-            response.setResponse(ClientBuilder.newClient(config).target(requestUri)
-                    .property(ClientProperties.FOLLOW_REDIRECTS, true)
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                    .header(HttpHeaders.IF_NONE_MATCH, "\"" + eTag + "\"")
-                    .accept("application/vnd.skroutz+json; version=3")
-                    .get());
+            if (object != null) {
+                response.setResponse(ClientBuilder.newClient(config).target(requestUri)
+                        .property(ClientProperties.FOLLOW_REDIRECTS, true)
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .header(HttpHeaders.IF_NONE_MATCH, "\"" + object.getEtag() + "\"")
+                        .accept("application/vnd.skroutz+json; version=3")
+                        .get());
+            } else {
+                response.setResponse(ClientBuilder.newClient(config).target(requestUri)
+                        .property(ClientProperties.FOLLOW_REDIRECTS, true)
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .accept("application/vnd.skroutz+json; version=3")
+                        .get());
+            }
             response.setUri(requestUri);
             //persist/merge request
-//            ((BargainHuntUI) UI.getCurrent()).getRequests().saveOrUpdate(new Request(Utils.getFullPathFromUri(requestUri), response.getResponse().getEntityTag() != null ? response.getResponse().getEntityTag().getValue() : null));
+            ((BargainHuntUI) UI.getCurrent()).getRequests().saveOrUpdate(new Request(Utils.getFullPathFromUri(requestUri), response.getResponse().getEntityTag() != null ? response.getResponse().getEntityTag().getValue() : null));
             remainingRequests = Integer.parseInt(response.getResponse().getHeaderString("X-RateLimit-Remaining"));
         } catch (ProcessingException e) {
             log.error("Υπήρξε πρόβλημα κατά την εκτέλεση του GET request : " + requestUri, e);

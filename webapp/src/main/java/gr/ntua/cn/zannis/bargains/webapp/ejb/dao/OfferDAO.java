@@ -8,5 +8,5 @@ import java.util.List;
  * @author zannis <zannis.kal@gmail.com
  */
 public interface OfferDAO {
-    List<Offer> findTopActive(int offersToReturn);
+    List<Offer> findTopActive(int offersToReturn, int categoryId);
 }
