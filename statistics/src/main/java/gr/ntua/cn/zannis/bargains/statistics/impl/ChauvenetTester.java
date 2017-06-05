@@ -110,22 +110,6 @@ public class ChauvenetTester extends BaseTester {
         return TestType.CHAUVENET;
     }
 
-    private double selectChauvenetValue(int length) {
-        if (length <= 3) {
-            return Double.NaN;
-        } else if (length <= 40) {
-            return this.criticalValues[length - 4];
-        } else if (length <= 60) {
-            return this.criticalValues[38];
-        } else if (length <= 120) {
-            return this.criticalValues[39];
-        } else if (length <= 550) {
-            return this.criticalValues[40];
-        } else {
-            return this.criticalValues[41];
-        }
-    }
-
     @Override
     public void setValues(List<Float> values) {
         super.setValues(values);

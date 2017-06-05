@@ -87,9 +87,5 @@ public class BargainHuntUI extends UI {
     public RequestDAO getRequests() {
         return requests;
     }
-//
-//    @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
-//    @VaadinServletConfiguration(ui = BargainHuntUI.class, productionMode = false)
-//    public static class MyUIServlet extends VaadinServlet {
-//    }
+
 }

@@ -10,6 +10,9 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -328,5 +331,56 @@ public class Sku extends SkroutzEntity {
         }
     }
 
+    public static class PricePoint implements Serializable {
+        private final Date date;
+        private final Float price;
+        private final String shop;
 
+
+        public PricePoint(@JsonProperty("date") String date,
+                          @JsonProperty("price") Float price,
+                          @JsonProperty("shop_name") String shop_name) {
+            Date date1;
+            try {
+                date1 = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+            } catch (ParseException e) {
+                date1 = null;
+            }
+            this.date = date1;
+            this.price = price;
+            this.shop = shop_name;
+        }
+
+        public Float getPrice() {
+            return price;
+        }
+
+        public Date getDate() {
+            return date;
+        }
+
+        public String getShop() {
+            return shop;
+        }
+    }
+
+    @JsonRootName("history")
+    public static class PriceHistory implements Serializable {
+        private final PricePoint[] average;
+        private final PricePoint[] lowest;
+
+        public PriceHistory(@JsonProperty("average") PricePoint[] average,
+                            @JsonProperty("lowest") PricePoint[] lowest) {
+            this.average = average;
+            this.lowest = lowest;
+        }
+
+        public PricePoint[] getAverage() {
+            return average;
+        }
+
+        public PricePoint[] getLowest() {
+            return lowest;
+        }
+    }
 }

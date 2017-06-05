@@ -5,11 +5,11 @@
     <parent>
         <artifactId>bargainhunt</artifactId>
         <groupId>gr.ntua.cn.zannis.bargains</groupId>
-        <version>0.9-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <version>0.9-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <artifactId>statistics</artifactId>

@@ -1,6 +1,7 @@
 package gr.ntua.cn.zannis.bargains.webapp.persistence.entities;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
@@ -19,6 +20,7 @@ import java.util.List;
  */
 @Entity
 @JsonRootName("category")
+@JsonIgnoreProperties({"adult"})
 @Table(name = "categories", schema = "public", catalog = "bargainhunt")
 @NamedQueries({
         @NamedQuery(name = "Category.findAll", query = "select c from Category c"),

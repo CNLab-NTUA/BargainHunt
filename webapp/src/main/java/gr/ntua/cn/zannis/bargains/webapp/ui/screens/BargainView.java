@@ -1,10 +1,13 @@
 package gr.ntua.cn.zannis.bargains.webapp.ui.screens;
 
+import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.model.*;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
 import gr.ntua.cn.zannis.bargains.statistics.Flexibility;
 import gr.ntua.cn.zannis.bargains.statistics.impl.ChauvenetTester;
@@ -21,7 +24,10 @@ import gr.ntua.cn.zannis.bargains.webapp.ui.components.tiles.OfferTile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -124,6 +130,56 @@ public class BargainView extends VerticalLayout implements View {
             bargainLayout.setComponentAlignment(noOfferLabel, Alignment.MIDDLE_CENTER);
             bargainLayout.setComponentAlignment(offerBar, Alignment.MIDDLE_CENTER);
         }
+
+        // add line charts with vaadin charts
+
+        Sku.PriceHistory history = SkroutzClient.getInstance().getPriceHistory(sku.getSkroutzId());
+
+        Chart chart = new Chart();
+        chart.setHeight("450px");
+        chart.setWidth("100%");
+
+        Configuration configuration = chart.getConfiguration();
+        configuration.getChart().setType(ChartType.LINE);
+
+        configuration.getTitle().setText("Ιστορικό Τιμών");
+
+        List<String> dates = new ArrayList<>();
+
+        for (Sku.PricePoint p : history.getLowest()) {
+            dates.add(new SimpleDateFormat("dd/MM/yy").format(p.getDate()));
+        }
+
+        configuration.getxAxis().setCategories(dates.toArray(new String[0]));
+
+        YAxis yAxis = configuration.getyAxis();
+        yAxis.setTitle(new AxisTitle("Τιμή (Ευρώ)"));
+
+        configuration
+                .getTooltip()
+                .setFormatter(
+                        "'<b>'+ this.series.name +'</b><br/>'+this.x +': '+ this.y +' €'");
+
+        PlotOptionsLine plotOptions = new PlotOptionsLine();
+        plotOptions.setDataLabels(new DataLabels(true));
+        plotOptions.setEnableMouseTracking(false);
+        configuration.setPlotOptions(plotOptions);
+
+        ListSeries ls = new ListSeries();
+        ls.setName("Μέσος όρος");
+        List<Number> averagePrices = Arrays.stream(history.getAverage()).filter(pricePoint -> dates.contains(new SimpleDateFormat("dd/MM/yy").format(pricePoint.getDate()))).map(Sku.PricePoint::getPrice).collect(Collectors.toList());
+        ls.setData(averagePrices);
+        configuration.addSeries(ls);
+
+        ls = new ListSeries();
+        ls.setName("Χαμηλότερη τιμή");
+        List<Number> lowestPrices = Arrays.stream(history.getLowest()).map(Sku.PricePoint::getPrice).collect(Collectors.toList());
+        ls.setData(lowestPrices);
+        configuration.addSeries(ls);
+
+        chart.drawChart(configuration);
+
+        bargainLayout.addComponent(chart);
 
         addComponent(bargainLayout);
         setComponentAlignment(bargainLayout, Alignment.MIDDLE_CENTER);

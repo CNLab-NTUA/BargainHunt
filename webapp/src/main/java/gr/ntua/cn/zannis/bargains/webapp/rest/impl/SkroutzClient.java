@@ -5,13 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.vaadin.ui.UI;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.SkroutzEntity;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Category;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Request;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
 import gr.ntua.cn.zannis.bargains.webapp.rest.RestClient;
+import gr.ntua.cn.zannis.bargains.webapp.rest.misc.Const;
 import gr.ntua.cn.zannis.bargains.webapp.rest.misc.Utils;
 import gr.ntua.cn.zannis.bargains.webapp.rest.requests.filters.Filter;
 import gr.ntua.cn.zannis.bargains.webapp.rest.responses.RestResponse;
+import gr.ntua.cn.zannis.bargains.webapp.rest.responses.impl.PriceHistoryResponse;
 import gr.ntua.cn.zannis.bargains.webapp.rest.responses.impl.SearchResults;
 import gr.ntua.cn.zannis.bargains.webapp.rest.responses.impl.UriResponse;
 import gr.ntua.cn.zannis.bargains.webapp.rest.responses.meta.Page;
@@ -46,7 +49,6 @@ import static gr.ntua.cn.zannis.bargains.webapp.rest.misc.Const.SEARCH;
 import static javax.ws.rs.core.Response.Status.*;
 
 /**
- *
  * The Skroutz REST API Client, implemented as a singleton.
  *
  * @author zannis <zannis.kal@gmail.com>
@@ -93,17 +95,19 @@ public class SkroutzClient implements RestClient {
     public static synchronized SkroutzClient getInstance() {
         if (instance == null) {
             String token = Utils.getLocalAccessToken();
-            if (token == null) {
-                try {
+            try {
+                if (token == null) {
                     Utils.initClientPropertyFiles();
                     token = Utils.updateAccessToken();
                     instance = new SkroutzClient(token);
-                } catch (IOException e) {
-                    log.error("Authentication error", e);
+                } else {
+                    instance = new SkroutzClient(token);
+                    if (instance.get(Category.class, 40, ((BargainHuntUI) UI.getCurrent()).getSkroutzEm().find(Category.class, 40)) == null) {
+                        instance.token = Utils.updateAccessToken();
+                    }
                 }
-            } else {
-
-                instance = new SkroutzClient(token);
+            } catch (IOException e) {
+                log.error("Authentication error", e);
             }
         }
         return instance;
@@ -386,6 +390,20 @@ public class SkroutzClient implements RestClient {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    public Sku.PriceHistory getPriceHistory(int skuId) {
+        UriResponse response = sendGetRequest(URI.create(Const.API_HOST + Const.SKUS + "/" + skuId + "/price_history"));
+        if (response.getResponse() != null && response.getResponse().getStatus() == Response.Status.OK.getStatusCode()) {
+            if (response.getResponse().hasEntity()) {
+                PriceHistoryResponse resp = response.getResponse().readEntity(PriceHistoryResponse.class);
+                if (resp != null && resp.getHistory() != null) {
+                    return resp.getHistory();
+                }
+            }
+        }
+        Notifier.error("Request " + response.getUri() + " failed with status " + response.getResponse().getStatus(), true);
+        return null;
     }
 
     /**

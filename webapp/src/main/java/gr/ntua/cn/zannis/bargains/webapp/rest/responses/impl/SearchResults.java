@@ -26,7 +26,11 @@ public class SearchResults extends CategoryResponse {
     }
 
     public Meta.StrongMatches getStrongMatches() {
-        return meta.getStrongMatches();
+        if (meta != null) {
+            return meta.getStrongMatches();
+        } else {
+            return null;
+        }
     }
 
     public List<Meta.Alternative> getAlternatives() {
