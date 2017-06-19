@@ -96,7 +96,6 @@ public class BargainView extends VerticalLayout implements View {
                 Product product = Product.getCheapest(products);
                 Float lowestPrice = product.getPrice();
                 Price price = Price.fromProduct(product);
-//                ((BargainHuntUI) UI.getCurrent()).get
                 Offer offer = new Offer(product, price, acceptedBy,
                         grubbsTester.getFlexibility(), chauvenetTester.getFlexibility(), quartileTester.getFlexibility());
                 Offer dbOffer = ((BargainHuntUI) UI.getCurrent()).getOfferEm().findByProduct(product);
@@ -104,7 +103,7 @@ public class BargainView extends VerticalLayout implements View {
                     dbOffer.setFinishedAt(Date.from(Instant.now()));
                 }
                 tile = new OfferTile(offer);
-//                ((BargainHuntUI) UI.getCurrent()).getOfferEm().persistOrMerge(offer);
+//                ((BargainHuntUI) UI.getCurrent()).getOfferEm().persist(offer);
                 log.info("Το προϊόν " + sku.getName() + " βρίσκεται σε προσφορά στα " + lowestPrice + " ευρώ.");
 
             }
@@ -132,7 +131,6 @@ public class BargainView extends VerticalLayout implements View {
         }
 
         // add line charts with vaadin charts
-
         Sku.PriceHistory history = SkroutzClient.getInstance().getPriceHistory(sku.getSkroutzId());
 
         Chart chart = new Chart();

@@ -1,6 +1,7 @@
 package gr.ntua.cn.zannis.bargains.webapp.ejb;
 
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Offer;
+import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Price;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Product;
 import gr.ntua.cn.zannis.bargains.webapp.persistence.entities.Sku;
 import gr.ntua.cn.zannis.bargains.webapp.ui.components.Notifier;
@@ -56,11 +57,14 @@ public class OfferEntityManager {
 
     public Offer persist(Offer offer) {
         try {
-            em.persist(offer);
+            if (em.find(Price.class, offer.getPriceId()) == null) {
+                em.persist(offer);
+            } else {
+                offer = em.merge(offer);
+            }
         } catch (Exception e) {
             log.error(e.getMessage());
             e.printStackTrace();
-            offer = em.merge(offer);
         }
         return offer;
     }

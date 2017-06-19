@@ -45,9 +45,9 @@ public class MainView extends VerticalLayout implements View {
         // hardcoded categories because why not
         // getting cellphones, tablets, tvs -> 40, 1105, 12
         ArrayList<Offer> offers = new ArrayList<>();
-        offers.addAll(((BargainHuntUI) UI.getCurrent()).getOfferEm().getTopActive(2, 40));
+        offers.addAll(((BargainHuntUI) UI.getCurrent()).getOfferEm().getTopActive(1, 1705));
         offers.addAll(((BargainHuntUI) UI.getCurrent()).getOfferEm().getTopActive(2, 1105));
-        offers.addAll(((BargainHuntUI) UI.getCurrent()).getOfferEm().getTopActive(1, 12));
+        offers.addAll(((BargainHuntUI) UI.getCurrent()).getOfferEm().getTopActive(2, 12));
         for (int i = 0; i < offers.size(); i++) {
             OfferTile offerTile;
             if (offers.size() > i) {

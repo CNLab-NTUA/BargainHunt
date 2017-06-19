@@ -103,7 +103,7 @@ public class QuartileTester extends BaseTester {
                 this.kappa = 1.5f;
                 break;
             case RELAXED:
-                this.kappa = 1.2f;
+                this.kappa = 1.4f;
                 break;
             case STRONG:
                 this.kappa = 1.8f;
